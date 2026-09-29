@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_VERSION', '1.1.0' );
+define( 'ONEAM_VERSION', '1.2.0' );
 
 function oneam_asset( $path ) {
 	return get_template_directory_uri() . '/assets/' . ltrim( $path, '/' );
@@ -26,9 +26,9 @@ add_action(
 		add_theme_support( 'html5', array( 'search-form', 'gallery', 'caption', 'style', 'script' ) );
 		register_nav_menus(
 			array(
-				'primary' => '메인 메뉴 (전체화면 메뉴)',
-				'footer'  => '푸터 메뉴',
-				'legal'   => '푸터 정책 메뉴 (약관 · 개인정보 · 배송/반품)',
+				'primary' => 'Header menu',
+				'footer'  => 'Footer menu',
+				'legal'   => 'Footer policies menu',
 			)
 		);
 	}
@@ -88,28 +88,18 @@ function oneam_logo( $variant = 'black', $class = '' ) {
 
 /**
  * 기본 메뉴 구조 (견적서 기준). 외모 > 메뉴에서 만들면 그 메뉴가 우선합니다.
- * Home / Products(1·2·3) / About Us / How to Order / FAQ / Wholesale
+ * Products(1·2·3) / About / How to Order / FAQ  (+ Log in / Apply buttons)
  */
 function oneam_menu_items() {
 	$products = array();
 	foreach ( oneam_get_products() as $p ) {
-		$products[] = array( $p['name'] . ( 'soon' === $p['status'] ? ' · Soon' : '' ), $p['url'] );
+		$products[] = array( $p['name'] . ( 'soon' === $p['status'] ? ' (coming soon)' : '' ), $p['url'] );
 	}
 	return array(
-		array( 'Home', home_url( '/' ) ),
 		array( 'Products', home_url( '/#products' ), $products ),
-		array( 'About Us', oneam_opt( 'oneam_about_url' ) ),
+		array( 'About', oneam_opt( 'oneam_about_url' ) ),
 		array( 'How to Order', oneam_opt( 'oneam_order_url' ) ),
 		array( 'FAQ', oneam_opt( 'oneam_faq_url' ) ),
-		array(
-			'Wholesale',
-			oneam_signup_url(),
-			array(
-				array( 'Apply', oneam_signup_url() ),
-				array( 'Log in', oneam_login_url() ),
-				array( 'Shop', oneam_shop_url() ),
-			),
-		),
 	);
 }
 
@@ -135,9 +125,7 @@ function oneam_fallback_menu() {
 function oneam_fallback_footer_menu() {
 	$flat = array();
 	foreach ( oneam_menu_items() as $it ) {
-		if ( 'Home' !== $it[0] && 'Wholesale' !== $it[0] ) {
-			$flat[] = array( $it[0], $it[1] );
-		}
+		$flat[] = array( $it[0], $it[1] );
 	}
 	oneam_render_menu( $flat );
 }

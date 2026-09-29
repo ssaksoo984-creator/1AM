@@ -24,7 +24,7 @@ function oneam_default_products() {
 			'c1'      => '#8A3FFC',
 			'c2'      => '#16C75A',
 			'img'     => oneam_asset( 'img/flavors/grape-ice.webp' ),
-			'desc'    => '크리스탈 바디의 슬림 디스포저블. 15가지 맛으로 바로 입고 가능합니다.',
+			'desc'    => 'A slim disposable with a crystal-clear body. 15 flavours, ready to stock.',
 			'specs'   => array( 'E-liquid' => '2ml', 'Flavours' => '15', 'Type' => 'Disposable' ),
 		),
 		array(
@@ -35,7 +35,7 @@ function oneam_default_products() {
 			'c1'      => '#FF2E4D',
 			'c2'      => '#FFB321',
 			'img'     => '',
-			'desc'    => '더 큰 용량의 대용량 라인. 출시 준비 중입니다.',
+			'desc'    => 'A larger-capacity line. In development.',
 			'specs'   => array( 'E-liquid' => 'TBA', 'Flavours' => 'TBA', 'Type' => 'Disposable' ),
 		),
 		array(
@@ -46,7 +46,7 @@ function oneam_default_products() {
 			'c1'      => '#1E5BFF',
 			'c2'      => '#00C2A8',
 			'img'     => '',
-			'desc'    => '팟 교체형 리필 라인. 출시 준비 중입니다.',
+			'desc'    => 'A refillable pod line. In development.',
 			'specs'   => array( 'E-liquid' => 'TBA', 'Flavours' => 'TBA', 'Type' => 'Refill pod' ),
 		),
 	);
@@ -94,7 +94,7 @@ function oneam_get_products() {
 			$out[]    = $d;
 		}
 	}
-	$cache = $out;
+	$cache = apply_filters( 'oneam_products', $out );
 	return $cache;
 }
 
@@ -125,8 +125,8 @@ add_action(
 				'labels'       => array(
 					'name'          => 'Products',
 					'singular_name' => 'Product',
-					'add_new_item'  => '새 상품 라인 추가',
-					'edit_item'     => '상품 라인 편집',
+					'add_new_item'  => 'Add product line',
+					'edit_item'     => 'Edit product line',
 				),
 				'public'       => true,
 				'has_archive'  => false,
@@ -142,7 +142,7 @@ add_action(
 add_action(
 	'add_meta_boxes',
 	function () {
-		add_meta_box( 'oneam_line_meta', '상품 정보', 'oneam_line_meta_box', 'oneam_line', 'side' );
+		add_meta_box( 'oneam_line_meta', 'Product details', 'oneam_line_meta_box', 'oneam_line', 'side' );
 	}
 );
 
@@ -152,16 +152,16 @@ function oneam_line_meta_box( $post ) {
 		return get_post_meta( $post->ID, '_oneam_' . $k, true ) ?: $d;
 	};
 	?>
-	<p><label>짧은 라벨 (예: 2ml Disposable)<br><input type="text" class="widefat" name="oneam_tag" value="<?php echo esc_attr( $v( 'tag' ) ); ?>"></label></p>
-	<p><label>상태<br>
+	<p><label>Short label (e.g. 2ml Disposable)<br><input type="text" class="widefat" name="oneam_tag" value="<?php echo esc_attr( $v( 'tag' ) ); ?>"></label></p>
+	<p><label>Status<br>
 		<select name="oneam_status">
-			<option value="available" <?php selected( $v( 'status', 'available' ), 'available' ); ?>>판매 중</option>
-			<option value="soon" <?php selected( $v( 'status' ), 'soon' ); ?>>출시 예정</option>
+			<option value="available" <?php selected( $v( 'status', 'available' ), 'available' ); ?>>Available</option>
+			<option value="soon" <?php selected( $v( 'status' ), 'soon' ); ?>>Coming soon</option>
 		</select></label></p>
-	<p><label>메인 컬러<br><input type="color" name="oneam_c1" value="<?php echo esc_attr( $v( 'c1', '#8A3FFC' ) ); ?>"></label></p>
-	<p><label>서브 컬러<br><input type="color" name="oneam_c2" value="<?php echo esc_attr( $v( 'c2', '#16C75A' ) ); ?>"></label></p>
-	<p><label>스펙 (한 줄에 하나, "이름: 값")<br><textarea class="widefat" rows="4" name="oneam_specs"><?php echo esc_textarea( $v( 'specs', "E-liquid: 2ml\nFlavours: 15\nType: Disposable" ) ); ?></textarea></label></p>
-	<p class="description">맛(Flavors)에서 이 상품의 슬러그를 지정하면 상품 페이지에 맛 목록이 나옵니다.</p>
+	<p><label>Main colour<br><input type="color" name="oneam_c1" value="<?php echo esc_attr( $v( 'c1', '#8A3FFC' ) ); ?>"></label></p>
+	<p><label>Second colour<br><input type="color" name="oneam_c2" value="<?php echo esc_attr( $v( 'c2', '#16C75A' ) ); ?>"></label></p>
+	<p><label>Specs (one per line, "Name: Value")<br><textarea class="widefat" rows="4" name="oneam_specs"><?php echo esc_textarea( $v( 'specs', "E-liquid: 2ml\nFlavours: 15\nType: Disposable" ) ); ?></textarea></label></p>
+	<p class="description">Flavours with this product line slug are listed on the product page.</p>
 	<?php
 }
 

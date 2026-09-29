@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="preload" href="../1am-vivid/assets/fonts/archivo-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../1am-vivid/assets/fonts/instrument-serif-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+<title>1AM — Slim HYBRID</title>
+<link rel="stylesheet" href="../1am-vivid/assets/css/main.css">
+</head>
+<body class="home is-loading" style="--c1:#8A3FFC;--c2:#16C75A;">
+
+<div class="agegate" id="agegate" role="dialog" aria-modal="true" aria-labelledby="agegate-title" hidden>
+	<div class="agegate__blob"></div>
+	<div class="agegate__box">
+		<img class="agegate__logo" src="../1am-vivid/assets/img/logo-black.png" alt="1AM" width="700" height="355">		<p class="agegate__eyebrow">Adults only</p>
+		<h2 id="agegate-title" class="agegate__title">Are you <em>19+</em>?</h2>
+		<p class="agegate__txt">You must be 19 or older to enter this site.</p>
+		<div class="agegate__btns">
+			<button type="button" class="btn btn--solid" data-age="yes" data-magnetic><span>Yes, I am</span></button>
+			<button type="button" class="btn btn--ghost" data-age="no" data-magnetic><span>No</span></button>
+		</div>
+	</div>
+</div>
+
+<div class="loader" id="loader" aria-hidden="true">
+	<div class="loader__bg"></div>
+	<div class="loader__inner">
+		<img class="loader__logo" src="../1am-vivid/assets/img/logo-white.png" alt="1AM" width="700" height="355">		<div class="loader__count" id="loader-num">00:00 AM</div>
+	</div>
+</div>
+
+<div class="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__label"></span></div>
+
+<div class="topbar" role="note"><p>WARNING: Vaping products contain nicotine, a highly addictive chemical.</p></div>
+
+<header class="site-header" id="site-header">
+	<a class="site-header__logo" href="./" aria-label="1AM home">
+		<img class="" src="../1am-vivid/assets/img/logo-black.png" alt="1AM" width="700" height="355">	</a>
+	<nav class="site-nav" id="site-nav" aria-label="Primary">
+		<ul><li><a href="#products">Products</a><ul><li><a href="slim-hybrid.html">Slim HYBRID</a></li><li><a href="#products">HYBRID Max (coming soon)</a></li><li><a href="#products">HYBRID Refill (coming soon)</a></li></ul></li><li><a href="./about-us/">About</a></li><li><a href="./how-to-order/">How to Order</a></li><li><a href="./faq/">FAQ</a></li></ul>		<div class="site-nav__actions">
+										<a class="site-nav__login" href="./#login">Log in</a>
+						<a class="btn btn--solid btn--sm" href="./wholesale-signup/" data-magnetic data-state="guest"><span>Apply for wholesale &rarr;</span></a>		</div>
+	</nav>
+	<button class="nav-toggle" id="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+		<i></i><i></i>
+	</button>
+</header>
+
+<main id="main" class="site-main">
+<section class="hero" id="hero" data-cursor="Drag">
+	<div class="hero__bg"></div>
+	<div class="hero__orbs" aria-hidden="true">
+		<span class="orb orb--1"></span><span class="orb orb--2"></span><span class="orb orb--3"></span>
+	</div>
+
+	<div class="hero__names" aria-hidden="true">
+					<div class="hero__name is-active"><span class="w"><span class="ch" style="--i:0">G</span><span class="ch" style="--i:1">R</span><span class="ch" style="--i:2">A</span><span class="ch" style="--i:3">P</span><span class="ch" style="--i:4">E</span></span> <span class="w"><span class="ch" style="--i:5">I</span><span class="ch" style="--i:6">C</span><span class="ch" style="--i:7">E</span></span></div>
+					<div class="hero__name"><span class="w"><span class="ch" style="--i:0">B</span><span class="ch" style="--i:1">L</span><span class="ch" style="--i:2">U</span><span class="ch" style="--i:3">E</span></span> <span class="w"><span class="ch" style="--i:4">R</span><span class="ch" style="--i:5">A</span><span class="ch" style="--i:6">Z</span><span class="ch" style="--i:7">Z</span></span> <span class="w"><span class="ch" style="--i:8">I</span><span class="ch" style="--i:9">C</span><span class="ch" style="--i:10">E</span></span></div>
+					<div class="hero__name"><span class="w"><span class="ch" style="--i:0">W</span><span class="ch" style="--i:1">A</span><span class="ch" style="--i:2">T</span><span class="ch" style="--i:3">E</span><span class="ch" style="--i:4">R</span><span class="ch" style="--i:5">M</span><span class="ch" style="--i:6">E</span><span class="ch" style="--i:7">L</span><span class="ch" style="--i:8">O</span><span class="ch" style="--i:9">N</span></span> <span class="w"><span class="ch" style="--i:10">I</span><span class="ch" style="--i:11">C</span><span class="ch" style="--i:12">E</span></span></div>
+					<div class="hero__name"><span class="w"><span class="ch" style="--i:0">L</span><span class="ch" style="--i:1">E</span><span class="ch" style="--i:2">M</span><span class="ch" style="--i:3">O</span><span class="ch" style="--i:4">N</span></span> <span class="w"><span class="ch" style="--i:5">L</span><span class="ch" style="--i:6">I</span><span class="ch" style="--i:7">M</span><span class="ch" style="--i:8">E</span></span> <span class="w"><span class="ch" style="--i:9">I</span><span class="ch" style="--i:10">C</span><span class="ch" style="--i:11">E</span></span></div>
+					<div class="hero__name"><span class="w"><span class="ch" style="--i:0">R</span><span class="ch" style="--i:1">A</span><span class="ch" style="--i:2">S</span><span class="ch" style="--i:3">P</span><span class="ch" style="--i:4">B</span><span class="ch" style="--i:5">E</span><span class="ch" style="--i:6">R</span><span class="ch" style="--i:7">R</span><span class="ch" style="--i:8">Y</span></span> <span class="w"><span class="ch" style="--i:9">D</span><span class="ch" style="--i:10">R</span><span class="ch" style="--i:11">A</span><span class="ch" style="--i:12">G</span><span class="ch" style="--i:13">O</span><span class="ch" style="--i:14">N</span><span class="ch" style="--i:15">F</span><span class="ch" style="--i:16">R</span><span class="ch" style="--i:17">U</span><span class="ch" style="--i:18">I</span><span class="ch" style="--i:19">T</span></span> <span class="w"><span class="ch" style="--i:20">I</span><span class="ch" style="--i:21">C</span><span class="ch" style="--i:22">E</span></span></div>
+					<div class="hero__name"><span class="w"><span class="ch" style="--i:0">M</span><span class="ch" style="--i:1">I</span><span class="ch" style="--i:2">A</span><span class="ch" style="--i:3">M</span><span class="ch" style="--i:4">I</span></span> <span class="w"><span class="ch" style="--i:5">M</span><span class="ch" style="--i:6">I</span><span class="ch" style="--i:7">N</span><span class="ch" style="--i:8">T</span></span></div>
+					<div class="hero__name"><span class="w"><span class="ch" style="--i:0">D</span><span class="ch" style="--i:1">O</span><span class="ch" style="--i:2">U</span><span class="ch" style="--i:3">B</span><span class="ch" style="--i:4">L</span><span class="ch" style="--i:5">E</span></span> <span class="w"><span class="ch" style="--i:6">M</span><span class="ch" style="--i:7">I</span><span class="ch" style="--i:8">N</span><span class="ch" style="--i:9">T</span></span></div>
+					<div class="hero__name"><span class="w"><span class="ch" style="--i:0">C</span><span class="ch" style="--i:1">L</span><span class="ch" style="--i:2">A</span><span class="ch" style="--i:3">S</span><span class="ch" style="--i:4">S</span><span class="ch" style="--i:5">I</span><span class="ch" style="--i:6">C</span></span> <span class="w"><span class="ch" style="--i:7">I</span><span class="ch" style="--i:8">C</span><span class="ch" style="--i:9">E</span></span></div>
+					<div class="hero__name"><span class="w"><span class="ch" style="--i:0">R</span><span class="ch" style="--i:1">E</span><span class="ch" style="--i:2">D</span></span> <span class="w"><span class="ch" style="--i:3">C</span><span class="ch" style="--i:4">L</span><span class="ch" style="--i:5">A</span><span class="ch" style="--i:6">S</span><span class="ch" style="--i:7">S</span><span class="ch" style="--i:8">I</span><span class="ch" style="--i:9">C</span></span> <span class="w"><span class="ch" style="--i:10">I</span><span class="ch" style="--i:11">C</span><span class="ch" style="--i:12">E</span></span></div>
+					<div class="hero__name"><span class="w"><span class="ch" style="--i:0">M</span><span class="ch" style="--i:1">I</span><span class="ch" style="--i:2">L</span><span class="ch" style="--i:3">K</span><span class="ch" style="--i:4">Y</span></span> <span class="w"><span class="ch" style="--i:5">I</span><span class="ch" style="--i:6">C</span><span class="ch" style="--i:7">E</span></span></div>
+					<div class="hero__name"><span class="w"><span class="ch" style="--i:0">C</span><span class="ch" style="--i:1">H</span><span class="ch" style="--i:2">E</span><span class="ch" style="--i:3">E</span><span class="ch" style="--i:4">S</span><span class="ch" style="--i:5">Y</span></span> <span class="w"><span class="ch" style="--i:6">S</span><span class="ch" style="--i:7">T</span><span class="ch" style="--i:8">R</span><span class="ch" style="--i:9">A</span><span class="ch" style="--i:10">W</span><span class="ch" style="--i:11">B</span><span class="ch" style="--i:12">E</span><span class="ch" style="--i:13">R</span><span class="ch" style="--i:14">R</span><span class="ch" style="--i:15">Y</span></span></div>
+					<div class="hero__name"><span class="w"><span class="ch" style="--i:0">J</span><span class="ch" style="--i:1">U</span><span class="ch" style="--i:2">I</span><span class="ch" style="--i:3">C</span><span class="ch" style="--i:4">Y</span></span> <span class="w"><span class="ch" style="--i:5">P</span><span class="ch" style="--i:6">E</span><span class="ch" style="--i:7">A</span><span class="ch" style="--i:8">C</span><span class="ch" style="--i:9">H</span></span> <span class="w"><span class="ch" style="--i:10">I</span><span class="ch" style="--i:11">C</span><span class="ch" style="--i:12">E</span></span></div>
+					<div class="hero__name"><span class="w"><span class="ch" style="--i:0">G</span><span class="ch" style="--i:1">U</span><span class="ch" style="--i:2">A</span><span class="ch" style="--i:3">V</span><span class="ch" style="--i:4">A</span></span> <span class="w"><span class="ch" style="--i:5">I</span><span class="ch" style="--i:6">C</span><span class="ch" style="--i:7">E</span></span></div>
+					<div class="hero__name"><span class="w"><span class="ch" style="--i:0">B</span><span class="ch" style="--i:1">A</span><span class="ch" style="--i:2">N</span><span class="ch" style="--i:3">A</span><span class="ch" style="--i:4">N</span><span class="ch" style="--i:5">A</span></span> <span class="w"><span class="ch" style="--i:6">I</span><span class="ch" style="--i:7">C</span><span class="ch" style="--i:8">E</span></span></div>
+					<div class="hero__name"><span class="w"><span class="ch" style="--i:0">D</span><span class="ch" style="--i:1">O</span><span class="ch" style="--i:2">U</span><span class="ch" style="--i:3">B</span><span class="ch" style="--i:4">L</span><span class="ch" style="--i:5">E</span></span> <span class="w"><span class="ch" style="--i:6">B</span><span class="ch" style="--i:7">I</span><span class="ch" style="--i:8">R</span><span class="ch" style="--i:9">C</span><span class="ch" style="--i:10">H</span></span> <span class="w"><span class="ch" style="--i:11">I</span><span class="ch" style="--i:12">C</span><span class="ch" style="--i:13">E</span></span></div>
+			</div>
+
+	<div class="hero__stage">
+					<figure class="hero__device is-active"
+				data-name="Grape Ice"
+				data-desc="Purple grape with a cool finish."
+				data-url="#flavors"
+				data-c1="#8A3FFC"
+				data-c2="#16C75A">
+				<img src="../1am-vivid/assets/img/flavors/grape-ice.webp" alt="1AM Slim HYBRID Grape Ice" width="246" height="1400" fetchpriority="high">
+			</figure>
+					<figure class="hero__device"
+				data-name="Blue Razz Ice"
+				data-desc="Blue raspberry, lightly cooled."
+				data-url="#flavors"
+				data-c1="#00C2A8"
+				data-c2="#1E5BFF">
+				<img src="../1am-vivid/assets/img/flavors/blue-razz-ice.webp" alt="1AM Slim HYBRID Blue Razz Ice" width="246" height="1400" loading="lazy">
+			</figure>
+					<figure class="hero__device"
+				data-name="Watermelon Ice"
+				data-desc="Ripe watermelon with a cool finish."
+				data-url="#flavors"
+				data-c1="#FF2E4D"
+				data-c2="#2BD45A">
+				<img src="../1am-vivid/assets/img/flavors/watermelon-ice.webp" alt="1AM Slim HYBRID Watermelon Ice" width="246" height="1400" loading="lazy">
+			</figure>
+					<figure class="hero__device"
+				data-name="Lemon Lime Ice"
+				data-desc="Lemon and lime, bright and crisp."
+				data-url="#flavors"
+				data-c1="#1FD65A"
+				data-c2="#D7F21A">
+				<img src="../1am-vivid/assets/img/flavors/lemon-lime-ice.webp" alt="1AM Slim HYBRID Lemon Lime Ice" width="246" height="1400" loading="lazy">
+			</figure>
+					<figure class="hero__device"
+				data-name="Raspberry Dragonfruit Ice"
+				data-desc="Raspberry and dragonfruit, lightly cooled."
+				data-url="#flavors"
+				data-c1="#B026FF"
+				data-c2="#FF1464">
+				<img src="../1am-vivid/assets/img/flavors/raspberry-dragonfruit-ice.webp" alt="1AM Slim HYBRID Raspberry Dragonfruit Ice" width="246" height="1400" loading="lazy">
+			</figure>
+					<figure class="hero__device"
+				data-name="Miami Mint"
+				data-desc="Spearmint with a clean, cool finish."
+				data-url="#flavors"
+				data-c1="#12D16B"
+				data-c2="#19C6E6">
+				<img src="../1am-vivid/assets/img/flavors/miami-mint.webp" alt="1AM Slim HYBRID Miami Mint" width="246" height="1400" loading="lazy">
+			</figure>
+					<figure class="hero__device"
+				data-name="Double Mint"
+				data-desc="Layered mint, extra cool."
+				data-url="#flavors"
+				data-c1="#2F6BFF"
+				data-c2="#12D16B">
+				<img src="../1am-vivid/assets/img/flavors/double-mint.webp" alt="1AM Slim HYBRID Double Mint" width="246" height="1400" loading="lazy">
+			</figure>
+					<figure class="hero__device"
+				data-name="Classic Ice"
+				data-desc="Clean and cool. The original."
+				data-url="#flavors"
+				data-c1="#FF2A2A"
+				data-c2="#FF8A7A">
+				<img src="../1am-vivid/assets/img/flavors/classic-ice.webp" alt="1AM Slim HYBRID Classic Ice" width="246" height="1400" loading="lazy">
+			</figure>
+					<figure class="hero__device"
+				data-name="Red Classic Ice"
+				data-desc="A red-berry take on the classic."
+				data-url="#flavors"
+				data-c1="#E0115F"
+				data-c2="#3D5BFF">
+				<img src="../1am-vivid/assets/img/flavors/red-classic-ice.webp" alt="1AM Slim HYBRID Red Classic Ice" width="246" height="1400" loading="lazy">
+			</figure>
+					<figure class="hero__device"
+				data-name="Milky Ice"
+				data-desc="Smooth milk flavour, lightly cooled."
+				data-url="#flavors"
+				data-c1="#1FB8E6"
+				data-c2="#F58CC0">
+				<img src="../1am-vivid/assets/img/flavors/milky-ice.webp" alt="1AM Slim HYBRID Milky Ice" width="246" height="1400" loading="lazy">
+			</figure>
+					<figure class="hero__device"
+				data-name="Cheesy Strawberry"
+				data-desc="Strawberry with a smooth, rich finish."
+				data-url="#flavors"
+				data-c1="#FF3B5C"
+				data-c2="#FFB321">
+				<img src="../1am-vivid/assets/img/flavors/cheesy-strawberry.webp" alt="1AM Slim HYBRID Cheesy Strawberry" width="246" height="1400" loading="lazy">
+			</figure>
+					<figure class="hero__device"
+				data-name="Juicy Peach Ice"
+				data-desc="Soft peach, lightly cooled."
+				data-url="#flavors"
+				data-c1="#FF8A4D"
+				data-c2="#FFC857">
+				<img src="../1am-vivid/assets/img/flavors/juicy-peach-ice.webp" alt="1AM Slim HYBRID Juicy Peach Ice" width="246" height="1400" loading="lazy">
+			</figure>
+					<figure class="hero__device"
+				data-name="Guava Ice"
+				data-desc="Pink guava, cool and smooth."
+				data-url="#flavors"
+				data-c1="#FF5C8A"
+				data-c2="#E8174B">
+				<img src="../1am-vivid/assets/img/flavors/guava-ice.webp" alt="1AM Slim HYBRID Guava Ice" width="246" height="1400" loading="lazy">
+			</figure>
+					<figure class="hero__device"
+				data-name="Banana Ice"
+				data-desc="Ripe banana, lightly cooled."
+				data-url="#flavors"
+				data-c1="#FFD60A"
+				data-c2="#FF9F1C">
+				<img src="../1am-vivid/assets/img/flavors/banana-ice.webp" alt="1AM Slim HYBRID Banana Ice" width="246" height="1400" loading="lazy">
+			</figure>
+					<figure class="hero__device"
+				data-name="Double Birch Ice"
+				data-desc="Birch with a double cool finish."
+				data-url="#flavors"
+				data-c1="#F2B705"
+				data-c2="#A0461F">
+				<img src="../1am-vivid/assets/img/flavors/double-birch-ice.webp" alt="1AM Slim HYBRID Double Birch Ice" width="246" height="1400" loading="lazy">
+			</figure>
+				<div class="hero__shadow"></div>
+	</div>
+
+	<div class="hero__copy">
+		<p class="hero__kicker"><span class="dot"></span>2ml Disposable</p>
+		<h1 class="hero__title">
+							<span class="line"><span>Slim HYBRID.</span></span>
+					</h1>
+		<div class="hero__btns">
+			<a class="btn btn--solid " href="./wholesale-signup/" data-magnetic data-state="guest"><span>Apply for wholesale &rarr;</span></a>			<a class="btn btn--glass" href="#flavors" data-magnetic><span>All flavours</span></a>
+		</div>
+	</div>
+
+	<div class="hero__ctrl">
+		<div class="hero__info">
+			<p class="hero__count"><span id="hero-idx">01</span> / 15</p>
+			<p class="hero__flavor" id="hero-flavor">Grape Ice</p>
+			<p class="hero__desc" id="hero-desc">Purple grape with a cool finish.</p>
+		</div>
+		<div class="hero__arrows">
+			<button type="button" class="round-btn" data-hero="prev" aria-label="Previous flavour" data-magnetic>&larr;</button>
+			<button type="button" class="round-btn" data-hero="next" aria-label="Next flavour" data-magnetic>&rarr;</button>
+		</div>
+		<div class="hero__progress"><span></span></div>
+	</div>
+
+	<div class="hero__dots" role="tablist" aria-label="Flavors">
+					<button type="button" role="tab" class="is-active" style="--c1:#8A3FFC;--c2:#16C75A;" data-idx="0" aria-label="Grape Ice"></button>
+					<button type="button" role="tab" class="" style="--c1:#00C2A8;--c2:#1E5BFF;" data-idx="1" aria-label="Blue Razz Ice"></button>
+					<button type="button" role="tab" class="" style="--c1:#FF2E4D;--c2:#2BD45A;" data-idx="2" aria-label="Watermelon Ice"></button>
+					<button type="button" role="tab" class="" style="--c1:#1FD65A;--c2:#D7F21A;" data-idx="3" aria-label="Lemon Lime Ice"></button>
+					<button type="button" role="tab" class="" style="--c1:#B026FF;--c2:#FF1464;" data-idx="4" aria-label="Raspberry Dragonfruit Ice"></button>
+					<button type="button" role="tab" class="" style="--c1:#12D16B;--c2:#19C6E6;" data-idx="5" aria-label="Miami Mint"></button>
+					<button type="button" role="tab" class="" style="--c1:#2F6BFF;--c2:#12D16B;" data-idx="6" aria-label="Double Mint"></button>
+					<button type="button" role="tab" class="" style="--c1:#FF2A2A;--c2:#FF8A7A;" data-idx="7" aria-label="Classic Ice"></button>
+					<button type="button" role="tab" class="" style="--c1:#E0115F;--c2:#3D5BFF;" data-idx="8" aria-label="Red Classic Ice"></button>
+					<button type="button" role="tab" class="" style="--c1:#1FB8E6;--c2:#F58CC0;" data-idx="9" aria-label="Milky Ice"></button>
+					<button type="button" role="tab" class="" style="--c1:#FF3B5C;--c2:#FFB321;" data-idx="10" aria-label="Cheesy Strawberry"></button>
+					<button type="button" role="tab" class="" style="--c1:#FF8A4D;--c2:#FFC857;" data-idx="11" aria-label="Juicy Peach Ice"></button>
+					<button type="button" role="tab" class="" style="--c1:#FF5C8A;--c2:#E8174B;" data-idx="12" aria-label="Guava Ice"></button>
+					<button type="button" role="tab" class="" style="--c1:#FFD60A;--c2:#FF9F1C;" data-idx="13" aria-label="Banana Ice"></button>
+					<button type="button" role="tab" class="" style="--c1:#F2B705;--c2:#A0461F;" data-idx="14" aria-label="Double Birch Ice"></button>
+			</div>
+
+	<a class="hero__scroll" href="#flavors" aria-label="Scroll"><span>Scroll</span><i></i></a>
+</section>
+		<section class="pinfo" style="--c1:#8A3FFC;--c2:#16C75A;">
+			<div class="pinfo__copy">
+				<p class="eyebrow">2ml Disposable</p>
+				<h2 class="pinfo__title">Slim HYBRID</h2>
+				<p class="pinfo__text">A slim disposable with a crystal-clear body. 15 flavours, ready to stock.</p>
+							</div>
+							<dl class="pinfo__specs">
+											<div><dt>E-liquid</dt><dd>2ml</dd></div>
+											<div><dt>Flavours</dt><dd>15</dd></div>
+											<div><dt>Type</dt><dd>Disposable</dd></div>
+									</dl>
+					</section>
+		<section class="flavors" id="flavors">
+	<div class="flavors__head">
+		<h2 class="section-title" data-reveal>
+			<span class="line"><span><em>Slim HYBRID</em></span></span>
+			<span class="line"><span>flavours</span></span>
+		</h2>
+		<div class="chips" role="tablist" aria-label="Filter">
+			<button type="button" class="chip is-active" data-filter="all" data-magnetic>All <sup>15</sup></button>
+											<button type="button" class="chip" data-filter="ice" data-magnetic>Ice <sup>4</sup></button>
+											<button type="button" class="chip" data-filter="fruit" data-magnetic>Fruity <sup>6</sup></button>
+											<button type="button" class="chip" data-filter="mint" data-magnetic>Mint <sup>2</sup></button>
+											<button type="button" class="chip" data-filter="sweet" data-magnetic>Sweet <sup>3</sup></button>
+					</div>
+	</div>
+
+	<ul class="grid">
+					<li class="card" data-cat="fruit" style="--c1:#8A3FFC;--c2:#16C75A;">
+				<a href="#flavors" data-cursor="View">
+					<span class="card__fill" aria-hidden="true"></span>
+					<span class="card__cat">Fruity</span>
+					<span class="card__img"><img src="../1am-vivid/assets/img/flavors/grape-ice.webp" alt="" width="246" height="1400" loading="lazy"></span>
+					<span class="card__name">Grape Ice</span>
+					<span class="card__swatch" aria-hidden="true"></span>
+				</a>
+			</li>
+					<li class="card" data-cat="ice" style="--c1:#00C2A8;--c2:#1E5BFF;">
+				<a href="#flavors" data-cursor="View">
+					<span class="card__fill" aria-hidden="true"></span>
+					<span class="card__cat">Ice</span>
+					<span class="card__img"><img src="../1am-vivid/assets/img/flavors/blue-razz-ice.webp" alt="" width="246" height="1400" loading="lazy"></span>
+					<span class="card__name">Blue Razz Ice</span>
+					<span class="card__swatch" aria-hidden="true"></span>
+				</a>
+			</li>
+					<li class="card" data-cat="fruit" style="--c1:#FF2E4D;--c2:#2BD45A;">
+				<a href="#flavors" data-cursor="View">
+					<span class="card__fill" aria-hidden="true"></span>
+					<span class="card__cat">Fruity</span>
+					<span class="card__img"><img src="../1am-vivid/assets/img/flavors/watermelon-ice.webp" alt="" width="246" height="1400" loading="lazy"></span>
+					<span class="card__name">Watermelon Ice</span>
+					<span class="card__swatch" aria-hidden="true"></span>
+				</a>
+			</li>
+					<li class="card" data-cat="fruit" style="--c1:#1FD65A;--c2:#D7F21A;">
+				<a href="#flavors" data-cursor="View">
+					<span class="card__fill" aria-hidden="true"></span>
+					<span class="card__cat">Fruity</span>
+					<span class="card__img"><img src="../1am-vivid/assets/img/flavors/lemon-lime-ice.webp" alt="" width="246" height="1400" loading="lazy"></span>
+					<span class="card__name">Lemon Lime Ice</span>
+					<span class="card__swatch" aria-hidden="true"></span>
+				</a>
+			</li>
+					<li class="card" data-cat="fruit" style="--c1:#B026FF;--c2:#FF1464;">
+				<a href="#flavors" data-cursor="View">
+					<span class="card__fill" aria-hidden="true"></span>
+					<span class="card__cat">Fruity</span>
+					<span class="card__img"><img src="../1am-vivid/assets/img/flavors/raspberry-dragonfruit-ice.webp" alt="" width="246" height="1400" loading="lazy"></span>
+					<span class="card__name">Raspberry Dragonfruit Ice</span>
+					<span class="card__swatch" aria-hidden="true"></span>
+				</a>
+			</li>
+					<li class="card" data-cat="mint" style="--c1:#12D16B;--c2:#19C6E6;">
+				<a href="#flavors" data-cursor="View">
+					<span class="card__fill" aria-hidden="true"></span>
+					<span class="card__cat">Mint</span>
+					<span class="card__img"><img src="../1am-vivid/assets/img/flavors/miami-mint.webp" alt="" width="246" height="1400" loading="lazy"></span>
+					<span class="card__name">Miami Mint</span>
+					<span class="card__swatch" aria-hidden="true"></span>
+				</a>
+			</li>
+					<li class="card" data-cat="mint" style="--c1:#2F6BFF;--c2:#12D16B;">
+				<a href="#flavors" data-cursor="View">
+					<span class="card__fill" aria-hidden="true"></span>
+					<span class="card__cat">Mint</span>
+					<span class="card__img"><img src="../1am-vivid/assets/img/flavors/double-mint.webp" alt="" width="246" height="1400" loading="lazy"></span>
+					<span class="card__name">Double Mint</span>
+					<span class="card__swatch" aria-hidden="true"></span>
+				</a>
+			</li>
+					<li class="card" data-cat="ice" style="--c1:#FF2A2A;--c2:#FF8A7A;">
+				<a href="#flavors" data-cursor="View">
+					<span class="card__fill" aria-hidden="true"></span>
+					<span class="card__cat">Ice</span>
+					<span class="card__img"><img src="../1am-vivid/assets/img/flavors/classic-ice.webp" alt="" width="246" height="1400" loading="lazy"></span>
+					<span class="card__name">Classic Ice</span>
+					<span class="card__swatch" aria-hidden="true"></span>
+				</a>
+			</li>
+					<li class="card" data-cat="ice" style="--c1:#E0115F;--c2:#3D5BFF;">
+				<a href="#flavors" data-cursor="View">
+					<span class="card__fill" aria-hidden="true"></span>
+					<span class="card__cat">Ice</span>
+					<span class="card__img"><img src="../1am-vivid/assets/img/flavors/red-classic-ice.webp" alt="" width="246" height="1400" loading="lazy"></span>
+					<span class="card__name">Red Classic Ice</span>
+					<span class="card__swatch" aria-hidden="true"></span>
+				</a>
+			</li>
+					<li class="card" data-cat="sweet" style="--c1:#1FB8E6;--c2:#F58CC0;">
+				<a href="#flavors" data-cursor="View">
+					<span class="card__fill" aria-hidden="true"></span>
+					<span class="card__cat">Sweet</span>
+					<span class="card__img"><img src="../1am-vivid/assets/img/flavors/milky-ice.webp" alt="" width="246" height="1400" loading="lazy"></span>
+					<span class="card__name">Milky Ice</span>
+					<span class="card__swatch" aria-hidden="true"></span>
+				</a>
+			</li>
+					<li class="card" data-cat="sweet" style="--c1:#FF3B5C;--c2:#FFB321;">
+				<a href="#flavors" data-cursor="View">
+					<span class="card__fill" aria-hidden="true"></span>
+					<span class="card__cat">Sweet</span>
+					<span class="card__img"><img src="../1am-vivid/assets/img/flavors/cheesy-strawberry.webp" alt="" width="246" height="1400" loading="lazy"></span>
+					<span class="card__name">Cheesy Strawberry</span>
+					<span class="card__swatch" aria-hidden="true"></span>
+				</a>
+			</li>
+					<li class="card" data-cat="fruit" style="--c1:#FF8A4D;--c2:#FFC857;">
+				<a href="#flavors" data-cursor="View">
+					<span class="card__fill" aria-hidden="true"></span>
+					<span class="card__cat">Fruity</span>
+					<span class="card__img"><img src="../1am-vivid/assets/img/flavors/juicy-peach-ice.webp" alt="" width="246" height="1400" loading="lazy"></span>
+					<span class="card__name">Juicy Peach Ice</span>
+					<span class="card__swatch" aria-hidden="true"></span>
+				</a>
+			</li>
+					<li class="card" data-cat="fruit" style="--c1:#FF5C8A;--c2:#E8174B;">
+				<a href="#flavors" data-cursor="View">
+					<span class="card__fill" aria-hidden="true"></span>
+					<span class="card__cat">Fruity</span>
+					<span class="card__img"><img src="../1am-vivid/assets/img/flavors/guava-ice.webp" alt="" width="246" height="1400" loading="lazy"></span>
+					<span class="card__name">Guava Ice</span>
+					<span class="card__swatch" aria-hidden="true"></span>
+				</a>
+			</li>
+					<li class="card" data-cat="sweet" style="--c1:#FFD60A;--c2:#FF9F1C;">
+				<a href="#flavors" data-cursor="View">
+					<span class="card__fill" aria-hidden="true"></span>
+					<span class="card__cat">Sweet</span>
+					<span class="card__img"><img src="../1am-vivid/assets/img/flavors/banana-ice.webp" alt="" width="246" height="1400" loading="lazy"></span>
+					<span class="card__name">Banana Ice</span>
+					<span class="card__swatch" aria-hidden="true"></span>
+				</a>
+			</li>
+					<li class="card" data-cat="ice" style="--c1:#F2B705;--c2:#A0461F;">
+				<a href="#flavors" data-cursor="View">
+					<span class="card__fill" aria-hidden="true"></span>
+					<span class="card__cat">Ice</span>
+					<span class="card__img"><img src="../1am-vivid/assets/img/flavors/double-birch-ice.webp" alt="" width="246" height="1400" loading="lazy"></span>
+					<span class="card__name">Double Birch Ice</span>
+					<span class="card__swatch" aria-hidden="true"></span>
+				</a>
+			</li>
+			</ul>
+</section>
+<section class="cta" id="wholesale">
+	<div class="cta__fan" aria-hidden="true">
+					<img src="../1am-vivid/assets/img/flavors/grape-ice.webp" alt="" width="246" height="1400" loading="lazy" style="--o:-4">
+					<img src="../1am-vivid/assets/img/flavors/blue-razz-ice.webp" alt="" width="246" height="1400" loading="lazy" style="--o:-3">
+					<img src="../1am-vivid/assets/img/flavors/watermelon-ice.webp" alt="" width="246" height="1400" loading="lazy" style="--o:-2">
+					<img src="../1am-vivid/assets/img/flavors/lemon-lime-ice.webp" alt="" width="246" height="1400" loading="lazy" style="--o:-1">
+					<img src="../1am-vivid/assets/img/flavors/raspberry-dragonfruit-ice.webp" alt="" width="246" height="1400" loading="lazy" style="--o:0">
+					<img src="../1am-vivid/assets/img/flavors/miami-mint.webp" alt="" width="246" height="1400" loading="lazy" style="--o:1">
+					<img src="../1am-vivid/assets/img/flavors/double-mint.webp" alt="" width="246" height="1400" loading="lazy" style="--o:2">
+					<img src="../1am-vivid/assets/img/flavors/classic-ice.webp" alt="" width="246" height="1400" loading="lazy" style="--o:3">
+					<img src="../1am-vivid/assets/img/flavors/red-classic-ice.webp" alt="" width="246" height="1400" loading="lazy" style="--o:4">
+			</div>
+	<h2 class="cta__title" data-fill>Stock 1AM.</h2>
+	<p class="cta__text">Apply, get verified, and order at wholesale prices as soon as you are approved.</p>
+	<div class="cta__btns">
+		<a class="btn btn--solid btn--xl" href="./wholesale-signup/" data-magnetic data-state="guest"><span>Apply for wholesale &rarr;</span></a>					<a class="btn btn--ghost btn--xl" href="./#login" data-magnetic><span>Log in</span></a>
+			</div>
+	<p class="cta__note">Retailers only · 19+ · Canada</p>
+</section>
+</main>
+
+<footer class="site-footer" data-header="light">
+	<div class="site-footer__top">
+		<div class="site-footer__brand">
+			<a class="site-footer__logo" href="./" aria-label="1AM home"><img class="" src="../1am-vivid/assets/img/logo-white.png" alt="1AM" width="700" height="355"></a>
+			<p class="site-footer__lead">A wholesale-only brand for approved Canadian retailers.</p>
+			<a class="btn btn--solid " href="./wholesale-signup/" data-magnetic data-state="guest"><span>Apply for wholesale &rarr;</span></a>		</div>
+		<nav class="site-footer__nav" aria-label="Footer">
+			<p class="site-footer__eyebrow">Explore</p>
+			<ul><li><a href="#products">Products</a></li><li><a href="./about-us/">About</a></li><li><a href="./how-to-order/">How to Order</a></li><li><a href="./faq/">FAQ</a></li></ul>		</nav>
+		<nav class="site-footer__nav" aria-label="Wholesale">
+			<p class="site-footer__eyebrow">Wholesale</p>
+			<ul>
+				<li><a href="./wholesale-signup/">Apply</a></li>
+				<li><a href="./#login">Log in</a></li>
+				<li><a href="./how-to-order/">How to order</a></li>
+			</ul>
+		</nav>
+		<nav class="site-footer__nav" aria-label="Policies">
+			<p class="site-footer__eyebrow">Policies</p>
+			<ul><li><a href="./terms/">Terms of Use</a></li><li><a href="./privacy-policy/">Privacy Policy</a></li><li><a href="./shipping-returns/">Shipping &amp; Returns</a></li></ul>		</nav>
+	</div>
+	<div class="site-footer__bottom">
+		<p class="site-footer__warning">WARNING: Vaping products contain nicotine, a highly addictive chemical. For adults 19+ only.</p>
+		<p>&copy; 2026 1AM. All rights reserved.</p>
+	</div>
+</footer>
+
+<script>var ONEAM = {"ageGate":true,"minAge":19,"lite":false};</script>
+<script src="../1am-vivid/assets/vendor/gsap.min.js"></script>
+<script src="../1am-vivid/assets/vendor/ScrollTrigger.min.js"></script>
+<script src="../1am-vivid/assets/vendor/lenis.min.js"></script>
+<script src="../1am-vivid/assets/js/main.js"></script>
+</body>
+</html>

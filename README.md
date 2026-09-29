@@ -6,7 +6,7 @@ fogformulas.com 처럼 맛마다 화면 전체 컬러가 바뀌고, 스크롤에
 ```
 1am-vivid/          ← 워드프레스 테마 (이 폴더를 wp-content/themes/ 에 업로드)
 dist/1am-vivid.zip  ← 관리자 > 외모 > 테마 > 새로 추가 > 테마 업로드 용 zip
-preview/index.html  ← 워드프레스 없이 브라우저로 열어보는 정적 미리보기
+preview/index.html, preview/slim-hybrid.html  ← 워드프레스 없이 브라우저로 열어보는 정적 미리보기 (메인 / 상품 페이지)
 tools/              ← 미리보기 생성 스크립트
 ```
 
@@ -16,36 +16,37 @@ tools/              ← 미리보기 생성 스크립트
 2. 바로 메인에 15개 맛이 나옵니다 (테마 기본 데이터).
 3. 필요하면 **외모 > 사용자 정의하기 > 1AM 설정** 에서 문구 수정.
 
-## 메인 페이지 구성 (견적서 기준)
+## 메인 페이지 구성 (심플 버전)
 
 | 순서 | 섹션 | 내용 / 인터랙션 |
 |---|---|---|
-| – | 상단 고정 경고문 | 항상 보이는 니코틴 경고 띠 (문구는 사용자 정의하기에서 수정) |
-| – | 연령 확인 | 첫 방문 시 19+ 확인 팝업 |
-| 1 | 메인 비주얼 | 맛 슬라이더 + 색 전환, **도매 가입 / 상품 보기 버튼** |
-| 2 | 흐르는 띠 | 스크롤 속도 반응 마퀴 |
-| 3 | 영상 | 스크롤하면 카드 → 화면 전체로 커짐. MP4 업로드 또는 YouTube 주소 |
-| 4 | 회사 소개 | 단어별로 진해지는 타이틀 + 숫자 카운트 |
-| 5 | **상품 3종 (가로 스크롤)** | Slim HYBRID 2ml (판매 중) / HYBRID Max 대용량 (출시 예정) / HYBRID Refill 리필 (출시 예정) |
-| 6 | Slim HYBRID 맛 | 필터 + 카드 호버 |
-| 7 | 디바이스 | 핀 고정 + 제품/색 전환 + 스펙 |
-| 8 | Why stock 1AM | 도매 거래처 장점 4개 |
-| 9 | 구매 절차 | 가입 → 승인 → 주문 (선이 그려지는 스텝) |
-| 10 | FAQ | 아코디언 5개 + 전체 FAQ 링크 |
-| 11 | 도매 가입 유도 | 펼쳐지는 제품 + 채워지는 타이틀 + 가입/로그인 버튼 |
+| – | 상단 고정 경고문 + 흰색 블러 헤더 | Products(드롭다운) · About · How to Order · FAQ · Log in · Apply for wholesale |
+| 1 | 영상 (첫 화면) | 전체 화면 영상 + 문구 + 도매 신청 버튼. 스크롤하면 둥근 카드로 줄어듦 |
+| 2 | About + 라인업 | 소개 문구 + 둥근 About → 버튼. 스크롤하면 제품 1개가 15개로 일자로 펼쳐지고 옆으로 이동 |
+| 3 | 상품 3종 (가로 스크롤) | Slim HYBRID 2ml / HYBRID Max / HYBRID Refill |
+| 4 | Slim outside. Loud inside. | 디바이스 + 스펙 |
+| 5 | Stock 1AM. | 도매 가입 유도 (가입 / 로그인) |
 
-**회원 상태별 버튼** (메인·상품 페이지·메뉴·푸터 공통): 비회원 → `Apply for wholesale` / 승인 대기 → `Application under review` / 승인 완료 → `Shop wholesale`.
+**페이지별 역할 (중복 없이)**
+- **상품 페이지 (Slim HYBRID)**: 맛 슬라이더(기존 첫 화면) → 상품 정보·스펙 → 맛 목록(필터) → 가입 유도
+- **About**: 회사 소개(본문) → Why stock 1AM (장점 4개) → 가입 유도
+- **How to Order**: 3단계 절차 → 본문 → FAQ 미리보기 → 가입 유도
+- **FAQ**: 세부 정보(Details) 블록 아코디언
+
+**영상 넣기**: `1am-vivid/assets/video/brand.mp4` (+ `brand.jpg`) 에 넣으면 자동 사용. 운영 시에는 사용자 정의하기 > 1AM Settings > Home video 에서 업로드.
+
+**회원 상태별 버튼**: 비회원 → `Apply for wholesale` / 승인 대기 → `Application under review` / 승인 완료 → `Shop wholesale`.
 승인 판단: 사용자 메타 `oneam_wholesale_status = approved` 또는 `wholesale_customer` 역할. 가입 승인 플러그인을 쓰면 `oneam_member_state` 필터로 연결합니다.
 
-**메뉴 구조**: Home / Products (Slim HYBRID · HYBRID Max · HYBRID Refill) / About Us / How to Order / FAQ / Wholesale (Apply · Log in · Shop). 푸터: Explore · Wholesale · Policies(이용약관 · 개인정보 · 배송/반품).
-
 **WooCommerce**: 승인 회원이 아니면 상점·장바구니·결제 접근 시 가입(또는 승인 대기) 페이지로 이동, 쇼핑몰은 검색 노출 제외(noindex). 쇼핑몰 페이지에서는 부드러운 스크롤·커스텀 커서를 끄고 `woo.css` 로 브랜드 스타일만 입힙니다.
+
+사이트 문구와 관리자 라벨은 모두 영어(캐나다 표기: flavour, colour)입니다.
 
 ## 만들어야 할 페이지 (관리자 > 페이지)
 
 | 페이지 | 슬러그 | 템플릿 |
 |---|---|---|
-| About Us | `about-us` | About Us |
+| About | `about-us` | About Us |
 | How to Order | `how-to-order` | How to Order (구매 절차) |
 | FAQ | `faq` | 기본 — 질문마다 **세부 정보(Details)** 블록 사용 |
 | Wholesale Sign up | `wholesale-signup` | 기본 — 가입 승인 플러그인의 가입 폼 숏코드 |
@@ -77,4 +78,5 @@ tools/              ← 미리보기 생성 스크립트
 
 ```bash
 php tools/preview-shim.php 1am-vivid front-page.php > preview/index.html
+php tools/preview-shim.php 1am-vivid single-oneam_line.php > preview/slim-hybrid.html
 ```

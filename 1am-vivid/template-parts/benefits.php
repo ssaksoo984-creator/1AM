@@ -5,10 +5,10 @@
 $items = apply_filters(
 	'oneam_benefits',
 	array(
-		array( 'Wholesale pricing', '승인된 거래처 전용 도매가. 로그인 후 쇼핑몰에서 바로 확인합니다.', '#FF2E4D', '#FFB321' ),
-		array( 'Approved retailers only', '사업자 서류를 확인한 매장과만 거래합니다.', '#8A3FFC', '#1E5BFF' ),
-		array( 'Ships where it\'s allowed', '판매 가능한 주(Province)로만 주문·배송됩니다.', '#00C2A8', '#16C75A' ),
-		array( 'Clear product info', '스펙, 맛, 규격 정보를 한곳에서 확인할 수 있습니다.', '#FFD60A', '#FF8A4D' ),
+		array( 'Wholesale pricing', 'Trade pricing for approved accounts, visible as soon as you log in.', '#FF2E4D', '#FFB321' ),
+		array( 'Approved retailers only', 'We only work with stores whose business documents we have verified.', '#8A3FFC', '#1E5BFF' ),
+		array( 'Ships where it\'s allowed', 'Orders ship only to provinces where our products can be sold.', '#00C2A8', '#16C75A' ),
+		array( 'Clear product info', 'Specs, flavours and product details in one place.', '#FFD60A', '#FF8A4D' ),
 	)
 );
 ?>

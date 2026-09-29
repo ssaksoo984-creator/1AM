@@ -63,7 +63,7 @@
 				if (!btn) return;
 				if (btn.dataset.age === 'no') {
 					gate.classList.add('is-denied');
-					$('.agegate__txt', gate).textContent = '죄송합니다. 성인만 이용할 수 있습니다.';
+					$('.agegate__txt', gate).textContent = 'Sorry, this site is for adults only.';
 					gsap.fromTo('.agegate__box', { x: -10 }, { x: 0, duration: .5, ease: 'elastic.out(1, .3)' });
 					return;
 				}
@@ -101,7 +101,7 @@
 	var header = $('#site-header');
 	var lastY = 0;
 	function onScrollHeader(y) {
-		if (!header || body.classList.contains('menu-open')) return;
+		if (!header || body.classList.contains('nav-open')) return;
 		header.classList.toggle('is-hidden', y > lastY && y > 200);
 		lastY = y;
 	}
@@ -111,19 +111,15 @@
 	/* ----------------------------------------------------------------- Menu */
 	var menuBtn = $('#menu-btn');
 	function closeMenu() {
-		if (!body.classList.contains('menu-open')) return;
-		body.classList.remove('menu-open');
+		if (!body.classList.contains('nav-open')) return;
+		body.classList.remove('nav-open');
 		menuBtn && menuBtn.setAttribute('aria-expanded', 'false');
-		$('#menu') && $('#menu').setAttribute('aria-hidden', 'true');
-		lock(false);
 	}
 	if (menuBtn) {
 		menuBtn.addEventListener('click', function () {
-			if (body.classList.contains('menu-open')) { closeMenu(); return; }
-			body.classList.add('menu-open');
+			if (body.classList.contains('nav-open')) { closeMenu(); return; }
+			body.classList.add('nav-open');
 			menuBtn.setAttribute('aria-expanded', 'true');
-			$('#menu').setAttribute('aria-hidden', 'false');
-			lock(true);
 		});
 		document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
 	}
@@ -275,32 +271,6 @@
 					.from('.orb', { scale: 0, duration: 1.2, stagger: .1, ease: 'back.out(2)' }, .2);
 			}
 		};
-	}
-
-	/* -------------------------------------------------------------- Marquee */
-	function marquee() {
-		var bands = $$('[data-marquee]');
-		if (!bands.length) return;
-		var items = bands.map(function (b) {
-			var track = $('.marquee__track', b);
-			return { track: track, dir: +b.dataset.marquee, x: 0, w: 0 };
-		});
-		function measure() { items.forEach(function (it) { it.w = it.track.scrollWidth / 4; }); }
-		measure();
-		window.addEventListener('resize', measure);
-		var boost = 0;
-		if (lenis) lenis.on('scroll', function (l) { boost = gsap.utils.clamp(-12, 12, l.velocity * .4); });
-		gsap.ticker.add(function (t, dt) {
-			var f = dt / 16.67;
-			boost *= .94;
-			items.forEach(function (it) {
-				var speed = (1.2 + Math.abs(boost)) * it.dir * (boost < -0.5 ? -1 : 1);
-				it.x -= speed * f;
-				if (it.x <= -it.w) it.x += it.w;
-				if (it.x > 0) it.x -= it.w;
-				it.track.style.transform = 'translate3d(' + it.x + 'px,0,0)';
-			});
-		});
 	}
 
 	/* ------------------------------------------------------------------ Lab */
@@ -468,15 +438,15 @@
 		}
 	}
 
-	/* ----------------------------------------------------------------- Film */
+	/* ------------------------------------------------------ Film (intro) */
 	function film() {
-		var root = $('#film');
+		var root = $('#top');
 		if (!root) return;
 		var frame = $('.film__frame', root);
-		gsap.timeline({ scrollTrigger: { trigger: root, start: 'top top', end: '+=120%', pin: '.film__pin', scrub: 1 } })
-			.fromTo(frame, { clipPath: 'inset(16% 18% 16% 18% round 36px)' }, { clipPath: 'inset(0% 0% 0% 0% round 0px)', ease: 'none' }, 0)
-			.fromTo('.film__media', { scale: 1.25 }, { scale: 1, ease: 'none' }, 0)
-			.fromTo('.film__title', { yPercent: 60, opacity: 0 }, { yPercent: 0, opacity: 1, ease: 'power2.out', duration: .5 }, .35);
+		// 스크롤하면 전체 화면 영상이 둥근 카드로 살짝 줄어들며 넘어감
+		gsap.timeline({ scrollTrigger: { trigger: root, start: 'top top', end: 'bottom top', scrub: true } })
+			.to(frame, { clipPath: 'inset(6% 5% 6% 5% round 32px)', ease: 'none' }, 0)
+			.to('.film__copy', { y: -60, opacity: 0, ease: 'none' }, 0);
 
 		var video = $('video', root);
 		var btn = $('.film__sound', root);
@@ -487,17 +457,46 @@
 				btn.textContent = video.muted ? 'Sound off' : 'Sound on';
 			});
 		}
-		// 화면 밖에서는 영상 정지
 		if (video) ST.create({ trigger: root, start: 'top bottom', end: 'bottom top', onToggle: function (s) { s.isActive ? video.play().catch(function () {}) : video.pause(); } });
 	}
+	function filmIntro() {
+		if (!$('#top')) return;
+		gsap.timeline()
+			.from('.film__title .line > span', { yPercent: 110, duration: 1.1, stagger: .1, ease: 'expo.out' })
+			.from('.film__kicker, .film__text, .film__btns', { y: 24, opacity: 0, duration: .8, stagger: .08, ease: 'expo.out' }, .2)
+			.from('.film__media--empty img', { y: 200, rotate: 20, opacity: 0, duration: 1.4, ease: 'elastic.out(1, .7)' }, 0);
+	}
 
-	/* ---------------------------------------------------------------- About */
+	/* ------------------------------------------- About + flavour line-up */
 	function about() {
 		var title = $('.about [data-words]');
-		if (!title) return;
-		title.innerHTML = title.textContent.trim().split(/\s+/).map(function (w) { return '<span class="wd">' + w + '</span>'; }).join(' ');
-		gsap.fromTo($$('.wd', title), { opacity: .12 }, { opacity: 1, stagger: .1, ease: 'none', scrollTrigger: { trigger: title, start: 'top 80%', end: 'bottom 45%', scrub: true } });
-		gsap.from('.about__stats .stat', { y: 60, opacity: 0, stagger: .1, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: '.about__stats', start: 'top 85%' } });
+		if (title) {
+			title.innerHTML = title.textContent.trim().split(/\s+/).map(function (w) { return '<span class="wd">' + w + '</span>'; }).join(' ');
+			gsap.fromTo($$('.wd', title), { opacity: .15 }, { opacity: 1, stagger: .1, ease: 'none', scrollTrigger: { trigger: title, start: 'top 80%', end: 'bottom 50%', scrub: true } });
+		}
+
+		var row = $('#row');
+		if (!row) return;
+		var items = $$('.row__item', row);
+		var track = $('.row__track', row);
+		var n = items.length;
+		var mid = (n - 1) / 2;
+		var gap = function () { return Math.min(130, Math.max(64, window.innerWidth / 11)); };
+
+		// 한 개로 겹쳐 있다가 → 일자로 쫙 펼쳐지고 → 줄 전체가 옆으로 이동
+		gsap.set(items, { x: 0, rotate: function (i) { return (i - mid) * 1.5; } });
+		var tl = gsap.timeline({
+			scrollTrigger: { trigger: row, start: 'top top', end: '+=180%', pin: true, scrub: 1, invalidateOnRefresh: true }
+		});
+		tl.to(items, { x: function (i) { return (i - mid) * gap(); }, rotate: 0, duration: 1, ease: 'power2.inOut', stagger: { each: .01, from: 'center' } }, 0)
+			.fromTo('.row__caption', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .3 }, .7)
+			.fromTo(track, { x: function () { return Math.max(0, (n * gap() - window.innerWidth) / 2 + 40); } },
+				{ x: function () { return -Math.max(0, (n * gap() - window.innerWidth) / 2 + 40); }, duration: 1.2, ease: 'none' }, 1);
+
+		// 펼쳐진 뒤 살짝 물결치듯 움직임
+		items.forEach(function (it, i) {
+			gsap.to($('img', it), { y: -14, duration: 1.6, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: i * .12 });
+		});
 	}
 
 	/* ------------------------------------------------------ Benefits/Steps */
@@ -518,19 +517,8 @@
 		});
 	}
 
-	function headerTheme() {
-		// 어두운 섹션 위에서는 헤더 로고를 흰색으로
-		$$('[data-header="light"]').forEach(function (sec) {
-			ST.create({
-				trigger: sec, start: 'top 40px', end: 'bottom 40px',
-				onToggle: function (s) { header && header.classList.toggle('is-light', s.isActive); }
-			});
-		});
-	}
-
 	/* ------------------------------------------------------------------ Run */
 	var h = hero();
-	marquee();
 	if (!reduce) {
 		film();
 		about();
@@ -541,8 +529,6 @@
 		cta();
 		reveals();
 	}
-	// 핀 섹션이 모두 만들어진 뒤에 생성해야 위치 계산이 맞음
-	headerTheme();
 	if (reduce) {
 		flavors();
 	}
@@ -553,6 +539,7 @@
 		.then(function () {
 			body.classList.remove('is-loading');
 			h.intro();
+			filmIntro();
 			ST.refresh();
 		});
 

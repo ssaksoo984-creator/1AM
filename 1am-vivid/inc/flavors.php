@@ -114,8 +114,8 @@ add_action(
 				'labels'       => array(
 					'name'          => 'Flavors',
 					'singular_name' => 'Flavor',
-					'add_new_item'  => '새 맛 추가',
-					'edit_item'     => '맛 편집',
+					'add_new_item'  => 'Add flavour',
+					'edit_item'     => 'Edit flavour',
 				),
 				'public'       => true,
 				'has_archive'  => 'flavors',
@@ -131,7 +131,7 @@ add_action(
 add_action(
 	'add_meta_boxes',
 	function () {
-		add_meta_box( 'oneam_flavor_meta', '맛 컬러 / 카테고리', 'oneam_flavor_meta_box', 'oneam_flavor', 'side' );
+		add_meta_box( 'oneam_flavor_meta', 'Flavour colour / category', 'oneam_flavor_meta_box', 'oneam_flavor', 'side' );
 	}
 );
 
@@ -141,16 +141,16 @@ function oneam_flavor_meta_box( $post ) {
 	$c2  = get_post_meta( $post->ID, '_oneam_c2', true ) ?: '#2F6BFF';
 	$cat = get_post_meta( $post->ID, '_oneam_cat', true ) ?: 'ice';
 	?>
-	<p><label>메인 컬러<br><input type="color" name="oneam_c1" value="<?php echo esc_attr( $c1 ); ?>"></label></p>
-	<p><label>서브 컬러<br><input type="color" name="oneam_c2" value="<?php echo esc_attr( $c2 ); ?>"></label></p>
-	<p><label>카테고리<br>
+	<p><label>Main colour<br><input type="color" name="oneam_c1" value="<?php echo esc_attr( $c1 ); ?>"></label></p>
+	<p><label>Second colour<br><input type="color" name="oneam_c2" value="<?php echo esc_attr( $c2 ); ?>"></label></p>
+	<p><label>Category<br>
 		<select name="oneam_cat">
 			<?php foreach ( oneam_flavor_categories() as $k => $label ) : ?>
 				<option value="<?php echo esc_attr( $k ); ?>" <?php selected( $cat, $k ); ?>><?php echo esc_html( $label ); ?></option>
 			<?php endforeach; ?>
 		</select></label></p>
-	<p><label>상품 라인 슬러그<br><input type="text" name="oneam_line" value="<?php echo esc_attr( get_post_meta( $post->ID, '_oneam_line', true ) ?: 'slim-hybrid' ); ?>"></label></p>
-	<p class="description">대표 이미지 = 배경이 투명한 제품 PNG/WebP (세로형)</p>
+	<p><label>Product line slug<br><input type="text" name="oneam_line" value="<?php echo esc_attr( get_post_meta( $post->ID, '_oneam_line', true ) ?: 'slim-hybrid' ); ?>"></label></p>
+	<p class="description">Featured image = transparent PNG/WebP product shot (portrait).</p>
 	<?php
 }
 

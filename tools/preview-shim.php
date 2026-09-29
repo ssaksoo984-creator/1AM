@@ -6,7 +6,16 @@ $THEME = realpath($argv[1] ?? __DIR__.'/../1am-vivid'); $TPL = $argv[2] ?? 'fron
 $GLOBALS['styles']=[]; $GLOBALS['scripts']=[]; $GLOBALS['l10n']=[]; $GLOBALS['actions']=[];
 function add_action($h,$cb,$p=10,$a=1){ $GLOBALS['actions'][$h][]=$cb; }
 function add_filter(){ }
-function apply_filters($h,$v){ return $h==='oneam_video_placeholder' ? true : $v; }
+function apply_filters($h,$v){
+	if ($h==='oneam_video_placeholder') return true;
+	if ($h==='oneam_products') { foreach ($v as &$p) { if ($p['slug']==='slim-hybrid') $p['url']='slim-hybrid.html'; } }
+	return $v;
+}
+// 상품 페이지 미리보기용 루프
+$GLOBALS['__loop']=0;
+function have_posts(){ return $GLOBALS['__loop']++ < 1; } function the_post(){}
+function get_post_field($f){ return 'slim-hybrid'; } function the_title(){ echo 'Slim HYBRID'; } function get_the_title(){ return 'Slim HYBRID'; }
+function get_the_content(){ return ''; } function the_content(){} function has_excerpt(){ return false; }
 function is_user_logged_in(){ return false; } function wp_login_url(){ return './#login'; } function esc_textarea($s){ return htmlspecialchars($s); }
 function do_action($h){ foreach($GLOBALS['actions'][$h]??[] as $cb) $cb(); }
 function get_template_directory(){ return $GLOBALS['THEME']; }

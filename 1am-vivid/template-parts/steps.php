@@ -3,9 +3,9 @@
  * 구매 절차 (가입 → 승인 → 주문)
  */
 $steps = array(
-	array( 'Apply', '도매 가입 신청서와 사업자 서류(사업자 등록증, 소매 판매 관련 서류)를 제출합니다.' ),
-	array( 'Get approved', '관리자가 서류를 확인하고 승인하면 알림 이메일이 발송됩니다.' ),
-	array( 'Order', '로그인 후 비공개 쇼핑몰에서 도매가를 확인하고 바로 주문합니다.' ),
+	array( 'Apply', 'Submit the wholesale application with your business documents (business registration and retail licence).' ),
+	array( 'Get approved', 'Our team reviews your documents and emails you once your account is approved.' ),
+	array( 'Order', 'Log in to the private shop, see wholesale pricing and place your order.' ),
 );
 ?>
 <section class="steps" id="how-to-order" data-header="light">

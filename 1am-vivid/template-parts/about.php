@@ -1,34 +1,29 @@
 <?php
 /**
- * 회사 간략 소개 (견적서: 메인 > 회사 간략 소개)
+ * About (short) + line-up animation:
+ * one device in the centre fans out into a straight row of all flavours, then the row glides sideways.
  */
-$products = oneam_get_products();
-$flavors  = oneam_get_flavors();
-$live     = count( array_filter( $products, function ( $p ) { return 'available' === $p['status']; } ) );
-$stats    = array(
-	array( count( $products ), 'Product lines', $live . ' available · ' . ( count( $products ) - $live ) . ' coming soon' ),
-	array( count( $flavors ), 'Flavours', 'Slim HYBRID 2ml' ),
-	array( (int) oneam_opt( 'oneam_min_age' ) . '+', 'Retailers only', 'Approved wholesale accounts' ),
-);
+$flavors = oneam_get_flavors();
 ?>
 <section class="about" id="about">
-	<div class="about__grid">
-		<p class="eyebrow about__eyebrow">About 1AM</p>
+	<div class="about__intro">
+		<p class="eyebrow">About 1AM</p>
 		<h2 class="about__title" data-words><?php echo esc_html( oneam_opt( 'oneam_about_title' ) ); ?></h2>
-		<div class="about__body">
-			<p><?php echo esc_html( oneam_opt( 'oneam_about_text' ) ); ?></p>
-			<a class="link-arrow" href="<?php echo esc_url( oneam_opt( 'oneam_about_url' ) ); ?>">About us <span>&rarr;</span></a>
+		<p class="about__text"><?php echo esc_html( oneam_opt( 'oneam_about_text' ) ); ?></p>
+		<a class="btn btn--round" href="<?php echo esc_url( oneam_opt( 'oneam_about_url' ) ); ?>"><span>About</span><span class="btn__arrow" aria-hidden="true">&rarr;</span></a>
+	</div>
+
+	<div class="row" id="row">
+		<div class="row__stage">
+			<ul class="row__track" aria-label="<?php echo esc_attr( count( $flavors ) . ' Slim HYBRID flavours' ); ?>">
+				<?php foreach ( $flavors as $i => $f ) : ?>
+					<li class="row__item" style="<?php echo oneam_flavor_style( $f ); // phpcs:ignore ?>">
+						<img src="<?php echo esc_url( $f['img'] ); ?>" alt="<?php echo esc_attr( $f['name'] ); ?>" width="246" height="1400" loading="lazy">
+						<span class="row__name"><?php echo esc_html( $f['name'] ); ?></span>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+			<p class="row__caption"><span data-row-count><?php echo count( $flavors ); ?></span> flavours · Slim HYBRID 2ml</p>
 		</div>
 	</div>
-	<dl class="about__stats">
-		<?php foreach ( $stats as $s ) : ?>
-			<div class="stat">
-				<dt><?php echo esc_html( $s[1] ); ?></dt>
-				<dd>
-					<strong data-count="<?php echo esc_attr( (int) $s[0] ); ?>"><?php echo esc_html( $s[0] ); ?></strong>
-					<span><?php echo esc_html( $s[2] ); ?></span>
-				</dd>
-			</div>
-		<?php endforeach; ?>
-	</dl>
 </section>

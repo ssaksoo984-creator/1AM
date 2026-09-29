@@ -4,7 +4,7 @@
 	<div class="site-footer__top">
 		<div class="site-footer__brand">
 			<a class="site-footer__logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="1AM home"><?php oneam_logo( 'white' ); ?></a>
-			<p class="site-footer__lead">Wholesale only. 승인된 캐나다 소매 거래처를 위한 도매 브랜드입니다.</p>
+			<p class="site-footer__lead">A wholesale-only brand for approved Canadian retailers.</p>
 			<?php oneam_member_cta(); ?>
 		</div>
 		<nav class="site-footer__nav" aria-label="Footer">

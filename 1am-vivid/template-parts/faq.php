@@ -5,11 +5,11 @@
 $faqs = apply_filters(
 	'oneam_faq_preview',
 	array(
-		array( 'Who can buy from 1AM?', '사업자 서류 확인을 거쳐 승인된 캐나다 소매 거래처만 주문할 수 있습니다. 일반 소비자 판매는 하지 않습니다.' ),
-		array( 'How long does approval take?', '서류 제출 후 영업일 기준 1~2일 안에 검토합니다. 승인되면 이메일로 알려드립니다. (실제 기간으로 수정)' ),
-		array( 'Is there a minimum order?', '최소 주문 수량과 가격은 승인 후 쇼핑몰에서 확인할 수 있습니다. (도매 정책에 맞게 수정)' ),
-		array( 'Where do you ship?', '판매가 허용된 주(Province)로만 배송합니다. 해당 지역 외 주소는 주문 단계에서 선택되지 않습니다.' ),
-		array( 'How do I pay?', '카드 결제 또는 Interac e-Transfer / 계좌이체로 결제할 수 있습니다. (결제 방식 확정 후 수정)' ),
+		array( 'Who can buy from 1AM?', 'Only Canadian retailers approved after a business document check can order. We do not sell to consumers.' ),
+		array( 'How long does approval take?', 'We review applications within 1–2 business days and email you once you are approved.' ),
+		array( 'Is there a minimum order?', 'Minimum order quantities and pricing are shown in the wholesale shop after approval.' ),
+		array( 'Where do you ship?', 'We ship only to provinces where our products can be sold. Other addresses cannot be selected at checkout.' ),
+		array( 'How do I pay?', 'Pay by credit card or Interac e-Transfer / bank transfer.' ),
 	)
 );
 ?>

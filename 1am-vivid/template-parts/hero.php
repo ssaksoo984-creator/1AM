@@ -1,7 +1,16 @@
 <?php
-$flavors = oneam_get_flavors();
+/**
+ * Flavour slider (used at the top of the Slim HYBRID product page).
+ * Args: kicker, title (line breaks allowed), line (product line slug)
+ */
+$line    = isset( $args['line'] ) ? $args['line'] : 'slim-hybrid';
+$flavors = array_values( array_filter( oneam_get_flavors(), function ( $f ) use ( $line ) { return $f['line'] === $line; } ) );
+if ( ! $flavors ) {
+	return;
+}
 $total   = count( $flavors );
-$title   = explode( "\n", oneam_opt( 'oneam_hero_title' ) );
+$title   = explode( "\n", isset( $args['title'] ) ? $args['title'] : "Slim\nHYBRID." );
+$kicker  = isset( $args['kicker'] ) ? $args['kicker'] : '2ml Disposable · ' . $total . ' flavours';
 ?>
 <section class="hero" id="hero" data-cursor="Drag">
 	<div class="hero__bg"></div>
@@ -30,15 +39,15 @@ $title   = explode( "\n", oneam_opt( 'oneam_hero_title' ) );
 	</div>
 
 	<div class="hero__copy">
-		<p class="hero__kicker"><span class="dot"></span><?php echo esc_html( oneam_opt( 'oneam_hero_kicker' ) ); ?></p>
+		<p class="hero__kicker"><span class="dot"></span><?php echo esc_html( $kicker ); ?></p>
 		<h1 class="hero__title">
-			<?php foreach ( $title as $line ) : ?>
-				<span class="line"><span><?php echo esc_html( $line ); ?></span></span>
+			<?php foreach ( $title as $t ) : ?>
+				<span class="line"><span><?php echo esc_html( $t ); ?></span></span>
 			<?php endforeach; ?>
 		</h1>
 		<div class="hero__btns">
 			<?php oneam_member_cta(); ?>
-			<a class="btn btn--glass" href="#products" data-magnetic><span>View products</span></a>
+			<a class="btn btn--glass" href="#flavors" data-magnetic><span>All flavours</span></a>
 		</div>
 	</div>
 
@@ -49,8 +58,8 @@ $title   = explode( "\n", oneam_opt( 'oneam_hero_title' ) );
 			<p class="hero__desc" id="hero-desc"><?php echo esc_html( $flavors[0]['desc'] ); ?></p>
 		</div>
 		<div class="hero__arrows">
-			<button type="button" class="round-btn" data-hero="prev" aria-label="이전 맛" data-magnetic>&larr;</button>
-			<button type="button" class="round-btn" data-hero="next" aria-label="다음 맛" data-magnetic>&rarr;</button>
+			<button type="button" class="round-btn" data-hero="prev" aria-label="Previous flavour" data-magnetic>&larr;</button>
+			<button type="button" class="round-btn" data-hero="next" aria-label="Next flavour" data-magnetic>&rarr;</button>
 		</div>
 		<div class="hero__progress"><span></span></div>
 	</div>
@@ -61,5 +70,5 @@ $title   = explode( "\n", oneam_opt( 'oneam_hero_title' ) );
 		<?php endforeach; ?>
 	</div>
 
-	<a class="hero__scroll" href="#film" aria-label="Scroll"><span>Scroll</span><i></i></a>
+	<a class="hero__scroll" href="#flavors" aria-label="Scroll"><span>Scroll</span><i></i></a>
 </section>

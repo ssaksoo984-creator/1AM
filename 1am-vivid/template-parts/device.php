@@ -2,10 +2,10 @@
 $flavors = oneam_get_flavors();
 $hero    = $flavors[0];
 $callouts = array(
-	array( 'Crystal shell', '투명한 크리스탈 바디로 컬러 코어가 그대로 비칩니다.' ),
-	array( 'Gradient core', '맛마다 다른 그라데이션 컬러.' ),
-	array( 'Slim HYBRID', '한 손에 쏙 들어오는 슬림 바디.' ),
-	array( 'Soft mouthpiece', '부드러운 곡선의 마우스피스.' ),
+	array( 'Crystal shell', 'A clear crystal body shows the colour core inside.' ),
+	array( 'Gradient core', 'Each flavour has its own gradient.' ),
+	array( 'Slim HYBRID', 'A slim body that sits easily in the hand.' ),
+	array( 'Soft mouthpiece', 'A smooth, rounded mouthpiece.' ),
 );
 ?>
 <section class="device" id="device" data-header="light" style="<?php echo oneam_flavor_style( $hero ); // phpcs:ignore ?>">
