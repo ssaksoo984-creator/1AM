@@ -1062,6 +1062,17 @@ body.nav-open .nav-toggle i:last-child { transform: translateY(-3.5px) rotate(-4
 	.film__sound { top: calc(var(--head-h) + 16px); bottom: auto; }
 }
 
+
+/* 영상이 밝은 파스텔 톤이라 글자를 진하게 */
+.film--video { color: var(--ink); }
+.film--video .film__shade { background: linear-gradient(90deg, rgba(251, 248, 242, .7), rgba(251, 248, 242, .15) 55%, transparent 75%); }
+.film--video .btn--solid { --bg: var(--ink); --fg: var(--white); }
+.film--video .btn--glass { color: var(--ink); background: rgba(255, 255, 255, .45); box-shadow: inset 0 0 0 1.5px rgba(13, 11, 18, .35); }
+.film--video .film__sound { color: var(--ink); background: rgba(255, 255, 255, .55); }
+@media (max-width: 800px) {
+	.film--video .film__shade { background: linear-gradient(0deg, rgba(251, 248, 242, .85), rgba(251, 248, 242, .3) 55%, transparent 80%); }
+}
+
 /* ---------- ABOUT + 라인업 ---------- */
 .about { padding-top: clamp(90px, 11vw, 160px); }
 .about__intro {

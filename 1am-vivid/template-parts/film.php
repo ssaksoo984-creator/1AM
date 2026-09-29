@@ -9,8 +9,12 @@
 $mp4    = oneam_opt( 'oneam_video_mp4' );
 $yt     = oneam_opt( 'oneam_video_youtube' );
 $poster = oneam_opt( 'oneam_video_poster' );
+$mp4_sm = '';
 if ( ! $mp4 && file_exists( get_template_directory() . '/assets/video/brand.mp4' ) ) {
 	$mp4 = oneam_asset( 'video/brand.mp4' );
+	if ( file_exists( get_template_directory() . '/assets/video/brand-720.mp4' ) ) {
+		$mp4_sm = oneam_asset( 'video/brand-720.mp4' );
+	}
 	if ( ! $poster && file_exists( get_template_directory() . '/assets/video/brand.jpg' ) ) {
 		$poster = oneam_asset( 'video/brand.jpg' );
 	}
@@ -22,11 +26,16 @@ if ( ! $mp4 && $yt && preg_match( '~(?:youtu\.be/|v=|embed/|shorts/)([A-Za-z0-9_
 $first = oneam_get_flavors()[0];
 $title = explode( "\n", oneam_opt( 'oneam_intro_title' ) );
 ?>
-<section class="film" id="top" data-header="light" style="<?php echo oneam_flavor_style( $first ); // phpcs:ignore ?>">
+<section class="film<?php echo $mp4 ? ' film--video' : ''; ?>" id="top" data-header="light" style="<?php echo oneam_flavor_style( $first ); // phpcs:ignore ?>">
 	<div class="film__pin">
 		<div class="film__frame">
 			<?php if ( $mp4 ) : ?>
-				<video class="film__media" src="<?php echo esc_url( $mp4 ); ?>" <?php echo $poster ? 'poster="' . esc_url( $poster ) . '"' : ''; ?> autoplay muted loop playsinline preload="auto"></video>
+				<video class="film__media" <?php echo $poster ? 'poster="' . esc_url( $poster ) . '"' : ''; ?> autoplay muted loop playsinline preload="auto">
+					<?php if ( $mp4_sm ) : ?>
+						<source src="<?php echo esc_url( $mp4_sm ); ?>" type="video/mp4" media="(max-width: 800px)">
+					<?php endif; ?>
+					<source src="<?php echo esc_url( $mp4 ); ?>" type="video/mp4">
+				</video>
 			<?php elseif ( $yt_id ) : ?>
 				<iframe class="film__media film__media--yt" src="https://www.youtube-nocookie.com/embed/<?php echo esc_attr( $yt_id ); ?>?autoplay=1&amp;mute=1&amp;loop=1&amp;playlist=<?php echo esc_attr( $yt_id ); ?>&amp;controls=0&amp;playsinline=1&amp;rel=0&amp;modestbranding=1" title="1AM brand film" allow="autoplay; encrypted-media; picture-in-picture"></iframe>
 			<?php else : ?>

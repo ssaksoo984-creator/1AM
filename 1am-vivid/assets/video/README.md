@@ -1,6 +1,7 @@
-여기에 메인 영상을 넣으면 자동으로 사용됩니다.
+Home video (used automatically when present)
 
-- brand.mp4 — 영상 (H.264, 음소거 자동재생용, 10MB 이하 권장)
-- brand.jpg — 대표 이미지 (선택)
+- brand.mp4      — 1080p, web-compressed (H.264, faststart)
+- brand-720.mp4  — 720p version for phones
+- brand.jpg      — poster frame shown while the video loads
 
-관리자 > 사용자 정의하기 > 1AM 설정 > 영상 에서 다른 영상을 지정하면 그쪽이 우선합니다.
+A video chosen in Customize > 1AM Settings > Home video takes priority over these files.

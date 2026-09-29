@@ -48,12 +48,13 @@
 </header>
 
 <main id="main" class="site-main">
-<section class="film" id="top" data-header="light" style="--c1:#8A3FFC;--c2:#16C75A;">
+<section class="film film--video" id="top" data-header="light" style="--c1:#8A3FFC;--c2:#16C75A;">
 	<div class="film__pin">
 		<div class="film__frame">
-							<div class="film__media film__media--empty" aria-hidden="true">
-					<img src="../1am-vivid/assets/img/flavors/grape-ice.webp" alt="" width="246" height="1400">
-				</div>
+							<video class="film__media" poster="../1am-vivid/assets/video/brand.jpg" autoplay muted loop playsinline preload="auto">
+											<source src="../1am-vivid/assets/video/brand-720.mp4" type="video/mp4" media="(max-width: 800px)">
+										<source src="../1am-vivid/assets/video/brand.mp4" type="video/mp4">
+				</video>
 						<div class="film__shade" aria-hidden="true"></div>
 
 			<div class="film__copy">
@@ -68,6 +69,7 @@
 				</div>
 			</div>
 
+							<button type="button" class="film__sound" aria-pressed="false">Sound off</button>
 					</div>
 	</div>
 </section>
