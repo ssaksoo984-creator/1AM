@@ -25,7 +25,7 @@ function get_theme_mod($k,$d=false){ return $d; }
 function home_url($p=''){ return $p==='/'?'./':(strpos($p,'/#')===0?substr($p,1):'./'.ltrim($p,'/')); }
 function esc_url($u){ return htmlspecialchars($u,ENT_QUOTES); } function esc_url_raw($u){return $u;}
 function esc_attr($s){ return htmlspecialchars((string)$s,ENT_QUOTES); } function esc_html($s){ return htmlspecialchars((string)$s,ENT_QUOTES); }
-function language_attributes(){ echo 'lang="ko"'; } function bloginfo($k){ echo 'UTF-8'; } function get_bloginfo($k){ return '1AM'; }
+function language_attributes(){ echo 'lang="en-CA"'; } function bloginfo($k){ echo 'UTF-8'; } function get_bloginfo($k){ return '1AM'; }
 function body_class($c=''){ echo 'class="home '.$c.'"'; } function wp_body_open(){}
 function has_custom_logo(){ return false; }
 function wp_enqueue_style($h,$src){ $GLOBALS['styles'][]=$src; }
