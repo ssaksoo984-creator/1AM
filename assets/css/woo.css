@@ -1,0 +1,62 @@
+/* ==========================================================================
+   1AM Vivid — WooCommerce (쇼핑몰·장바구니·결제·내 계정)
+   기본 레이아웃은 유지하고 브랜드 컬러·폰트·버튼만 입힙니다.
+   ========================================================================== */
+.woocommerce-page .site-main,
+.woocommerce .site-main { max-width: 1280px; margin: 0 auto; padding: calc(var(--warn-h) + 120px) var(--gutter) 100px; }
+.woocommerce-products-header__title,
+.woocommerce-page h1.entry-title,
+.woocommerce-page .page-title {
+	font-size: clamp(44px, 7vw, 110px);
+	line-height: .9;
+	font-weight: 900;
+	font-variation-settings: "wdth" 68;
+	text-transform: uppercase;
+	margin: 0 0 32px;
+}
+.woocommerce a.button,
+.woocommerce button.button,
+.woocommerce input.button,
+.woocommerce #respond input#submit,
+.woocommerce a.button.alt,
+.woocommerce button.button.alt,
+.woocommerce-page .wc-block-components-button {
+	border-radius: 999px !important;
+	background: var(--ink) !important;
+	color: var(--white) !important;
+	font-family: var(--f-display) !important;
+	font-weight: 800 !important;
+	text-transform: uppercase;
+	letter-spacing: .03em;
+	padding: 14px 26px !important;
+	transition: background .3s;
+}
+.woocommerce a.button:hover,
+.woocommerce button.button:hover,
+.woocommerce a.button.alt:hover,
+.woocommerce button.button.alt:hover { background: linear-gradient(120deg, var(--c1), var(--c2)) !important; }
+.woocommerce ul.products li.product {
+	background: var(--white);
+	border-radius: var(--radius);
+	padding: 18px !important;
+}
+.woocommerce ul.products li.product .woocommerce-loop-product__title { font-weight: 900; text-transform: uppercase; font-size: 18px !important; }
+.woocommerce span.onsale { background: var(--c1); border-radius: 999px; }
+.woocommerce .price, .woocommerce .amount { font-variant-numeric: tabular-nums; font-weight: 800; color: var(--ink) !important; }
+.woocommerce form .form-row input.input-text,
+.woocommerce form .form-row textarea,
+.woocommerce form .form-row select,
+.woocommerce .quantity .qty {
+	border: 2px solid var(--ink);
+	border-radius: 14px;
+	padding: 12px 14px;
+	font: inherit;
+	background: var(--white);
+}
+.woocommerce form .form-row input.input-text:focus { outline: 3px solid var(--c1); outline-offset: 1px; }
+.woocommerce-message, .woocommerce-info, .woocommerce-error { border-radius: 18px; border-top: 0; background: var(--white); }
+.woocommerce-message::before, .woocommerce-info::before { color: var(--c1); }
+.woocommerce table.shop_table { border-radius: 18px; background: var(--white); border: 0; }
+.woocommerce-MyAccount-navigation ul { list-style: none; padding: 0; display: grid; gap: 6px; }
+.woocommerce-MyAccount-navigation a { display: block; padding: 12px 16px; border-radius: 14px; background: var(--white); font-weight: 800; text-transform: uppercase; font-size: 13px; }
+.woocommerce-MyAccount-navigation .is-active a { background: var(--ink); color: var(--white); }

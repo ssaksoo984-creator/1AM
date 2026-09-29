@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="preload" href="./assets/fonts/archivo-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./assets/fonts/instrument-serif-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+<title>1AM — Slim HYBRID</title>
+<link rel="stylesheet" href="./assets/css/main.css">
+</head>
+<body class="home is-loading" style="--c1:#8A3FFC;--c2:#16C75A;">
+
+<div class="agegate" id="agegate" role="dialog" aria-modal="true" aria-labelledby="agegate-title" hidden>
+	<div class="agegate__blob"></div>
+	<div class="agegate__box">
+		<img class="agegate__logo" src="./assets/img/logo-black.png" alt="1AM" width="700" height="355">		<p class="agegate__eyebrow">Adults only</p>
+		<h2 id="agegate-title" class="agegate__title">Are you <em>19+</em>?</h2>
+		<p class="agegate__txt">You must be 19 or older to enter this site.</p>
+		<div class="agegate__btns">
+			<button type="button" class="btn btn--solid" data-age="yes" data-magnetic><span>Yes, I am</span></button>
+			<button type="button" class="btn btn--ghost" data-age="no" data-magnetic><span>No</span></button>
+		</div>
+	</div>
+</div>
+
+<div class="loader" id="loader" aria-hidden="true">
+	<div class="loader__bg"></div>
+	<div class="loader__inner">
+		<img class="loader__logo" src="./assets/img/logo-white.png" alt="1AM" width="700" height="355">		<div class="loader__count" id="loader-num">00:00 AM</div>
+	</div>
+</div>
+
+<div class="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__label"></span></div>
+
+<div class="topbar" role="note"><p>WARNING: Vaping products contain nicotine, a highly addictive chemical.</p></div>
+
+<header class="site-header" id="site-header">
+	<a class="site-header__logo" href="./" aria-label="1AM home">
+		<img class="" src="./assets/img/logo-black.png" alt="1AM" width="700" height="355">	</a>
+	<nav class="site-nav" id="site-nav" aria-label="Primary">
+		<ul><li><a href="#products">Products</a><ul><li><a href="slim-hybrid.html">Slim HYBRID</a></li><li><a href="#products">HYBRID Max (coming soon)</a></li><li><a href="#products">HYBRID Refill (coming soon)</a></li></ul></li><li><a href="./about-us/">About</a></li><li><a href="./how-to-order/">How to Order</a></li><li><a href="./faq/">FAQ</a></li></ul>		<div class="site-nav__actions">
+										<a class="site-nav__login" href="./#login">Log in</a>
+						<a class="btn btn--solid btn--sm" href="./wholesale-signup/" data-magnetic data-state="guest"><span>Apply for wholesale &rarr;</span></a>		</div>
+	</nav>
+	<button class="nav-toggle" id="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+		<i></i><i></i>
+	</button>
+</header>
+
+<main id="main" class="site-main">
+<section class="film" id="top" data-header="light" style="--c1:#8A3FFC;--c2:#16C75A;">
+	<div class="film__pin">
+		<div class="film__frame">
+							<video class="film__media" poster="./assets/video/brand.jpg" autoplay muted loop playsinline preload="auto">
+											<source src="./assets/video/brand-720.mp4" type="video/mp4" media="(max-width: 800px)">
+										<source src="./assets/video/brand.mp4" type="video/mp4">
+				</video>
+			
+			<div class="film__tint" aria-hidden="true"></div>
+			<div class="film__bar">
+				<h1 class="film__title">Stocked for <em>retail.</em></h1>
+				<p class="film__text">Slim HYBRID · 15 flavours · Wholesale only</p>
+				<div class="film__btns">
+											<button type="button" class="film__sound" aria-pressed="false">Sound off</button>
+										<a class="btn btn--solid " href="./wholesale-signup/" data-magnetic data-state="guest"><span>Apply for wholesale &rarr;</span></a>				</div>
+			</div>
+		</div>
+	</div>
+</section>
+<section class="about" id="about">
+	<div class="row" id="row">
+		<div class="row__glow" aria-hidden="true">
+							<span class="bloom" style="left:8%;top:22%;--s:26vmin;--c:#ffc6dc"></span>
+							<span class="bloom" style="left:22%;top:62%;--s:18vmin;--c:#ffe0c2"></span>
+							<span class="bloom" style="left:34%;top:18%;--s:14vmin;--c:#d9c9ff"></span>
+							<span class="bloom" style="left:47%;top:48%;--s:34vmin;--c:#ffd3e6"></span>
+							<span class="bloom" style="left:60%;top:20%;--s:20vmin;--c:#c3f1dc"></span>
+							<span class="bloom" style="left:70%;top:64%;--s:24vmin;--c:#d9c9ff"></span>
+							<span class="bloom" style="left:84%;top:28%;--s:28vmin;--c:#ffe0c2"></span>
+							<span class="bloom" style="left:93%;top:60%;--s:16vmin;--c:#c9e8ff"></span>
+							<span class="bloom" style="left:14%;top:84%;--s:14vmin;--c:#c3f1dc"></span>
+							<span class="bloom" style="left:78%;top:86%;--s:12vmin;--c:#ffc6dc"></span>
+					</div>
+
+		<div class="row__viewport">
+			<ul class="row__track" aria-label="15 Slim HYBRID flavours">
+															<li class="row__item is-clone" aria-hidden="true" style="--c1:#8A3FFC;--c2:#16C75A;">
+							<img src="./assets/img/flavors/grape-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Grape Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#00C2A8;--c2:#1E5BFF;">
+							<img src="./assets/img/flavors/blue-razz-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Blue Razz Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#FF2E4D;--c2:#2BD45A;">
+							<img src="./assets/img/flavors/watermelon-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Watermelon Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#1FD65A;--c2:#D7F21A;">
+							<img src="./assets/img/flavors/lemon-lime-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Lemon Lime Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#B026FF;--c2:#FF1464;">
+							<img src="./assets/img/flavors/raspberry-dragonfruit-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Raspberry Dragonfruit Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#12D16B;--c2:#19C6E6;">
+							<img src="./assets/img/flavors/miami-mint.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Miami Mint</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#2F6BFF;--c2:#12D16B;">
+							<img src="./assets/img/flavors/double-mint.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Double Mint</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#FF2A2A;--c2:#FF8A7A;">
+							<img src="./assets/img/flavors/classic-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Classic Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#E0115F;--c2:#3D5BFF;">
+							<img src="./assets/img/flavors/red-classic-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Red Classic Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#1FB8E6;--c2:#F58CC0;">
+							<img src="./assets/img/flavors/milky-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Milky Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#FF3B5C;--c2:#FFB321;">
+							<img src="./assets/img/flavors/cheesy-strawberry.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Cheesy Strawberry</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#FF8A4D;--c2:#FFC857;">
+							<img src="./assets/img/flavors/juicy-peach-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Juicy Peach Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#FF5C8A;--c2:#E8174B;">
+							<img src="./assets/img/flavors/guava-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Guava Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#FFD60A;--c2:#FF9F1C;">
+							<img src="./assets/img/flavors/banana-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Banana Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#F2B705;--c2:#A0461F;">
+							<img src="./assets/img/flavors/double-birch-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Double Birch Ice</span>
+						</li>
+																				<li class="row__item is-main"  style="--c1:#8A3FFC;--c2:#16C75A;">
+							<img src="./assets/img/flavors/grape-ice.webp" alt="Grape Ice" width="246" height="1400" loading="lazy">
+							<span class="row__name">Grape Ice</span>
+						</li>
+											<li class="row__item is-main"  style="--c1:#00C2A8;--c2:#1E5BFF;">
+							<img src="./assets/img/flavors/blue-razz-ice.webp" alt="Blue Razz Ice" width="246" height="1400" loading="lazy">
+							<span class="row__name">Blue Razz Ice</span>
+						</li>
+											<li class="row__item is-main"  style="--c1:#FF2E4D;--c2:#2BD45A;">
+							<img src="./assets/img/flavors/watermelon-ice.webp" alt="Watermelon Ice" width="246" height="1400" loading="lazy">
+							<span class="row__name">Watermelon Ice</span>
+						</li>
+											<li class="row__item is-main"  style="--c1:#1FD65A;--c2:#D7F21A;">
+							<img src="./assets/img/flavors/lemon-lime-ice.webp" alt="Lemon Lime Ice" width="246" height="1400" loading="lazy">
+							<span class="row__name">Lemon Lime Ice</span>
+						</li>
+											<li class="row__item is-main"  style="--c1:#B026FF;--c2:#FF1464;">
+							<img src="./assets/img/flavors/raspberry-dragonfruit-ice.webp" alt="Raspberry Dragonfruit Ice" width="246" height="1400" loading="lazy">
+							<span class="row__name">Raspberry Dragonfruit Ice</span>
+						</li>
+											<li class="row__item is-main"  style="--c1:#12D16B;--c2:#19C6E6;">
+							<img src="./assets/img/flavors/miami-mint.webp" alt="Miami Mint" width="246" height="1400" loading="lazy">
+							<span class="row__name">Miami Mint</span>
+						</li>
+											<li class="row__item is-main"  style="--c1:#2F6BFF;--c2:#12D16B;">
+							<img src="./assets/img/flavors/double-mint.webp" alt="Double Mint" width="246" height="1400" loading="lazy">
+							<span class="row__name">Double Mint</span>
+						</li>
+											<li class="row__item is-main"  style="--c1:#FF2A2A;--c2:#FF8A7A;">
+							<img src="./assets/img/flavors/classic-ice.webp" alt="Classic Ice" width="246" height="1400" loading="lazy">
+							<span class="row__name">Classic Ice</span>
+						</li>
+											<li class="row__item is-main"  style="--c1:#E0115F;--c2:#3D5BFF;">
+							<img src="./assets/img/flavors/red-classic-ice.webp" alt="Red Classic Ice" width="246" height="1400" loading="lazy">
+							<span class="row__name">Red Classic Ice</span>
+						</li>
+											<li class="row__item is-main"  style="--c1:#1FB8E6;--c2:#F58CC0;">
+							<img src="./assets/img/flavors/milky-ice.webp" alt="Milky Ice" width="246" height="1400" loading="lazy">
+							<span class="row__name">Milky Ice</span>
+						</li>
+											<li class="row__item is-main"  style="--c1:#FF3B5C;--c2:#FFB321;">
+							<img src="./assets/img/flavors/cheesy-strawberry.webp" alt="Cheesy Strawberry" width="246" height="1400" loading="lazy">
+							<span class="row__name">Cheesy Strawberry</span>
+						</li>
+											<li class="row__item is-main"  style="--c1:#FF8A4D;--c2:#FFC857;">
+							<img src="./assets/img/flavors/juicy-peach-ice.webp" alt="Juicy Peach Ice" width="246" height="1400" loading="lazy">
+							<span class="row__name">Juicy Peach Ice</span>
+						</li>
+											<li class="row__item is-main"  style="--c1:#FF5C8A;--c2:#E8174B;">
+							<img src="./assets/img/flavors/guava-ice.webp" alt="Guava Ice" width="246" height="1400" loading="lazy">
+							<span class="row__name">Guava Ice</span>
+						</li>
+											<li class="row__item is-main"  style="--c1:#FFD60A;--c2:#FF9F1C;">
+							<img src="./assets/img/flavors/banana-ice.webp" alt="Banana Ice" width="246" height="1400" loading="lazy">
+							<span class="row__name">Banana Ice</span>
+						</li>
+											<li class="row__item is-main"  style="--c1:#F2B705;--c2:#A0461F;">
+							<img src="./assets/img/flavors/double-birch-ice.webp" alt="Double Birch Ice" width="246" height="1400" loading="lazy">
+							<span class="row__name">Double Birch Ice</span>
+						</li>
+																				<li class="row__item is-clone" aria-hidden="true" style="--c1:#8A3FFC;--c2:#16C75A;">
+							<img src="./assets/img/flavors/grape-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Grape Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#00C2A8;--c2:#1E5BFF;">
+							<img src="./assets/img/flavors/blue-razz-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Blue Razz Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#FF2E4D;--c2:#2BD45A;">
+							<img src="./assets/img/flavors/watermelon-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Watermelon Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#1FD65A;--c2:#D7F21A;">
+							<img src="./assets/img/flavors/lemon-lime-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Lemon Lime Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#B026FF;--c2:#FF1464;">
+							<img src="./assets/img/flavors/raspberry-dragonfruit-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Raspberry Dragonfruit Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#12D16B;--c2:#19C6E6;">
+							<img src="./assets/img/flavors/miami-mint.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Miami Mint</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#2F6BFF;--c2:#12D16B;">
+							<img src="./assets/img/flavors/double-mint.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Double Mint</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#FF2A2A;--c2:#FF8A7A;">
+							<img src="./assets/img/flavors/classic-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Classic Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#E0115F;--c2:#3D5BFF;">
+							<img src="./assets/img/flavors/red-classic-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Red Classic Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#1FB8E6;--c2:#F58CC0;">
+							<img src="./assets/img/flavors/milky-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Milky Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#FF3B5C;--c2:#FFB321;">
+							<img src="./assets/img/flavors/cheesy-strawberry.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Cheesy Strawberry</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#FF8A4D;--c2:#FFC857;">
+							<img src="./assets/img/flavors/juicy-peach-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Juicy Peach Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#FF5C8A;--c2:#E8174B;">
+							<img src="./assets/img/flavors/guava-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Guava Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#FFD60A;--c2:#FF9F1C;">
+							<img src="./assets/img/flavors/banana-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Banana Ice</span>
+						</li>
+											<li class="row__item is-clone" aria-hidden="true" style="--c1:#F2B705;--c2:#A0461F;">
+							<img src="./assets/img/flavors/double-birch-ice.webp" alt="" width="246" height="1400" loading="lazy">
+							<span class="row__name">Double Birch Ice</span>
+						</li>
+												</ul>
+		</div>
+
+		<div class="about__intro">
+			<p class="eyebrow">About 1AM</p>
+			<h2 class="about__title">A wholesale brand built for <em>Canadian retailers.</em></h2>
+			<p class="about__text">1AM is a wholesale-only vape brand for Canadian retail stores. We supply proven products and work only with approved retail partners.</p>
+			<a class="btn btn--round" href="./about-us/"><span>About</span><span class="btn__arrow" aria-hidden="true">&rarr;</span></a>
+		</div>
+	</div>
+</section>
+<section class="lab" id="products">
+	<div class="lab__bg"></div>
+	<div class="lab__head">
+		<p class="eyebrow">Product lineup · 3 lines</p>
+		<p class="lab__hint">Keep scrolling &rarr;</p>
+	</div>
+	<div class="lab__track">
+					<article class="lab__panel" style="--c1:#8A3FFC;--c2:#16C75A;" data-c1="#8A3FFC" data-c2="#16C75A">
+				<div class="lab__num">01</div>
+				<div class="lab__blob" aria-hidden="true"></div>
+				<div class="lab__visual">
+					<img class="lab__img" src="./assets/img/flavors/grape-ice.webp" alt="Slim HYBRID" width="246" height="1400" loading="lazy">				</div>
+				<div class="lab__text">
+					<p class="lab__status"><span class="dot"></span>Available now</p>
+					<h2 class="lab__name"><span class="w"><span class="ch" style="--i:0">S</span><span class="ch" style="--i:1">l</span><span class="ch" style="--i:2">i</span><span class="ch" style="--i:3">m</span></span> <span class="w"><span class="ch" style="--i:4">H</span><span class="ch" style="--i:5">Y</span><span class="ch" style="--i:6">B</span><span class="ch" style="--i:7">R</span><span class="ch" style="--i:8">I</span><span class="ch" style="--i:9">D</span></span></h2>
+					<p class="lab__tag">2ml Disposable</p>
+					<p class="lab__desc">A slim disposable with a crystal-clear body. 15 flavours, ready to stock.</p>
+											<dl class="lab__specs">
+															<div><dt>E-liquid</dt><dd>2ml</dd></div>
+															<div><dt>Flavours</dt><dd>15</dd></div>
+															<div><dt>Type</dt><dd>Disposable</dd></div>
+													</dl>
+										<div class="lab__btns">
+													<a class="btn btn--solid" href="slim-hybrid.html" data-magnetic><span>View product</span></a>
+											</div>
+				</div>
+			</article>
+					<article class="lab__panel is-soon" style="--c1:#FF2E4D;--c2:#FFB321;" data-c1="#FF2E4D" data-c2="#FFB321">
+				<div class="lab__num">02</div>
+				<div class="lab__blob" aria-hidden="true"></div>
+				<div class="lab__visual">
+					<div class="ghost lab__img ghost--hybrid-max" role="img" aria-label="HYBRID Max — coming soon"><span class="ghost__cap"></span><span class="ghost__body"><span class="ghost__txt">HYBRID Max</span></span><span class="ghost__base"></span></div>				</div>
+				<div class="lab__text">
+					<p class="lab__status"><span class="dot"></span>Coming soon</p>
+					<h2 class="lab__name"><span class="w"><span class="ch" style="--i:0">H</span><span class="ch" style="--i:1">Y</span><span class="ch" style="--i:2">B</span><span class="ch" style="--i:3">R</span><span class="ch" style="--i:4">I</span><span class="ch" style="--i:5">D</span></span> <span class="w"><span class="ch" style="--i:6">M</span><span class="ch" style="--i:7">a</span><span class="ch" style="--i:8">x</span></span></h2>
+					<p class="lab__tag">Large capacity</p>
+					<p class="lab__desc">A larger-capacity line. In development.</p>
+											<dl class="lab__specs">
+															<div><dt>E-liquid</dt><dd>TBA</dd></div>
+															<div><dt>Flavours</dt><dd>TBA</dd></div>
+															<div><dt>Type</dt><dd>Disposable</dd></div>
+													</dl>
+										<div class="lab__btns">
+													<a class="btn btn--solid" href="./wholesale-signup/" data-magnetic><span>Get notified</span></a>
+											</div>
+				</div>
+			</article>
+					<article class="lab__panel is-soon" style="--c1:#1E5BFF;--c2:#00C2A8;" data-c1="#1E5BFF" data-c2="#00C2A8">
+				<div class="lab__num">03</div>
+				<div class="lab__blob" aria-hidden="true"></div>
+				<div class="lab__visual">
+					<div class="ghost lab__img ghost--hybrid-refill" role="img" aria-label="HYBRID Refill — coming soon"><span class="ghost__cap"></span><span class="ghost__body"><span class="ghost__txt">HYBRID Refill</span></span><span class="ghost__base"></span></div>				</div>
+				<div class="lab__text">
+					<p class="lab__status"><span class="dot"></span>Coming soon</p>
+					<h2 class="lab__name"><span class="w"><span class="ch" style="--i:0">H</span><span class="ch" style="--i:1">Y</span><span class="ch" style="--i:2">B</span><span class="ch" style="--i:3">R</span><span class="ch" style="--i:4">I</span><span class="ch" style="--i:5">D</span></span> <span class="w"><span class="ch" style="--i:6">R</span><span class="ch" style="--i:7">e</span><span class="ch" style="--i:8">f</span><span class="ch" style="--i:9">i</span><span class="ch" style="--i:10">l</span><span class="ch" style="--i:11">l</span></span></h2>
+					<p class="lab__tag">Refillable pod</p>
+					<p class="lab__desc">A refillable pod line. In development.</p>
+											<dl class="lab__specs">
+															<div><dt>E-liquid</dt><dd>TBA</dd></div>
+															<div><dt>Flavours</dt><dd>TBA</dd></div>
+															<div><dt>Type</dt><dd>Refill pod</dd></div>
+													</dl>
+										<div class="lab__btns">
+													<a class="btn btn--solid" href="./wholesale-signup/" data-magnetic><span>Get notified</span></a>
+											</div>
+				</div>
+			</article>
+			</div>
+	<div class="lab__bar"><span></span></div>
+</section>
+<section class="device" id="device" data-header="light" style="--c1:#8A3FFC;--c2:#16C75A;">
+	<div class="device__pin">
+		<h2 class="device__title">
+							<span class="line"><span>Slim outside.</span></span>
+							<span class="line"><span><em>Loud inside.</em></span></span>
+					</h2>
+
+		<div class="device__stage">
+			<div class="device__ring" aria-hidden="true"></div>
+			<div class="device__stack">
+									<img src="./assets/img/flavors/grape-ice.webp" alt="1AM Slim HYBRID" width="246" height="1400" loading="lazy" data-c1="#8A3FFC" data-c2="#16C75A">
+									<img src="./assets/img/flavors/blue-razz-ice.webp" alt="" width="246" height="1400" loading="lazy" data-c1="#00C2A8" data-c2="#1E5BFF">
+									<img src="./assets/img/flavors/watermelon-ice.webp" alt="" width="246" height="1400" loading="lazy" data-c1="#FF2E4D" data-c2="#2BD45A">
+									<img src="./assets/img/flavors/lemon-lime-ice.webp" alt="" width="246" height="1400" loading="lazy" data-c1="#1FD65A" data-c2="#D7F21A">
+									<img src="./assets/img/flavors/raspberry-dragonfruit-ice.webp" alt="" width="246" height="1400" loading="lazy" data-c1="#B026FF" data-c2="#FF1464">
+							</div>
+							<div class="callout callout--1">
+					<i></i>
+					<strong>Crystal shell</strong>
+					<span>A clear crystal body shows the colour core inside.</span>
+				</div>
+							<div class="callout callout--2">
+					<i></i>
+					<strong>Gradient core</strong>
+					<span>Each flavour has its own gradient.</span>
+				</div>
+							<div class="callout callout--3">
+					<i></i>
+					<strong>Slim HYBRID</strong>
+					<span>A slim body that sits easily in the hand.</span>
+				</div>
+							<div class="callout callout--4">
+					<i></i>
+					<strong>Soft mouthpiece</strong>
+					<span>A smooth, rounded mouthpiece.</span>
+				</div>
+					</div>
+
+		<dl class="specs">
+							<div class="spec">
+					<dt>Flavours</dt>
+					<dd data-count="15">15</dd>
+				</div>
+							<div class="spec">
+					<dt>ml E-liquid</dt>
+					<dd data-count="2">2</dd>
+				</div>
+							<div class="spec">
+					<dt>Product lines</dt>
+					<dd data-count="3">3</dd>
+				</div>
+					</dl>
+	</div>
+</section>
+<section class="cta" id="wholesale">
+	<div class="cta__fan" aria-hidden="true">
+					<img src="./assets/img/flavors/grape-ice.webp" alt="" width="246" height="1400" loading="lazy" style="--o:-4">
+					<img src="./assets/img/flavors/blue-razz-ice.webp" alt="" width="246" height="1400" loading="lazy" style="--o:-3">
+					<img src="./assets/img/flavors/watermelon-ice.webp" alt="" width="246" height="1400" loading="lazy" style="--o:-2">
+					<img src="./assets/img/flavors/lemon-lime-ice.webp" alt="" width="246" height="1400" loading="lazy" style="--o:-1">
+					<img src="./assets/img/flavors/raspberry-dragonfruit-ice.webp" alt="" width="246" height="1400" loading="lazy" style="--o:0">
+					<img src="./assets/img/flavors/miami-mint.webp" alt="" width="246" height="1400" loading="lazy" style="--o:1">
+					<img src="./assets/img/flavors/double-mint.webp" alt="" width="246" height="1400" loading="lazy" style="--o:2">
+					<img src="./assets/img/flavors/classic-ice.webp" alt="" width="246" height="1400" loading="lazy" style="--o:3">
+					<img src="./assets/img/flavors/red-classic-ice.webp" alt="" width="246" height="1400" loading="lazy" style="--o:4">
+			</div>
+	<h2 class="cta__title" data-fill>Stock <em>1AM.</em></h2>
+	<p class="cta__text">Apply, get verified, and order at wholesale prices as soon as you are approved.</p>
+	<div class="cta__btns">
+		<a class="btn btn--solid btn--xl" href="./wholesale-signup/" data-magnetic data-state="guest"><span>Apply for wholesale &rarr;</span></a>					<a class="btn btn--ghost btn--xl" href="./#login" data-magnetic><span>Log in</span></a>
+			</div>
+	<p class="cta__note">Retailers only · 19+ · Canada</p>
+</section>
+</main>
+
+<footer class="site-footer" data-header="light">
+	<div class="site-footer__top">
+		<div class="site-footer__brand">
+			<a class="site-footer__logo" href="./" aria-label="1AM home"><img class="" src="./assets/img/logo-white.png" alt="1AM" width="700" height="355"></a>
+			<p class="site-footer__lead">A wholesale-only brand for approved Canadian retailers.</p>
+			<a class="btn btn--solid " href="./wholesale-signup/" data-magnetic data-state="guest"><span>Apply for wholesale &rarr;</span></a>		</div>
+		<nav class="site-footer__nav" aria-label="Footer">
+			<p class="site-footer__eyebrow">Explore</p>
+			<ul><li><a href="#products">Products</a></li><li><a href="./about-us/">About</a></li><li><a href="./how-to-order/">How to Order</a></li><li><a href="./faq/">FAQ</a></li></ul>		</nav>
+		<nav class="site-footer__nav" aria-label="Wholesale">
+			<p class="site-footer__eyebrow">Wholesale</p>
+			<ul>
+				<li><a href="./wholesale-signup/">Apply</a></li>
+				<li><a href="./#login">Log in</a></li>
+				<li><a href="./how-to-order/">How to order</a></li>
+			</ul>
+		</nav>
+		<nav class="site-footer__nav" aria-label="Policies">
+			<p class="site-footer__eyebrow">Policies</p>
+			<ul><li><a href="./terms/">Terms of Use</a></li><li><a href="./privacy-policy/">Privacy Policy</a></li><li><a href="./shipping-returns/">Shipping &amp; Returns</a></li></ul>		</nav>
+	</div>
+	<div class="site-footer__bottom">
+		<p class="site-footer__warning">WARNING: Vaping products contain nicotine, a highly addictive chemical. For adults 19+ only.</p>
+		<p>&copy; 2026 1AM. All rights reserved.</p>
+	</div>
+</footer>
+
+<script>var ONEAM = {"ageGate":true,"minAge":19,"lite":false};</script>
+<script src="./assets/vendor/gsap.min.js"></script>
+<script src="./assets/vendor/ScrollTrigger.min.js"></script>
+<script src="./assets/vendor/lenis.min.js"></script>
+<script src="./assets/js/main.js"></script>
+</body>
+</html>
