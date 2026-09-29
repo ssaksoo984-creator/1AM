@@ -2,25 +2,45 @@
 
 <footer class="site-footer" data-header="light">
 	<div class="site-footer__top">
-		<div class="site-footer__col">
-			<p class="site-footer__eyebrow">Stay up late</p>
-			<p class="site-footer__big">Don't sleep on<br><em>flavor.</em></p>
+		<div class="site-footer__brand">
+			<a class="site-footer__logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="1AM home"><?php oneam_logo( 'white' ); ?></a>
+			<p class="site-footer__lead">Wholesale only. 승인된 캐나다 소매 거래처를 위한 도매 브랜드입니다.</p>
+			<?php oneam_member_cta(); ?>
 		</div>
 		<nav class="site-footer__nav" aria-label="Footer">
+			<p class="site-footer__eyebrow">Explore</p>
 			<?php
 			wp_nav_menu(
 				array(
 					'theme_location' => 'footer',
 					'container'      => false,
-					'fallback_cb'    => 'oneam_fallback_menu',
+					'fallback_cb'    => 'oneam_fallback_footer_menu',
 					'depth'          => 1,
 				)
 			);
 			?>
 		</nav>
-	</div>
-	<div class="site-footer__logo" data-footer-logo>
-		<?php oneam_logo( 'white' ); ?>
+		<nav class="site-footer__nav" aria-label="Wholesale">
+			<p class="site-footer__eyebrow">Wholesale</p>
+			<ul>
+				<li><a href="<?php echo esc_url( oneam_signup_url() ); ?>">Apply</a></li>
+				<li><a href="<?php echo esc_url( oneam_login_url() ); ?>">Log in</a></li>
+				<li><a href="<?php echo esc_url( oneam_opt( 'oneam_order_url' ) ); ?>">How to order</a></li>
+			</ul>
+		</nav>
+		<nav class="site-footer__nav" aria-label="Policies">
+			<p class="site-footer__eyebrow">Policies</p>
+			<?php
+			wp_nav_menu(
+				array(
+					'theme_location' => 'legal',
+					'container'      => false,
+					'fallback_cb'    => 'oneam_fallback_legal_menu',
+					'depth'          => 1,
+				)
+			);
+			?>
+		</nav>
 	</div>
 	<div class="site-footer__bottom">
 		<p class="site-footer__warning"><?php echo esc_html( oneam_opt( 'oneam_warning' ) ); ?></p>

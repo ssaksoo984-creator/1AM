@@ -1,12 +1,19 @@
 <?php
-$flavors = oneam_get_flavors();
+/**
+ * 맛 목록. get_template_part( 'template-parts/flavors', null, array( 'line' => 'slim-hybrid' ) ) 로 상품별 필터.
+ */
+$line    = isset( $args['line'] ) ? $args['line'] : '';
+$flavors = array_values( array_filter( oneam_get_flavors(), function ( $f ) use ( $line ) { return ! $line || $f['line'] === $line; } ) );
+if ( ! $flavors ) {
+	return;
+}
 $cats    = oneam_flavor_categories();
 ?>
 <section class="flavors" id="flavors">
 	<div class="flavors__head">
 		<h2 class="section-title" data-reveal>
-			<span class="line"><span>All</span></span>
-			<span class="line"><span><em>the</em> flavors</span></span>
+			<span class="line"><span><em>Slim HYBRID</em></span></span>
+			<span class="line"><span>flavours</span></span>
 		</h2>
 		<div class="chips" role="tablist" aria-label="Filter">
 			<button type="button" class="chip is-active" data-filter="all" data-magnetic>All <sup><?php echo count( $flavors ); ?></sup></button>

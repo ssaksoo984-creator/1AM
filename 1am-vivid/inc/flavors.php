@@ -23,28 +23,28 @@ function oneam_flavor_categories() {
 /** 테마에 포함된 기본 맛 데이터 (이미지: assets/img/flavors/{slug}.webp) */
 function oneam_default_flavors() {
 	return array(
-		array( 'Grape Ice', 'grape-ice', 'fruit', '#8A3FFC', '#16C75A', 'Juicy purple grape, finished with a cold snap.' ),
-		array( 'Blue Razz Ice', 'blue-razz-ice', 'ice', '#00C2A8', '#1E5BFF', 'Electric blue raspberry over crushed ice.' ),
-		array( 'Watermelon Ice', 'watermelon-ice', 'fruit', '#FF2E4D', '#2BD45A', 'Summer-ripe watermelon, iced to the core.' ),
-		array( 'Lemon Lime Ice', 'lemon-lime-ice', 'fruit', '#1FD65A', '#D7F21A', 'Zesty lemon and lime, bright and fizzy.' ),
-		array( 'Raspberry Dragonfruit Ice', 'raspberry-dragonfruit-ice', 'fruit', '#B026FF', '#FF1464', 'Tart raspberry meets exotic dragonfruit.' ),
-		array( 'Miami Mint', 'miami-mint', 'mint', '#12D16B', '#19C6E6', 'Sweet spearmint with a sunny coastal chill.' ),
-		array( 'Double Mint', 'double-mint', 'mint', '#2F6BFF', '#12D16B', 'Twice the mint. Twice the freeze.' ),
-		array( 'Classic Ice', 'classic-ice', 'ice', '#FF2A2A', '#FF8A7A', 'Clean, crisp, and ice-cold — the original.' ),
-		array( 'Red Classic Ice', 'red-classic-ice', 'ice', '#E0115F', '#3D5BFF', 'A bold red twist on the classic.' ),
-		array( 'Milky Ice', 'milky-ice', 'sweet', '#1FB8E6', '#F58CC0', 'Creamy, mellow milk with a soft chill.' ),
-		array( 'Cheesy Strawberry', 'cheesy-strawberry', 'sweet', '#FF3B5C', '#FFB321', 'Strawberry cheesecake in a single breath.' ),
-		array( 'Juicy Peach Ice', 'juicy-peach-ice', 'fruit', '#FF8A4D', '#FFC857', 'Soft, sweet peach nectar on ice.' ),
-		array( 'Guava Ice', 'guava-ice', 'fruit', '#FF5C8A', '#E8174B', 'Tropical pink guava, cool and smooth.' ),
-		array( 'Banana Ice', 'banana-ice', 'sweet', '#FFD60A', '#FF9F1C', 'Ripe banana, creamy and chilled.' ),
-		array( 'Double Birch Ice', 'double-birch-ice', 'ice', '#F2B705', '#A0461F', 'Woody birch sweetness with a double chill.' ),
+		array( 'Grape Ice', 'grape-ice', 'fruit', '#8A3FFC', '#16C75A', 'Purple grape with a cool finish.' ),
+		array( 'Blue Razz Ice', 'blue-razz-ice', 'ice', '#00C2A8', '#1E5BFF', 'Blue raspberry, lightly cooled.' ),
+		array( 'Watermelon Ice', 'watermelon-ice', 'fruit', '#FF2E4D', '#2BD45A', 'Ripe watermelon with a cool finish.' ),
+		array( 'Lemon Lime Ice', 'lemon-lime-ice', 'fruit', '#1FD65A', '#D7F21A', 'Lemon and lime, bright and crisp.' ),
+		array( 'Raspberry Dragonfruit Ice', 'raspberry-dragonfruit-ice', 'fruit', '#B026FF', '#FF1464', 'Raspberry and dragonfruit, lightly cooled.' ),
+		array( 'Miami Mint', 'miami-mint', 'mint', '#12D16B', '#19C6E6', 'Spearmint with a clean, cool finish.' ),
+		array( 'Double Mint', 'double-mint', 'mint', '#2F6BFF', '#12D16B', 'Layered mint, extra cool.' ),
+		array( 'Classic Ice', 'classic-ice', 'ice', '#FF2A2A', '#FF8A7A', 'Clean and cool. The original.' ),
+		array( 'Red Classic Ice', 'red-classic-ice', 'ice', '#E0115F', '#3D5BFF', 'A red-berry take on the classic.' ),
+		array( 'Milky Ice', 'milky-ice', 'sweet', '#1FB8E6', '#F58CC0', 'Smooth milk flavour, lightly cooled.' ),
+		array( 'Cheesy Strawberry', 'cheesy-strawberry', 'sweet', '#FF3B5C', '#FFB321', 'Strawberry with a smooth, rich finish.' ),
+		array( 'Juicy Peach Ice', 'juicy-peach-ice', 'fruit', '#FF8A4D', '#FFC857', 'Soft peach, lightly cooled.' ),
+		array( 'Guava Ice', 'guava-ice', 'fruit', '#FF5C8A', '#E8174B', 'Pink guava, cool and smooth.' ),
+		array( 'Banana Ice', 'banana-ice', 'sweet', '#FFD60A', '#FF9F1C', 'Ripe banana, lightly cooled.' ),
+		array( 'Double Birch Ice', 'double-birch-ice', 'ice', '#F2B705', '#A0461F', 'Birch with a double cool finish.' ),
 	);
 }
 
 /**
  * 모든 맛을 통일된 배열로 반환.
  *
- * @return array[] name, slug, cat, c1, c2, img, desc, url
+ * @return array[] name, slug, cat, c1, c2, img, desc, url, line
  */
 function oneam_get_flavors() {
 	static $cache = null;
@@ -73,6 +73,7 @@ function oneam_get_flavors() {
 			'img'  => $img ?: oneam_asset( 'img/flavors/' . $p->post_name . '.webp' ),
 			'desc' => get_the_excerpt( $p ),
 			'url'  => get_permalink( $p ),
+			'line' => get_post_meta( $p->ID, '_oneam_line', true ) ?: 'slim-hybrid',
 		);
 	}
 
@@ -87,6 +88,7 @@ function oneam_get_flavors() {
 				'img'  => oneam_asset( 'img/flavors/' . $f[1] . '.webp' ),
 				'desc' => $f[5],
 				'url'  => home_url( '/#flavors' ),
+				'line' => 'slim-hybrid',
 			);
 		}
 	}
@@ -147,6 +149,7 @@ function oneam_flavor_meta_box( $post ) {
 				<option value="<?php echo esc_attr( $k ); ?>" <?php selected( $cat, $k ); ?>><?php echo esc_html( $label ); ?></option>
 			<?php endforeach; ?>
 		</select></label></p>
+	<p><label>상품 라인 슬러그<br><input type="text" name="oneam_line" value="<?php echo esc_attr( get_post_meta( $post->ID, '_oneam_line', true ) ?: 'slim-hybrid' ); ?>"></label></p>
 	<p class="description">대표 이미지 = 배경이 투명한 제품 PNG/WebP (세로형)</p>
 	<?php
 }
@@ -164,6 +167,9 @@ add_action(
 			if ( isset( $_POST[ 'oneam_' . $k ] ) ) {
 				update_post_meta( $post_id, '_oneam_' . $k, sanitize_hex_color( wp_unslash( $_POST[ 'oneam_' . $k ] ) ) );
 			}
+		}
+		if ( isset( $_POST['oneam_line'] ) ) {
+			update_post_meta( $post_id, '_oneam_line', sanitize_title( wp_unslash( $_POST['oneam_line'] ) ) );
 		}
 		if ( isset( $_POST['oneam_cat'] ) && array_key_exists( wp_unslash( $_POST['oneam_cat'] ), oneam_flavor_categories() ) ) {
 			update_post_meta( $post_id, '_oneam_cat', sanitize_key( wp_unslash( $_POST['oneam_cat'] ) ) );

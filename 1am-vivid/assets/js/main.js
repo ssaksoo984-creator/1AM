@@ -12,6 +12,7 @@
 	var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
 	var body = document.body;
 	var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	var lite = !!cfg.lite; // 쇼핑몰(장바구니·결제·내 계정) 페이지
 	var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
 	if (!gsap) { body.classList.remove('is-loading'); return; }
@@ -24,7 +25,7 @@
 
 	/* ---------------------------------------------------------------- Lenis */
 	var lenis = null;
-	if (window.Lenis && !reduce) {
+	if (window.Lenis && !reduce && !lite) {
 		lenis = new window.Lenis({ lerp: 0.1, smoothWheel: true });
 		lenis.on('scroll', ST.update);
 		gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
@@ -128,7 +129,7 @@
 	}
 
 	/* --------------------------------------------------------------- Cursor */
-	if (finePointer && !reduce) {
+	if (finePointer && !reduce && !lite) {
 		var cursor = $('.cursor');
 		var label = $('.cursor__label');
 		var xTo = gsap.quickTo(cursor, 'x', { duration: .35, ease: 'power3' });
@@ -304,7 +305,7 @@
 
 	/* ------------------------------------------------------------------ Lab */
 	function lab() {
-		var root = $('#lab');
+		var root = $('#products');
 		if (!root) return;
 		var track = $('.lab__track', root);
 		var panels = $$('.lab__panel', root);
@@ -418,22 +419,11 @@
 				.fromTo(img, { opacity: 0, rotate: -12 }, { opacity: 1, rotate: 0, duration: .4 }, at)
 				.to(root, { '--c1': img.dataset.c1, '--c2': img.dataset.c2, duration: .4 }, at);
 		});
-
-		$$('[data-count]', root).forEach(function (dd) {
-			var end = parseFloat(dd.dataset.count);
-			if (isNaN(end)) return;
-			var o = { v: 0 };
-			gsap.to(o, {
-				v: end, duration: 1.6, ease: 'power3.out',
-				scrollTrigger: { trigger: dd, start: 'top bottom', once: true },
-				onUpdate: function () { dd.textContent = Math.round(o.v); }
-			});
-		});
 	}
 
 	/* ------------------------------------------------------------------ CTA */
 	function cta() {
-		var root = $('#find');
+		var root = $('#wholesale');
 		if (!root) return;
 		var imgs = $$('.cta__fan img', root);
 		gsap.fromTo(imgs,
@@ -454,15 +444,78 @@
 		$$('[data-reveal]').forEach(function (el) {
 			gsap.from($$('.line > span', el), { yPercent: 110, duration: 1.1, stagger: .1, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 85%' } });
 		});
-		var logo = $('[data-footer-logo] img');
-		if (logo) gsap.from(logo, { yPercent: 40, opacity: 0, ease: 'none', scrollTrigger: { trigger: '.site-footer', start: 'top bottom', end: 'bottom bottom', scrub: true } });
+		// 숫자 카운트 (회사 소개 / 스펙)
+		$$('[data-count]').forEach(function (el) {
+			var end = parseFloat(el.dataset.count);
+			if (isNaN(end)) return;
+			var suffix = el.textContent.replace(/^[\d.,\s]+/, '');
+			var o = { v: 0 };
+			gsap.to(o, {
+				v: end, duration: 1.6, ease: 'power3.out',
+				scrollTrigger: { trigger: el, start: 'top 90%', once: true },
+				onUpdate: function () { el.textContent = Math.round(o.v) + suffix; }
+			});
+		});
+
+		// 서브 페이지 제목
+		if ($('.page-head')) gsap.from('.page-head__title .ch', { yPercent: 100, opacity: 0, stagger: .025, duration: 1, ease: 'expo.out', delay: .2 });
 
 		// 상세 페이지
 		if ($('.pdp')) {
-			gsap.from('.pdp__device img', { y: 200, rotate: 25, opacity: 0, duration: 1.4, ease: 'elastic.out(1, .7)' });
+			gsap.from('.pdp__device > *', { y: 200, rotate: 25, opacity: 0, duration: 1.4, ease: 'elastic.out(1, .7)' });
 			gsap.from('.pdp__name .ch', { yPercent: 100, opacity: 0, stagger: .03, duration: 1, ease: 'expo.out' });
 			gsap.from('.pdp__copy > *', { y: 40, opacity: 0, stagger: .08, duration: 1, ease: 'expo.out', delay: .2 });
 		}
+	}
+
+	/* ----------------------------------------------------------------- Film */
+	function film() {
+		var root = $('#film');
+		if (!root) return;
+		var frame = $('.film__frame', root);
+		gsap.timeline({ scrollTrigger: { trigger: root, start: 'top top', end: '+=120%', pin: '.film__pin', scrub: 1 } })
+			.fromTo(frame, { clipPath: 'inset(16% 18% 16% 18% round 36px)' }, { clipPath: 'inset(0% 0% 0% 0% round 0px)', ease: 'none' }, 0)
+			.fromTo('.film__media', { scale: 1.25 }, { scale: 1, ease: 'none' }, 0)
+			.fromTo('.film__title', { yPercent: 60, opacity: 0 }, { yPercent: 0, opacity: 1, ease: 'power2.out', duration: .5 }, .35);
+
+		var video = $('video', root);
+		var btn = $('.film__sound', root);
+		if (video && btn) {
+			btn.addEventListener('click', function () {
+				video.muted = !video.muted;
+				btn.setAttribute('aria-pressed', String(!video.muted));
+				btn.textContent = video.muted ? 'Sound off' : 'Sound on';
+			});
+		}
+		// 화면 밖에서는 영상 정지
+		if (video) ST.create({ trigger: root, start: 'top bottom', end: 'bottom top', onToggle: function (s) { s.isActive ? video.play().catch(function () {}) : video.pause(); } });
+	}
+
+	/* ---------------------------------------------------------------- About */
+	function about() {
+		var title = $('.about [data-words]');
+		if (!title) return;
+		title.innerHTML = title.textContent.trim().split(/\s+/).map(function (w) { return '<span class="wd">' + w + '</span>'; }).join(' ');
+		gsap.fromTo($$('.wd', title), { opacity: .12 }, { opacity: 1, stagger: .1, ease: 'none', scrollTrigger: { trigger: title, start: 'top 80%', end: 'bottom 45%', scrub: true } });
+		gsap.from('.about__stats .stat', { y: 60, opacity: 0, stagger: .1, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: '.about__stats', start: 'top 85%' } });
+	}
+
+	/* ------------------------------------------------------ Benefits/Steps */
+	function blocks() {
+		if ($('.benefits__list')) {
+			gsap.from('.benefit', { y: 80, opacity: 0, rotate: function (i) { return i % 2 ? 3 : -3; }, stagger: .08, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: '.benefits__list', start: 'top 85%' } });
+		}
+		$$('.steps').forEach(function (sec) {
+			gsap.fromTo($('.steps__line i', sec), { scaleX: 0 }, { scaleX: 1, ease: 'none', scrollTrigger: { trigger: $('.steps__track', sec), start: 'top 75%', end: 'bottom 55%', scrub: true } });
+			gsap.from($$('.step', sec), { y: 50, opacity: 0, stagger: .15, duration: .9, ease: 'expo.out', scrollTrigger: { trigger: $('.steps__track', sec), start: 'top 80%' } });
+		});
+		$$('.faq__item').forEach(function (d) {
+			// 아코디언: 하나만 열기
+			d.addEventListener('toggle', function () {
+				if (d.open) $$('.faq__item').forEach(function (o) { if (o !== d) o.open = false; });
+				ST.refresh();
+			});
+		});
 	}
 
 	function headerTheme() {
@@ -479,9 +532,12 @@
 	var h = hero();
 	marquee();
 	if (!reduce) {
+		film();
+		about();
 		lab();
 		flavors();
 		device();
+		blocks();
 		cta();
 		reveals();
 	}
@@ -490,6 +546,7 @@
 	if (reduce) {
 		flavors();
 	}
+	ST.sort();
 
 	ageGate()
 		.then(loader)

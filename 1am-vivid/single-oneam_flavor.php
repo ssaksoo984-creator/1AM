@@ -30,7 +30,7 @@ while ( have_posts() ) :
 			<?php if ( ! get_the_content() ) : ?>
 				<p class="pdp__content"><?php echo esc_html( $f['desc'] ); ?></p>
 			<?php endif; ?>
-			<a class="btn btn--solid" href="<?php echo esc_url( oneam_opt( 'oneam_cta_url' ) ); ?>" data-magnetic><span>Where to buy</span></a>
+			<?php oneam_member_cta(); ?>
 		</div>
 	</section>
 

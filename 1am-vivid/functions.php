@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_VERSION', '1.0.0' );
+define( 'ONEAM_VERSION', '1.1.0' );
 
 function oneam_asset( $path ) {
 	return get_template_directory_uri() . '/assets/' . ltrim( $path, '/' );
@@ -15,6 +15,7 @@ function oneam_asset( $path ) {
 
 require get_template_directory() . '/inc/flavors.php';
 require get_template_directory() . '/inc/customizer.php';
+require get_template_directory() . '/inc/products.php';
 
 add_action(
 	'after_setup_theme',
@@ -27,6 +28,7 @@ add_action(
 			array(
 				'primary' => '메인 메뉴 (전체화면 메뉴)',
 				'footer'  => '푸터 메뉴',
+				'legal'   => '푸터 정책 메뉴 (약관 · 개인정보 · 배송/반품)',
 			)
 		);
 	}
@@ -37,10 +39,20 @@ add_action(
 	function () {
 		wp_enqueue_style( 'oneam-main', oneam_asset( 'css/main.css' ), array(), ONEAM_VERSION );
 
+		// 쇼핑몰(장바구니·결제·내 계정)에서는 부드러운 스크롤·커서를 끄고 가볍게
+		$shop = oneam_is_shop_area();
+		if ( $shop ) {
+			wp_enqueue_style( 'oneam-woo', oneam_asset( 'css/woo.css' ), array( 'oneam-main' ), ONEAM_VERSION );
+		}
+
 		wp_enqueue_script( 'gsap', oneam_asset( 'vendor/gsap.min.js' ), array(), '3.15.0', true );
 		wp_enqueue_script( 'gsap-scrolltrigger', oneam_asset( 'vendor/ScrollTrigger.min.js' ), array( 'gsap' ), '3.15.0', true );
-		wp_enqueue_script( 'lenis', oneam_asset( 'vendor/lenis.min.js' ), array(), '1.3.26', true );
-		wp_enqueue_script( 'oneam-main', oneam_asset( 'js/main.js' ), array( 'gsap', 'gsap-scrolltrigger', 'lenis' ), ONEAM_VERSION, true );
+		$deps = array( 'gsap', 'gsap-scrolltrigger' );
+		if ( ! $shop ) {
+			wp_enqueue_script( 'lenis', oneam_asset( 'vendor/lenis.min.js' ), array(), '1.3.26', true );
+			$deps[] = 'lenis';
+		}
+		wp_enqueue_script( 'oneam-main', oneam_asset( 'js/main.js' ), $deps, ONEAM_VERSION, true );
 
 		wp_localize_script(
 			'oneam-main',
@@ -48,6 +60,7 @@ add_action(
 			array(
 				'ageGate' => (bool) get_theme_mod( 'oneam_age_gate', true ),
 				'minAge'  => (int) get_theme_mod( 'oneam_min_age', 19 ),
+				'lite'    => $shop,
 			)
 		);
 	}
@@ -73,19 +86,71 @@ function oneam_logo( $variant = 'black', $class = '' ) {
 	printf( '<img class="%s" src="%s" alt="%s" width="700" height="355">', esc_attr( $class ), esc_url( $src ), esc_attr( get_bloginfo( 'name' ) ?: '1AM' ) );
 }
 
-/** 메뉴가 없을 때 기본 링크 */
-function oneam_fallback_menu() {
-	$links = array(
-		'#flavors' => 'Flavors',
-		'#lab'     => 'Flavor Lab',
-		'#device'  => 'Device',
-		'#find'    => 'Where to buy',
+/**
+ * 기본 메뉴 구조 (견적서 기준). 외모 > 메뉴에서 만들면 그 메뉴가 우선합니다.
+ * Home / Products(1·2·3) / About Us / How to Order / FAQ / Wholesale
+ */
+function oneam_menu_items() {
+	$products = array();
+	foreach ( oneam_get_products() as $p ) {
+		$products[] = array( $p['name'] . ( 'soon' === $p['status'] ? ' · Soon' : '' ), $p['url'] );
+	}
+	return array(
+		array( 'Home', home_url( '/' ) ),
+		array( 'Products', home_url( '/#products' ), $products ),
+		array( 'About Us', oneam_opt( 'oneam_about_url' ) ),
+		array( 'How to Order', oneam_opt( 'oneam_order_url' ) ),
+		array( 'FAQ', oneam_opt( 'oneam_faq_url' ) ),
+		array(
+			'Wholesale',
+			oneam_signup_url(),
+			array(
+				array( 'Apply', oneam_signup_url() ),
+				array( 'Log in', oneam_login_url() ),
+				array( 'Shop', oneam_shop_url() ),
+			),
+		),
 	);
+}
+
+function oneam_render_menu( $items ) {
 	echo '<ul>';
-	foreach ( $links as $href => $label ) {
-		printf( '<li><a href="%s">%s</a></li>', esc_url( home_url( '/' ) . $href ), esc_html( $label ) );
+	foreach ( $items as $it ) {
+		echo '<li>';
+		printf( '<a href="%s">%s</a>', esc_url( $it[1] ), esc_html( $it[0] ) );
+		if ( ! empty( $it[2] ) ) {
+			oneam_render_menu( $it[2] );
+		}
+		echo '</li>';
 	}
 	echo '</ul>';
+}
+
+/** 메인 메뉴 기본값 */
+function oneam_fallback_menu() {
+	oneam_render_menu( oneam_menu_items() );
+}
+
+/** 푸터 메뉴 기본값 (1단계만) */
+function oneam_fallback_footer_menu() {
+	$flat = array();
+	foreach ( oneam_menu_items() as $it ) {
+		if ( 'Home' !== $it[0] && 'Wholesale' !== $it[0] ) {
+			$flat[] = array( $it[0], $it[1] );
+		}
+	}
+	oneam_render_menu( $flat );
+}
+
+/** 정책 메뉴 기본값 */
+function oneam_fallback_legal_menu() {
+	oneam_render_menu(
+		array(
+			array( 'Terms of Use', home_url( '/terms/' ) ),
+			array( 'Privacy Policy', function_exists( 'get_privacy_policy_url' ) && get_privacy_policy_url() ? get_privacy_policy_url() : home_url( '/privacy-policy/' ) ),
+			array( 'Shipping & Returns', home_url( '/shipping-returns/' ) ),
+		)
+	);
 }
 
 /** 글자 단위로 쪼개서 애니메이션용 span 으로 감싸기 (단어는 줄바꿈되지 않도록 .w 로 묶음) */

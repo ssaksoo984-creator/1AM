@@ -32,13 +32,18 @@
 
 <div class="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__label"></span></div>
 
+<div class="topbar" role="note"><p>WARNING: Vaping products contain nicotine, a highly addictive chemical.</p></div>
+
 <header class="site-header" id="site-header">
 	<a class="site-header__logo" href="./" aria-label="1AM home">
 		<img class="" src="../1am-vivid/assets/img/logo-black.png" alt="1AM" width="700" height="355">	</a>
 	<nav class="site-header__quick" aria-label="Quick">
-		<a href="#flavors" data-magnetic>Flavors</a>
-		<a href="#device" data-magnetic>Device</a>
-	</nav>
+		<a href="#products" data-magnetic>Products</a>
+		<a href="./about-us/" data-magnetic>About</a>
+		<a href="./faq/" data-magnetic>FAQ</a>
+					<a href="./#login" data-magnetic>Log in</a>
+			<a class="is-accent" href="./wholesale-signup/" data-magnetic>Apply</a>
+			</nav>
 	<button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="menu" data-magnetic>
 		<span class="menu-btn__label">Menu</span>
 		<span class="menu-btn__lines"><i></i><i></i></span>
@@ -49,9 +54,11 @@
 	<div class="menu__bg"></div>
 	<div class="menu__inner">
 		<nav class="menu__nav" aria-label="Primary">
-			<ul><li><a href="./#flavors">Flavors</a></li><li><a href="./#lab">Flavor Lab</a></li><li><a href="./#device">Device</a></li><li><a href="./#find">Where to buy</a></li></ul>		</nav>
+			<ul><li><a href="./">Home</a></li><li><a href="#products">Products</a><ul><li><a href="#products">Slim HYBRID</a></li><li><a href="#products">HYBRID Max · Soon</a></li><li><a href="#products">HYBRID Refill · Soon</a></li></ul></li><li><a href="./about-us/">About Us</a></li><li><a href="./how-to-order/">How to Order</a></li><li><a href="./faq/">FAQ</a></li><li><a href="./wholesale-signup/">Wholesale</a><ul><li><a href="./wholesale-signup/">Apply</a></li><li><a href="./#login">Log in</a></li><li><a href="./shop/">Shop</a></li></ul></li></ul>		</nav>
 		<div class="menu__side">
-			<p class="menu__eyebrow">Now tasting</p>
+			<p class="menu__eyebrow">Wholesale</p>
+			<p class="menu__lead">승인된 도매 거래처만 주문할 수 있습니다.</p>
+			<a class="btn btn--solid " href="./wholesale-signup/" data-magnetic data-state="guest"><span>Apply for wholesale &rarr;</span></a>			<p class="menu__eyebrow">Slim HYBRID flavours</p>
 			<div class="menu__flavors">
 									<a href="#flavors" style="--c1:#8A3FFC;--c2:#16C75A;">Grape Ice</a>
 									<a href="#flavors" style="--c1:#00C2A8;--c2:#1E5BFF;">Blue Razz Ice</a>
@@ -92,7 +99,7 @@
 	<div class="hero__stage">
 					<figure class="hero__device is-active"
 				data-name="Grape Ice"
-				data-desc="Juicy purple grape, finished with a cold snap."
+				data-desc="Purple grape with a cool finish."
 				data-url="#flavors"
 				data-c1="#8A3FFC"
 				data-c2="#16C75A">
@@ -100,7 +107,7 @@
 			</figure>
 					<figure class="hero__device"
 				data-name="Blue Razz Ice"
-				data-desc="Electric blue raspberry over crushed ice."
+				data-desc="Blue raspberry, lightly cooled."
 				data-url="#flavors"
 				data-c1="#00C2A8"
 				data-c2="#1E5BFF">
@@ -108,7 +115,7 @@
 			</figure>
 					<figure class="hero__device"
 				data-name="Watermelon Ice"
-				data-desc="Summer-ripe watermelon, iced to the core."
+				data-desc="Ripe watermelon with a cool finish."
 				data-url="#flavors"
 				data-c1="#FF2E4D"
 				data-c2="#2BD45A">
@@ -116,7 +123,7 @@
 			</figure>
 					<figure class="hero__device"
 				data-name="Lemon Lime Ice"
-				data-desc="Zesty lemon and lime, bright and fizzy."
+				data-desc="Lemon and lime, bright and crisp."
 				data-url="#flavors"
 				data-c1="#1FD65A"
 				data-c2="#D7F21A">
@@ -124,7 +131,7 @@
 			</figure>
 					<figure class="hero__device"
 				data-name="Raspberry Dragonfruit Ice"
-				data-desc="Tart raspberry meets exotic dragonfruit."
+				data-desc="Raspberry and dragonfruit, lightly cooled."
 				data-url="#flavors"
 				data-c1="#B026FF"
 				data-c2="#FF1464">
@@ -132,7 +139,7 @@
 			</figure>
 					<figure class="hero__device"
 				data-name="Miami Mint"
-				data-desc="Sweet spearmint with a sunny coastal chill."
+				data-desc="Spearmint with a clean, cool finish."
 				data-url="#flavors"
 				data-c1="#12D16B"
 				data-c2="#19C6E6">
@@ -140,7 +147,7 @@
 			</figure>
 					<figure class="hero__device"
 				data-name="Double Mint"
-				data-desc="Twice the mint. Twice the freeze."
+				data-desc="Layered mint, extra cool."
 				data-url="#flavors"
 				data-c1="#2F6BFF"
 				data-c2="#12D16B">
@@ -148,7 +155,7 @@
 			</figure>
 					<figure class="hero__device"
 				data-name="Classic Ice"
-				data-desc="Clean, crisp, and ice-cold — the original."
+				data-desc="Clean and cool. The original."
 				data-url="#flavors"
 				data-c1="#FF2A2A"
 				data-c2="#FF8A7A">
@@ -156,7 +163,7 @@
 			</figure>
 					<figure class="hero__device"
 				data-name="Red Classic Ice"
-				data-desc="A bold red twist on the classic."
+				data-desc="A red-berry take on the classic."
 				data-url="#flavors"
 				data-c1="#E0115F"
 				data-c2="#3D5BFF">
@@ -164,7 +171,7 @@
 			</figure>
 					<figure class="hero__device"
 				data-name="Milky Ice"
-				data-desc="Creamy, mellow milk with a soft chill."
+				data-desc="Smooth milk flavour, lightly cooled."
 				data-url="#flavors"
 				data-c1="#1FB8E6"
 				data-c2="#F58CC0">
@@ -172,7 +179,7 @@
 			</figure>
 					<figure class="hero__device"
 				data-name="Cheesy Strawberry"
-				data-desc="Strawberry cheesecake in a single breath."
+				data-desc="Strawberry with a smooth, rich finish."
 				data-url="#flavors"
 				data-c1="#FF3B5C"
 				data-c2="#FFB321">
@@ -180,7 +187,7 @@
 			</figure>
 					<figure class="hero__device"
 				data-name="Juicy Peach Ice"
-				data-desc="Soft, sweet peach nectar on ice."
+				data-desc="Soft peach, lightly cooled."
 				data-url="#flavors"
 				data-c1="#FF8A4D"
 				data-c2="#FFC857">
@@ -188,7 +195,7 @@
 			</figure>
 					<figure class="hero__device"
 				data-name="Guava Ice"
-				data-desc="Tropical pink guava, cool and smooth."
+				data-desc="Pink guava, cool and smooth."
 				data-url="#flavors"
 				data-c1="#FF5C8A"
 				data-c2="#E8174B">
@@ -196,7 +203,7 @@
 			</figure>
 					<figure class="hero__device"
 				data-name="Banana Ice"
-				data-desc="Ripe banana, creamy and chilled."
+				data-desc="Ripe banana, lightly cooled."
 				data-url="#flavors"
 				data-c1="#FFD60A"
 				data-c2="#FF9F1C">
@@ -204,7 +211,7 @@
 			</figure>
 					<figure class="hero__device"
 				data-name="Double Birch Ice"
-				data-desc="Woody birch sweetness with a double chill."
+				data-desc="Birch with a double cool finish."
 				data-url="#flavors"
 				data-c1="#F2B705"
 				data-c2="#A0461F">
@@ -214,18 +221,21 @@
 	</div>
 
 	<div class="hero__copy">
-		<p class="hero__kicker"><span class="dot"></span>Slim HYBRID · 15 Flavors</p>
+		<p class="hero__kicker"><span class="dot"></span>Canada · Wholesale only · 19+</p>
 		<h1 class="hero__title">
-							<span class="line"><span>It&#039;s always</span></span>
-							<span class="line"><span>1AM somewhere.</span></span>
+							<span class="line"><span>Wholesale</span></span>
+							<span class="line"><span>vape supply.</span></span>
 					</h1>
+		<div class="hero__btns">
+			<a class="btn btn--solid " href="./wholesale-signup/" data-magnetic data-state="guest"><span>Apply for wholesale &rarr;</span></a>			<a class="btn btn--glass" href="#products" data-magnetic><span>View products</span></a>
+		</div>
 	</div>
 
 	<div class="hero__ctrl">
 		<div class="hero__info">
 			<p class="hero__count"><span id="hero-idx">01</span> / 15</p>
 			<p class="hero__flavor" id="hero-flavor">Grape Ice</p>
-			<p class="hero__desc" id="hero-desc">Juicy purple grape, finished with a cold snap.</p>
+			<p class="hero__desc" id="hero-desc">Purple grape with a cool finish.</p>
 		</div>
 		<div class="hero__arrows">
 			<button type="button" class="round-btn" data-hero="prev" aria-label="이전 맛" data-magnetic>&larr;</button>
@@ -252,81 +262,136 @@
 					<button type="button" role="tab" class="" style="--c1:#F2B705;--c2:#A0461F;" data-idx="14" aria-label="Double Birch Ice"></button>
 			</div>
 
-	<a class="hero__scroll" href="#lab" aria-label="Scroll"><span>Scroll</span><i></i></a>
+	<a class="hero__scroll" href="#film" aria-label="Scroll"><span>Scroll</span><i></i></a>
 </section>
-<section class="marquee" aria-label="STAY UP LATE ✦ SLIM HYBRID ✦ 15 VIVID FLAVORS ✦ ICE COLD ✦">
+<section class="marquee" aria-label="WHOLESALE ONLY ✦ SLIM HYBRID 2ML ✦ 15 FLAVOURS ✦ MAX &amp; REFILL COMING SOON ✦">
 	<div class="marquee__band marquee__band--a" data-marquee="1">
 		<div class="marquee__track">
-							<span aria-hidden="true">STAY UP LATE ✦ SLIM HYBRID ✦ 15 VIVID FLAVORS ✦ ICE COLD ✦&nbsp;</span>
-							<span aria-hidden="true">STAY UP LATE ✦ SLIM HYBRID ✦ 15 VIVID FLAVORS ✦ ICE COLD ✦&nbsp;</span>
-							<span aria-hidden="true">STAY UP LATE ✦ SLIM HYBRID ✦ 15 VIVID FLAVORS ✦ ICE COLD ✦&nbsp;</span>
-							<span aria-hidden="true">STAY UP LATE ✦ SLIM HYBRID ✦ 15 VIVID FLAVORS ✦ ICE COLD ✦&nbsp;</span>
+							<span aria-hidden="true">WHOLESALE ONLY ✦ SLIM HYBRID 2ML ✦ 15 FLAVOURS ✦ MAX &amp; REFILL COMING SOON ✦&nbsp;</span>
+							<span aria-hidden="true">WHOLESALE ONLY ✦ SLIM HYBRID 2ML ✦ 15 FLAVOURS ✦ MAX &amp; REFILL COMING SOON ✦&nbsp;</span>
+							<span aria-hidden="true">WHOLESALE ONLY ✦ SLIM HYBRID 2ML ✦ 15 FLAVOURS ✦ MAX &amp; REFILL COMING SOON ✦&nbsp;</span>
+							<span aria-hidden="true">WHOLESALE ONLY ✦ SLIM HYBRID 2ML ✦ 15 FLAVOURS ✦ MAX &amp; REFILL COMING SOON ✦&nbsp;</span>
 					</div>
 	</div>
 	<div class="marquee__band marquee__band--b" data-marquee="-1">
 		<div class="marquee__track">
-							<span aria-hidden="true">STAY UP LATE ✦ SLIM HYBRID ✦ 15 VIVID FLAVORS ✦ ICE COLD ✦&nbsp;</span>
-							<span aria-hidden="true">STAY UP LATE ✦ SLIM HYBRID ✦ 15 VIVID FLAVORS ✦ ICE COLD ✦&nbsp;</span>
-							<span aria-hidden="true">STAY UP LATE ✦ SLIM HYBRID ✦ 15 VIVID FLAVORS ✦ ICE COLD ✦&nbsp;</span>
-							<span aria-hidden="true">STAY UP LATE ✦ SLIM HYBRID ✦ 15 VIVID FLAVORS ✦ ICE COLD ✦&nbsp;</span>
+							<span aria-hidden="true">WHOLESALE ONLY ✦ SLIM HYBRID 2ML ✦ 15 FLAVOURS ✦ MAX &amp; REFILL COMING SOON ✦&nbsp;</span>
+							<span aria-hidden="true">WHOLESALE ONLY ✦ SLIM HYBRID 2ML ✦ 15 FLAVOURS ✦ MAX &amp; REFILL COMING SOON ✦&nbsp;</span>
+							<span aria-hidden="true">WHOLESALE ONLY ✦ SLIM HYBRID 2ML ✦ 15 FLAVOURS ✦ MAX &amp; REFILL COMING SOON ✦&nbsp;</span>
+							<span aria-hidden="true">WHOLESALE ONLY ✦ SLIM HYBRID 2ML ✦ 15 FLAVOURS ✦ MAX &amp; REFILL COMING SOON ✦&nbsp;</span>
 					</div>
 	</div>
 </section>
-<section class="lab" id="lab">
+<section class="film" id="film" data-header="light">
+	<div class="film__pin">
+		<div class="film__frame">
+							<div class="film__media film__media--empty">
+					<span class="film__play" aria-hidden="true"></span>
+					<span class="film__note">영상 자리 · 사용자 정의하기 &gt; 1AM 설정 &gt; 영상</span>
+				</div>
+						<div class="film__shade" aria-hidden="true"></div>
+			<h2 class="film__title">See it in motion.</h2>
+					</div>
+	</div>
+</section>
+<section class="about" id="about">
+	<div class="about__grid">
+		<p class="eyebrow about__eyebrow">About 1AM</p>
+		<h2 class="about__title" data-words>A wholesale brand built for Canadian retailers.</h2>
+		<div class="about__body">
+			<p>1AM은 캐나다 소매점을 위한 도매 전용 베이핑 브랜드입니다. 검증된 제품만 공급하고, 승인된 거래처와만 거래합니다. (회사 소개 문구로 교체해 주세요)</p>
+			<a class="link-arrow" href="./about-us/">About us <span>&rarr;</span></a>
+		</div>
+	</div>
+	<dl class="about__stats">
+					<div class="stat">
+				<dt>Product lines</dt>
+				<dd>
+					<strong data-count="3">3</strong>
+					<span>1 available · 2 coming soon</span>
+				</dd>
+			</div>
+					<div class="stat">
+				<dt>Flavours</dt>
+				<dd>
+					<strong data-count="15">15</strong>
+					<span>Slim HYBRID 2ml</span>
+				</dd>
+			</div>
+					<div class="stat">
+				<dt>Retailers only</dt>
+				<dd>
+					<strong data-count="19">19+</strong>
+					<span>Approved wholesale accounts</span>
+				</dd>
+			</div>
+			</dl>
+</section>
+<section class="lab" id="products">
 	<div class="lab__bg"></div>
 	<div class="lab__head">
-		<p class="eyebrow">Flavor Lab</p>
+		<p class="eyebrow">Product lineup · 3 lines</p>
 		<p class="lab__hint">Keep scrolling &rarr;</p>
 	</div>
 	<div class="lab__track">
 					<article class="lab__panel" style="--c1:#8A3FFC;--c2:#16C75A;" data-c1="#8A3FFC" data-c2="#16C75A">
 				<div class="lab__num">01</div>
 				<div class="lab__blob" aria-hidden="true"></div>
-				<img class="lab__img" src="../1am-vivid/assets/img/flavors/grape-ice.webp" alt="Grape Ice" width="246" height="1400" loading="lazy">
+				<div class="lab__visual">
+					<img class="lab__img" src="../1am-vivid/assets/img/flavors/grape-ice.webp" alt="Slim HYBRID" width="246" height="1400" loading="lazy">				</div>
 				<div class="lab__text">
-					<h2 class="lab__name"><span class="w"><span class="ch" style="--i:0">G</span><span class="ch" style="--i:1">r</span><span class="ch" style="--i:2">a</span><span class="ch" style="--i:3">p</span><span class="ch" style="--i:4">e</span></span> <span class="w"><span class="ch" style="--i:5">I</span><span class="ch" style="--i:6">c</span><span class="ch" style="--i:7">e</span></span></h2>
-					<p class="lab__desc">Juicy purple grape, finished with a cold snap.</p>
-					<a class="btn btn--solid" href="#flavors" data-magnetic><span>Taste it</span></a>
+					<p class="lab__status"><span class="dot"></span>Available now</p>
+					<h2 class="lab__name"><span class="w"><span class="ch" style="--i:0">S</span><span class="ch" style="--i:1">l</span><span class="ch" style="--i:2">i</span><span class="ch" style="--i:3">m</span></span> <span class="w"><span class="ch" style="--i:4">H</span><span class="ch" style="--i:5">Y</span><span class="ch" style="--i:6">B</span><span class="ch" style="--i:7">R</span><span class="ch" style="--i:8">I</span><span class="ch" style="--i:9">D</span></span></h2>
+					<p class="lab__tag">2ml Disposable</p>
+					<p class="lab__desc">크리스탈 바디의 슬림 디스포저블. 15가지 맛으로 바로 입고 가능합니다.</p>
+											<dl class="lab__specs">
+															<div><dt>E-liquid</dt><dd>2ml</dd></div>
+															<div><dt>Flavours</dt><dd>15</dd></div>
+															<div><dt>Type</dt><dd>Disposable</dd></div>
+													</dl>
+										<div class="lab__btns">
+													<a class="btn btn--solid" href="#products" data-magnetic><span>View product</span></a>
+											</div>
 				</div>
 			</article>
-					<article class="lab__panel" style="--c1:#00C2A8;--c2:#1E5BFF;" data-c1="#00C2A8" data-c2="#1E5BFF">
+					<article class="lab__panel is-soon" style="--c1:#FF2E4D;--c2:#FFB321;" data-c1="#FF2E4D" data-c2="#FFB321">
 				<div class="lab__num">02</div>
 				<div class="lab__blob" aria-hidden="true"></div>
-				<img class="lab__img" src="../1am-vivid/assets/img/flavors/blue-razz-ice.webp" alt="Blue Razz Ice" width="246" height="1400" loading="lazy">
+				<div class="lab__visual">
+					<div class="ghost lab__img ghost--hybrid-max" role="img" aria-label="HYBRID Max — coming soon"><span class="ghost__cap"></span><span class="ghost__body"><span class="ghost__txt">HYBRID Max</span></span><span class="ghost__base"></span></div>				</div>
 				<div class="lab__text">
-					<h2 class="lab__name"><span class="w"><span class="ch" style="--i:0">B</span><span class="ch" style="--i:1">l</span><span class="ch" style="--i:2">u</span><span class="ch" style="--i:3">e</span></span> <span class="w"><span class="ch" style="--i:4">R</span><span class="ch" style="--i:5">a</span><span class="ch" style="--i:6">z</span><span class="ch" style="--i:7">z</span></span> <span class="w"><span class="ch" style="--i:8">I</span><span class="ch" style="--i:9">c</span><span class="ch" style="--i:10">e</span></span></h2>
-					<p class="lab__desc">Electric blue raspberry over crushed ice.</p>
-					<a class="btn btn--solid" href="#flavors" data-magnetic><span>Taste it</span></a>
+					<p class="lab__status"><span class="dot"></span>Coming soon</p>
+					<h2 class="lab__name"><span class="w"><span class="ch" style="--i:0">H</span><span class="ch" style="--i:1">Y</span><span class="ch" style="--i:2">B</span><span class="ch" style="--i:3">R</span><span class="ch" style="--i:4">I</span><span class="ch" style="--i:5">D</span></span> <span class="w"><span class="ch" style="--i:6">M</span><span class="ch" style="--i:7">a</span><span class="ch" style="--i:8">x</span></span></h2>
+					<p class="lab__tag">Large capacity</p>
+					<p class="lab__desc">더 큰 용량의 대용량 라인. 출시 준비 중입니다.</p>
+											<dl class="lab__specs">
+															<div><dt>E-liquid</dt><dd>TBA</dd></div>
+															<div><dt>Flavours</dt><dd>TBA</dd></div>
+															<div><dt>Type</dt><dd>Disposable</dd></div>
+													</dl>
+										<div class="lab__btns">
+													<a class="btn btn--solid" href="./wholesale-signup/" data-magnetic><span>Get notified</span></a>
+											</div>
 				</div>
 			</article>
-					<article class="lab__panel" style="--c1:#FF2E4D;--c2:#2BD45A;" data-c1="#FF2E4D" data-c2="#2BD45A">
+					<article class="lab__panel is-soon" style="--c1:#1E5BFF;--c2:#00C2A8;" data-c1="#1E5BFF" data-c2="#00C2A8">
 				<div class="lab__num">03</div>
 				<div class="lab__blob" aria-hidden="true"></div>
-				<img class="lab__img" src="../1am-vivid/assets/img/flavors/watermelon-ice.webp" alt="Watermelon Ice" width="246" height="1400" loading="lazy">
+				<div class="lab__visual">
+					<div class="ghost lab__img ghost--hybrid-refill" role="img" aria-label="HYBRID Refill — coming soon"><span class="ghost__cap"></span><span class="ghost__body"><span class="ghost__txt">HYBRID Refill</span></span><span class="ghost__base"></span></div>				</div>
 				<div class="lab__text">
-					<h2 class="lab__name"><span class="w"><span class="ch" style="--i:0">W</span><span class="ch" style="--i:1">a</span><span class="ch" style="--i:2">t</span><span class="ch" style="--i:3">e</span><span class="ch" style="--i:4">r</span><span class="ch" style="--i:5">m</span><span class="ch" style="--i:6">e</span><span class="ch" style="--i:7">l</span><span class="ch" style="--i:8">o</span><span class="ch" style="--i:9">n</span></span> <span class="w"><span class="ch" style="--i:10">I</span><span class="ch" style="--i:11">c</span><span class="ch" style="--i:12">e</span></span></h2>
-					<p class="lab__desc">Summer-ripe watermelon, iced to the core.</p>
-					<a class="btn btn--solid" href="#flavors" data-magnetic><span>Taste it</span></a>
-				</div>
-			</article>
-					<article class="lab__panel" style="--c1:#1FD65A;--c2:#D7F21A;" data-c1="#1FD65A" data-c2="#D7F21A">
-				<div class="lab__num">04</div>
-				<div class="lab__blob" aria-hidden="true"></div>
-				<img class="lab__img" src="../1am-vivid/assets/img/flavors/lemon-lime-ice.webp" alt="Lemon Lime Ice" width="246" height="1400" loading="lazy">
-				<div class="lab__text">
-					<h2 class="lab__name"><span class="w"><span class="ch" style="--i:0">L</span><span class="ch" style="--i:1">e</span><span class="ch" style="--i:2">m</span><span class="ch" style="--i:3">o</span><span class="ch" style="--i:4">n</span></span> <span class="w"><span class="ch" style="--i:5">L</span><span class="ch" style="--i:6">i</span><span class="ch" style="--i:7">m</span><span class="ch" style="--i:8">e</span></span> <span class="w"><span class="ch" style="--i:9">I</span><span class="ch" style="--i:10">c</span><span class="ch" style="--i:11">e</span></span></h2>
-					<p class="lab__desc">Zesty lemon and lime, bright and fizzy.</p>
-					<a class="btn btn--solid" href="#flavors" data-magnetic><span>Taste it</span></a>
-				</div>
-			</article>
-					<article class="lab__panel" style="--c1:#B026FF;--c2:#FF1464;" data-c1="#B026FF" data-c2="#FF1464">
-				<div class="lab__num">05</div>
-				<div class="lab__blob" aria-hidden="true"></div>
-				<img class="lab__img" src="../1am-vivid/assets/img/flavors/raspberry-dragonfruit-ice.webp" alt="Raspberry Dragonfruit Ice" width="246" height="1400" loading="lazy">
-				<div class="lab__text">
-					<h2 class="lab__name"><span class="w"><span class="ch" style="--i:0">R</span><span class="ch" style="--i:1">a</span><span class="ch" style="--i:2">s</span><span class="ch" style="--i:3">p</span><span class="ch" style="--i:4">b</span><span class="ch" style="--i:5">e</span><span class="ch" style="--i:6">r</span><span class="ch" style="--i:7">r</span><span class="ch" style="--i:8">y</span></span> <span class="w"><span class="ch" style="--i:9">D</span><span class="ch" style="--i:10">r</span><span class="ch" style="--i:11">a</span><span class="ch" style="--i:12">g</span><span class="ch" style="--i:13">o</span><span class="ch" style="--i:14">n</span><span class="ch" style="--i:15">f</span><span class="ch" style="--i:16">r</span><span class="ch" style="--i:17">u</span><span class="ch" style="--i:18">i</span><span class="ch" style="--i:19">t</span></span> <span class="w"><span class="ch" style="--i:20">I</span><span class="ch" style="--i:21">c</span><span class="ch" style="--i:22">e</span></span></h2>
-					<p class="lab__desc">Tart raspberry meets exotic dragonfruit.</p>
-					<a class="btn btn--solid" href="#flavors" data-magnetic><span>Taste it</span></a>
+					<p class="lab__status"><span class="dot"></span>Coming soon</p>
+					<h2 class="lab__name"><span class="w"><span class="ch" style="--i:0">H</span><span class="ch" style="--i:1">Y</span><span class="ch" style="--i:2">B</span><span class="ch" style="--i:3">R</span><span class="ch" style="--i:4">I</span><span class="ch" style="--i:5">D</span></span> <span class="w"><span class="ch" style="--i:6">R</span><span class="ch" style="--i:7">e</span><span class="ch" style="--i:8">f</span><span class="ch" style="--i:9">i</span><span class="ch" style="--i:10">l</span><span class="ch" style="--i:11">l</span></span></h2>
+					<p class="lab__tag">Refillable pod</p>
+					<p class="lab__desc">팟 교체형 리필 라인. 출시 준비 중입니다.</p>
+											<dl class="lab__specs">
+															<div><dt>E-liquid</dt><dd>TBA</dd></div>
+															<div><dt>Flavours</dt><dd>TBA</dd></div>
+															<div><dt>Type</dt><dd>Refill pod</dd></div>
+													</dl>
+										<div class="lab__btns">
+													<a class="btn btn--solid" href="./wholesale-signup/" data-magnetic><span>Get notified</span></a>
+											</div>
 				</div>
 			</article>
 			</div>
@@ -335,8 +400,8 @@
 <section class="flavors" id="flavors">
 	<div class="flavors__head">
 		<h2 class="section-title" data-reveal>
-			<span class="line"><span>All</span></span>
-			<span class="line"><span><em>the</em> flavors</span></span>
+			<span class="line"><span><em>Slim HYBRID</em></span></span>
+			<span class="line"><span>flavours</span></span>
 		</h2>
 		<div class="chips" role="tablist" aria-label="Filter">
 			<button type="button" class="chip is-active" data-filter="all" data-magnetic>All <sup>15</sup></button>
@@ -525,21 +590,116 @@
 
 		<dl class="specs">
 							<div class="spec">
-					<dt>Flavors</dt>
+					<dt>Flavours</dt>
 					<dd data-count="15">15</dd>
-				</div>
-							<div class="spec">
-					<dt>Puffs</dt>
-					<dd data-count="600">600</dd>
 				</div>
 							<div class="spec">
 					<dt>ml E-liquid</dt>
 					<dd data-count="2">2</dd>
 				</div>
+							<div class="spec">
+					<dt>Product lines</dt>
+					<dd data-count="3">3</dd>
+				</div>
 					</dl>
 	</div>
 </section>
-<section class="cta" id="find">
+<section class="benefits" id="why">
+	<div class="benefits__head">
+		<p class="eyebrow">For retailers</p>
+		<h2 class="section-title section-title--md" data-reveal>
+			<span class="line"><span>Why stock</span></span>
+			<span class="line"><span><em>1AM</em>?</span></span>
+		</h2>
+	</div>
+	<ul class="benefits__list">
+					<li class="benefit" style="--c1:#FF2E4D;--c2:#FFB321">
+				<span class="benefit__mark" aria-hidden="true"></span>
+				<h3>Wholesale pricing</h3>
+				<p>승인된 거래처 전용 도매가. 로그인 후 쇼핑몰에서 바로 확인합니다.</p>
+			</li>
+					<li class="benefit" style="--c1:#8A3FFC;--c2:#1E5BFF">
+				<span class="benefit__mark" aria-hidden="true"></span>
+				<h3>Approved retailers only</h3>
+				<p>사업자 서류를 확인한 매장과만 거래합니다.</p>
+			</li>
+					<li class="benefit" style="--c1:#00C2A8;--c2:#16C75A">
+				<span class="benefit__mark" aria-hidden="true"></span>
+				<h3>Ships where it&#039;s allowed</h3>
+				<p>판매 가능한 주(Province)로만 주문·배송됩니다.</p>
+			</li>
+					<li class="benefit" style="--c1:#FFD60A;--c2:#FF8A4D">
+				<span class="benefit__mark" aria-hidden="true"></span>
+				<h3>Clear product info</h3>
+				<p>스펙, 맛, 규격 정보를 한곳에서 확인할 수 있습니다.</p>
+			</li>
+			</ul>
+</section>
+<section class="steps" id="how-to-order" data-header="light">
+	<div class="steps__head">
+		<p class="eyebrow">How to order</p>
+		<h2 class="section-title section-title--md" data-reveal>
+			<span class="line"><span>Three steps</span></span>
+			<span class="line"><span><em>to your first</em> order</span></span>
+		</h2>
+	</div>
+	<div class="steps__track">
+	<span class="steps__line" aria-hidden="true"><i></i></span>
+	<ol class="steps__list">
+					<li class="step">
+				<span class="step__num">1</span>
+				<h3>Apply</h3>
+				<p>도매 가입 신청서와 사업자 서류(사업자 등록증, 소매 판매 관련 서류)를 제출합니다.</p>
+			</li>
+					<li class="step">
+				<span class="step__num">2</span>
+				<h3>Get approved</h3>
+				<p>관리자가 서류를 확인하고 승인하면 알림 이메일이 발송됩니다.</p>
+			</li>
+					<li class="step">
+				<span class="step__num">3</span>
+				<h3>Order</h3>
+				<p>로그인 후 비공개 쇼핑몰에서 도매가를 확인하고 바로 주문합니다.</p>
+			</li>
+			</ol>
+	</div>
+	<div class="steps__foot">
+		<a class="btn btn--solid " href="./wholesale-signup/" data-magnetic data-state="guest"><span>Apply for wholesale &rarr;</span></a>		<a class="link-arrow" href="./how-to-order/">Full ordering guide <span>&rarr;</span></a>
+	</div>
+</section>
+<section class="faq" id="faq">
+	<div class="faq__head">
+		<p class="eyebrow">FAQ</p>
+		<h2 class="section-title section-title--md" data-reveal>
+			<span class="line"><span>Questions,</span></span>
+			<span class="line"><span><em>answered.</em></span></span>
+		</h2>
+		<a class="link-arrow" href="./faq/">All FAQ <span>&rarr;</span></a>
+	</div>
+	<div class="faq__list">
+					<details class="faq__item" open>
+				<summary>Who can buy from 1AM?<i aria-hidden="true"></i></summary>
+				<div class="faq__a"><p>사업자 서류 확인을 거쳐 승인된 캐나다 소매 거래처만 주문할 수 있습니다. 일반 소비자 판매는 하지 않습니다.</p></div>
+			</details>
+					<details class="faq__item" >
+				<summary>How long does approval take?<i aria-hidden="true"></i></summary>
+				<div class="faq__a"><p>서류 제출 후 영업일 기준 1~2일 안에 검토합니다. 승인되면 이메일로 알려드립니다. (실제 기간으로 수정)</p></div>
+			</details>
+					<details class="faq__item" >
+				<summary>Is there a minimum order?<i aria-hidden="true"></i></summary>
+				<div class="faq__a"><p>최소 주문 수량과 가격은 승인 후 쇼핑몰에서 확인할 수 있습니다. (도매 정책에 맞게 수정)</p></div>
+			</details>
+					<details class="faq__item" >
+				<summary>Where do you ship?<i aria-hidden="true"></i></summary>
+				<div class="faq__a"><p>판매가 허용된 주(Province)로만 배송합니다. 해당 지역 외 주소는 주문 단계에서 선택되지 않습니다.</p></div>
+			</details>
+					<details class="faq__item" >
+				<summary>How do I pay?<i aria-hidden="true"></i></summary>
+				<div class="faq__a"><p>카드 결제 또는 Interac e-Transfer / 계좌이체로 결제할 수 있습니다. (결제 방식 확정 후 수정)</p></div>
+			</details>
+			</div>
+</section>
+<section class="cta" id="wholesale">
 	<div class="cta__fan" aria-hidden="true">
 					<img src="../1am-vivid/assets/img/flavors/grape-ice.webp" alt="" width="246" height="1400" loading="lazy" style="--o:-4">
 					<img src="../1am-vivid/assets/img/flavors/blue-razz-ice.webp" alt="" width="246" height="1400" loading="lazy" style="--o:-3">
@@ -551,29 +711,43 @@
 					<img src="../1am-vivid/assets/img/flavors/classic-ice.webp" alt="" width="246" height="1400" loading="lazy" style="--o:3">
 					<img src="../1am-vivid/assets/img/flavors/red-classic-ice.webp" alt="" width="246" height="1400" loading="lazy" style="--o:4">
 			</div>
-	<h2 class="cta__title" data-fill>Find your 1AM.</h2>
-	<a class="btn btn--solid btn--xl" href="#" data-magnetic><span>Where to buy &rarr;</span></a>
+	<h2 class="cta__title" data-fill>Stock 1AM.</h2>
+	<p class="cta__text">가입 신청 → 사업자 서류 확인 → 승인 후 도매가로 바로 주문하세요.</p>
+	<div class="cta__btns">
+		<a class="btn btn--solid btn--xl" href="./wholesale-signup/" data-magnetic data-state="guest"><span>Apply for wholesale &rarr;</span></a>					<a class="btn btn--ghost btn--xl" href="./#login" data-magnetic><span>Log in</span></a>
+			</div>
+	<p class="cta__note">Retailers only · 19+ · Canada</p>
 </section>
 </main>
 
 <footer class="site-footer" data-header="light">
 	<div class="site-footer__top">
-		<div class="site-footer__col">
-			<p class="site-footer__eyebrow">Stay up late</p>
-			<p class="site-footer__big">Don't sleep on<br><em>flavor.</em></p>
-		</div>
+		<div class="site-footer__brand">
+			<a class="site-footer__logo" href="./" aria-label="1AM home"><img class="" src="../1am-vivid/assets/img/logo-white.png" alt="1AM" width="700" height="355"></a>
+			<p class="site-footer__lead">Wholesale only. 승인된 캐나다 소매 거래처를 위한 도매 브랜드입니다.</p>
+			<a class="btn btn--solid " href="./wholesale-signup/" data-magnetic data-state="guest"><span>Apply for wholesale &rarr;</span></a>		</div>
 		<nav class="site-footer__nav" aria-label="Footer">
-			<ul><li><a href="./#flavors">Flavors</a></li><li><a href="./#lab">Flavor Lab</a></li><li><a href="./#device">Device</a></li><li><a href="./#find">Where to buy</a></li></ul>		</nav>
+			<p class="site-footer__eyebrow">Explore</p>
+			<ul><li><a href="#products">Products</a></li><li><a href="./about-us/">About Us</a></li><li><a href="./how-to-order/">How to Order</a></li><li><a href="./faq/">FAQ</a></li></ul>		</nav>
+		<nav class="site-footer__nav" aria-label="Wholesale">
+			<p class="site-footer__eyebrow">Wholesale</p>
+			<ul>
+				<li><a href="./wholesale-signup/">Apply</a></li>
+				<li><a href="./#login">Log in</a></li>
+				<li><a href="./how-to-order/">How to order</a></li>
+			</ul>
+		</nav>
+		<nav class="site-footer__nav" aria-label="Policies">
+			<p class="site-footer__eyebrow">Policies</p>
+			<ul><li><a href="./terms/">Terms of Use</a></li><li><a href="./privacy-policy/">Privacy Policy</a></li><li><a href="./shipping-returns/">Shipping &amp; Returns</a></li></ul>		</nav>
 	</div>
-	<div class="site-footer__logo" data-footer-logo>
-		<img class="" src="../1am-vivid/assets/img/logo-white.png" alt="1AM" width="700" height="355">	</div>
 	<div class="site-footer__bottom">
-		<p class="site-footer__warning">WARNING: This product contains nicotine. Nicotine is an addictive chemical. 본 제품은 성인 전용입니다.</p>
+		<p class="site-footer__warning">WARNING: Vaping products contain nicotine, a highly addictive chemical. For adults 19+ only. 성인(19+) 전용.</p>
 		<p>&copy; 2026 1AM. All rights reserved.</p>
 	</div>
 </footer>
 
-<script>var ONEAM = {"ageGate":true,"minAge":19};</script>
+<script>var ONEAM = {"ageGate":true,"minAge":19,"lite":false};</script>
 <script src="../1am-vivid/assets/vendor/gsap.min.js"></script>
 <script src="../1am-vivid/assets/vendor/ScrollTrigger.min.js"></script>
 <script src="../1am-vivid/assets/vendor/lenis.min.js"></script>

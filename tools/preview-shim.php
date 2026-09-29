@@ -6,6 +6,8 @@ $THEME = realpath($argv[1] ?? __DIR__.'/../1am-vivid'); $TPL = $argv[2] ?? 'fron
 $GLOBALS['styles']=[]; $GLOBALS['scripts']=[]; $GLOBALS['l10n']=[]; $GLOBALS['actions']=[];
 function add_action($h,$cb,$p=10,$a=1){ $GLOBALS['actions'][$h][]=$cb; }
 function add_filter(){ }
+function apply_filters($h,$v){ return $h==='oneam_video_placeholder' ? true : $v; }
+function is_user_logged_in(){ return false; } function wp_login_url(){ return './#login'; } function esc_textarea($s){ return htmlspecialchars($s); }
 function do_action($h){ foreach($GLOBALS['actions'][$h]??[] as $cb) $cb(); }
 function get_template_directory(){ return $GLOBALS['THEME']; }
 function get_template_directory_uri(){ return '../1am-vivid'; }
@@ -25,7 +27,7 @@ function wp_footer(){ foreach($GLOBALS['l10n'] as $n=>$d) echo "<script>var $n =
 function wp_nav_menu($a){ call_user_func($a['fallback_cb']); }
 function get_header(){ include get_template_directory().'/header.php'; }
 function get_footer(){ include get_template_directory().'/footer.php'; }
-function get_template_part($s){ include get_template_directory().'/'.$s.'.php'; }
+function get_template_part($s,$n=null,$args=array()){ include get_template_directory().'/'.$s.'.php'; }
 function get_posts(){ return []; }
 function selected(){} function wp_nonce_field(){}
 function sanitize_textarea_field($s){return $s;}

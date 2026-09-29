@@ -36,6 +36,10 @@ $title   = explode( "\n", oneam_opt( 'oneam_hero_title' ) );
 				<span class="line"><span><?php echo esc_html( $line ); ?></span></span>
 			<?php endforeach; ?>
 		</h1>
+		<div class="hero__btns">
+			<?php oneam_member_cta(); ?>
+			<a class="btn btn--glass" href="#products" data-magnetic><span>View products</span></a>
+		</div>
 	</div>
 
 	<div class="hero__ctrl">
@@ -57,5 +61,5 @@ $title   = explode( "\n", oneam_opt( 'oneam_hero_title' ) );
 		<?php endforeach; ?>
 	</div>
 
-	<a class="hero__scroll" href="#lab" aria-label="Scroll"><span>Scroll</span><i></i></a>
+	<a class="hero__scroll" href="#film" aria-label="Scroll"><span>Scroll</span><i></i></a>
 </section>

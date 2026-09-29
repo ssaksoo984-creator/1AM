@@ -37,13 +37,24 @@ $oneam_first   = $oneam_flavors[0];
 
 <div class="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__label"></span></div>
 
+<div class="topbar" role="note"><p><?php echo esc_html( oneam_opt( 'oneam_topbar' ) ); ?></p></div>
+
 <header class="site-header" id="site-header">
 	<a class="site-header__logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="1AM home">
 		<?php oneam_logo( 'black' ); ?>
 	</a>
 	<nav class="site-header__quick" aria-label="Quick">
-		<a href="<?php echo esc_url( home_url( '/#flavors' ) ); ?>" data-magnetic>Flavors</a>
-		<a href="<?php echo esc_url( home_url( '/#device' ) ); ?>" data-magnetic>Device</a>
+		<a href="<?php echo esc_url( home_url( '/#products' ) ); ?>" data-magnetic>Products</a>
+		<a href="<?php echo esc_url( oneam_opt( 'oneam_about_url' ) ); ?>" data-magnetic>About</a>
+		<a href="<?php echo esc_url( oneam_opt( 'oneam_faq_url' ) ); ?>" data-magnetic>FAQ</a>
+		<?php if ( 'approved' === oneam_member_state() ) : ?>
+			<a class="is-accent" href="<?php echo esc_url( oneam_shop_url() ); ?>" data-magnetic>Shop</a>
+		<?php elseif ( 'pending' === oneam_member_state() ) : ?>
+			<a class="is-accent" href="<?php echo esc_url( oneam_login_url() ); ?>" data-magnetic>My account</a>
+		<?php else : ?>
+			<a href="<?php echo esc_url( oneam_login_url() ); ?>" data-magnetic>Log in</a>
+			<a class="is-accent" href="<?php echo esc_url( oneam_signup_url() ); ?>" data-magnetic>Apply</a>
+		<?php endif; ?>
 	</nav>
 	<button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="menu" data-magnetic>
 		<span class="menu-btn__label">Menu</span>
@@ -60,13 +71,17 @@ $oneam_first   = $oneam_flavors[0];
 				array(
 					'theme_location' => 'primary',
 					'container'      => false,
+					'depth'          => 2,
 					'fallback_cb'    => 'oneam_fallback_menu',
 				)
 			);
 			?>
 		</nav>
 		<div class="menu__side">
-			<p class="menu__eyebrow">Now tasting</p>
+			<p class="menu__eyebrow">Wholesale</p>
+			<p class="menu__lead">승인된 도매 거래처만 주문할 수 있습니다.</p>
+			<?php oneam_member_cta(); ?>
+			<p class="menu__eyebrow">Slim HYBRID flavours</p>
 			<div class="menu__flavors">
 				<?php foreach ( array_slice( $oneam_flavors, 0, 6 ) as $f ) : ?>
 					<a href="<?php echo esc_url( $f['url'] ); ?>" style="<?php echo oneam_flavor_style( $f ); // phpcs:ignore ?>"><?php echo esc_html( $f['name'] ); ?></a>
