@@ -6,6 +6,13 @@
 $mp4    = oneam_opt( 'oneam_video_mp4' );
 $yt     = oneam_opt( 'oneam_video_youtube' );
 $poster = oneam_opt( 'oneam_video_poster' );
+// 관리자에서 영상을 지정하지 않았으면 테마에 포함된 assets/video/brand.mp4 (+ brand.jpg) 사용
+if ( ! $mp4 && file_exists( get_template_directory() . '/assets/video/brand.mp4' ) ) {
+	$mp4 = oneam_asset( 'video/brand.mp4' );
+	if ( ! $poster && file_exists( get_template_directory() . '/assets/video/brand.jpg' ) ) {
+		$poster = oneam_asset( 'video/brand.jpg' );
+	}
+}
 $yt_id  = '';
 if ( $yt && preg_match( '~(?:youtu\.be/|v=|embed/|shorts/)([A-Za-z0-9_-]{11})~', $yt, $m ) ) {
 	$yt_id = $m[1];
