@@ -464,39 +464,72 @@
 	function about() {
 		var row = $('#row');
 		if (!row) return;
-		var items = $$('.row__item', row);
+		var viewport = $('.row__viewport', row);
 		var track = $('.row__track', row);
-		var n = items.length;
-		var mid = (n - 1) / 2;
-		var avail = function () { return row.clientWidth - 48; };
-		var gap = function () { return Math.max(56, Math.min(120, avail() / n)); };
-		var overflow = function () { return Math.max(0, (n * gap() - avail()) / 2); };
-		// 무더기일 때 각자 살짝 다른 위치/각도
-		var pile = items.map(function (_, i) { return { x: gsap.utils.random(-50, 50), r: gsap.utils.random(-28, 28), y: gsap.utils.random(-30, 30) }; });
+		var mains = $$('.row__item.is-main', row);
+		var clones = $$('.row__item.is-clone', row);
+		var n = mains.length;
+		var st = { gap: 0, m: 0, speed: 0, run: false };
+		var itemW = function () { return mains[0].offsetWidth || 60; };
+		var tight = function () { return -itemW() * .45; };                   // 촘촘하게 붙어 서 있는 간격
+		var loose = function () { return Math.min(90, Math.max(28, itemW() * .9)); }; // 펼쳐진 간격
+		st.gap = tight();
 
-		// 1) 영상에서 스크롤하면 위에서 무더기로 따라 내려옴
-		gsap.fromTo(items,
-			{ y: function (i) { return -window.innerHeight * .9 + pile[i].y; }, x: function (i) { return pile[i].x * 1.6; }, rotate: function (i) { return pile[i].r * 1.5; } },
-			{ y: function (i) { return pile[i].y * .3; }, x: function (i) { return pile[i].x; }, rotate: function (i) { return pile[i].r; }, ease: 'none',
-				scrollTrigger: { trigger: row, start: 'top bottom', end: 'top top', scrub: true, invalidateOnRefresh: true } });
+		// 매 프레임: 간격 적용 + 가운데 정렬 + 왼쪽으로 흐르기(무한 반복)
+		function layout() {
+			var setW = n * (itemW() + st.gap);
+			var base = (viewport.clientWidth - (setW - st.gap)) / 2 - setW;
+			var m = ((st.m % setW) + setW) % setW;
+			track.style.setProperty('--gap', st.gap + 'px');
+			gsap.set(track, { x: base - m });
+		}
+		gsap.ticker.add(function (t, dt) {
+			if (st.run) st.m += st.speed * dt / 1000;
+			layout();
+		});
 
-		// 2) 가운데에서 일자로 쫙 펼쳐지고, 파스텔 원이 퍼지고, 아래 글이 나옴
+		// 1) 영상에서 스크롤하면 일자로 선 채로 위에서 내려옴
+		gsap.fromTo(track, { y: function () { return -window.innerHeight * .85; } }, {
+			y: 0, ease: 'none',
+			scrollTrigger: { trigger: row, start: 'top bottom', end: 'top top', scrub: true, invalidateOnRefresh: true }
+		});
+
+		// 3) 파스텔 원이 퐁퐁 꽃처럼 피어남
+		var blooms = $$('.bloom', row);
+		var bloomTl = gsap.timeline({ paused: true })
+			.fromTo(blooms, { scale: 0, opacity: 0 }, { scale: 1, opacity: .95, duration: 1, ease: 'back.out(2.4)', stagger: { each: .09, from: 'random' } });
+
+		// 2) 멈춘 상태에서 쫙 펼쳐지고 → 소개 글 등장 → 이후 계속 왼쪽으로 흐름
 		var tl = gsap.timeline({
-			scrollTrigger: { trigger: row, start: 'top top', end: '+=170%', pin: true, scrub: 1, invalidateOnRefresh: true }
+			scrollTrigger: {
+				trigger: row, start: 'top top', end: '+=140%', pin: true, scrub: 1, invalidateOnRefresh: true,
+				onUpdate: function (s) {
+					// 파스텔 원: 펼쳐지기 시작하면 피어남
+					if (s.progress > .12 && !st.bloomed) { st.bloomed = true; bloomTl.play(); }
+					else if (s.progress < .05 && st.bloomed) { st.bloomed = false; bloomTl.reverse(); }
+					var go = s.progress > .55;
+					if (go !== st.run) {
+						st.run = go;
+						gsap.to(st, { speed: go ? 42 : 0, duration: 1.2, overwrite: 'auto' });
+					}
+				}
+			}
 		});
-		tl.fromTo(items,
-			{ x: function (i) { return pile[i].x; }, y: function (i) { return pile[i].y * .3; }, rotate: function (i) { return pile[i].r; } },
-			{ x: function (i) { return (i - mid) * gap(); }, y: 0, rotate: 0, duration: 1, ease: 'power3.inOut', stagger: { each: .012, from: 'center' }, immediateRender: false }, 0)
-			.fromTo('.glow', { scale: .2, opacity: 0 }, { scale: 1.3, opacity: .9, duration: 1.2, stagger: .08, ease: 'power2.out' }, .1)
-			.fromTo('.about__intro > *', { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: .5, stagger: .08, ease: 'power2.out' }, .9)
-			.fromTo(track, { x: function () { return overflow(); } }, { x: function () { return -overflow(); }, duration: 1, ease: 'none', immediateRender: false }, 1.1);
+		tl.fromTo(st, { gap: function () { return tight(); } }, { gap: function () { return loose(); }, duration: 1, ease: 'power3.inOut', immediateRender: false }, 0)
+			.fromTo(clones, { opacity: 0 }, { opacity: 1, duration: .3 }, .8)
+			.fromTo('.about__intro > *', { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: .5, stagger: .08, ease: 'power2.out' }, .7);
 
-		// 펼쳐진 뒤 살짝 물결치듯 / 원은 천천히 떠다님
-		items.forEach(function (it, i) {
-			gsap.to($('img', it), { y: -12, duration: 1.8, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: i * .12 });
+		// 호버하면 멈춤 (맛 이름은 CSS 로 표시)
+		viewport.addEventListener('pointerenter', function () { gsap.to(st, { speed: 0, duration: .5, overwrite: 'auto' }); });
+		viewport.addEventListener('pointerleave', function () { if (st.run) gsap.to(st, { speed: 42, duration: .8, overwrite: 'auto' }); });
+
+		blooms.forEach(function (b, i) {
+			gsap.to(b, { xPercent: gsap.utils.random(-12, 12), yPercent: gsap.utils.random(-12, 12), duration: 4 + i % 4, ease: 'sine.inOut', yoyo: true, repeat: -1 });
 		});
-		$$('.glow', row).forEach(function (g, i) {
-			gsap.to(g, { xPercent: i % 2 ? 8 : -8, yPercent: i % 2 ? -6 : 6, duration: 6 + i, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+
+		// 펼쳐진 뒤 살짝 물결치듯
+		$$('.row__item img', row).forEach(function (img, i) {
+			gsap.to(img, { y: -8, duration: 1.8, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: (i % n) * .12 });
 		});
 	}
 

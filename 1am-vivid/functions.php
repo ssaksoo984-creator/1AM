@@ -141,6 +141,13 @@ function oneam_fallback_legal_menu() {
 	);
 }
 
+/**
+ * Escape text and turn *words* into <em>words</em> (serif italic accent in headlines).
+ */
+function oneam_rich( $text ) {
+	return nl2br( preg_replace( '/\*(.+?)\*/u', '<em>$1</em>', esc_html( $text ) ) );
+}
+
 /** 글자 단위로 쪼개서 애니메이션용 span 으로 감싸기 (단어는 줄바꿈되지 않도록 .w 로 묶음) */
 function oneam_split( $text ) {
 	$out = '';

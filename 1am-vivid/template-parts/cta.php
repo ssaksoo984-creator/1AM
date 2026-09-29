@@ -12,7 +12,7 @@ $mid     = ( count( $fan ) - 1 ) / 2;
 			<img src="<?php echo esc_url( $f['img'] ); ?>" alt="" width="246" height="1400" loading="lazy" style="--o:<?php echo esc_attr( $i - $mid ); ?>">
 		<?php endforeach; ?>
 	</div>
-	<h2 class="cta__title" data-fill><?php echo esc_html( oneam_opt( 'oneam_cta_title' ) ); ?></h2>
+	<h2 class="cta__title" data-fill><?php echo oneam_rich( oneam_opt( 'oneam_cta_title' ) ); // phpcs:ignore ?></h2>
 	<p class="cta__text"><?php echo esc_html( oneam_opt( 'oneam_cta_text' ) ); ?></p>
 	<div class="cta__btns">
 		<?php oneam_member_cta( 'btn--xl' ); ?>

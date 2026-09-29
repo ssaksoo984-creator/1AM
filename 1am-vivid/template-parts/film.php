@@ -25,7 +25,7 @@ if ( ! $mp4 && $yt && preg_match( '~(?:youtu\.be/|v=|embed/|shorts/)([A-Za-z0-9_
 }
 $first = oneam_get_flavors()[0];
 ?>
-<section class="film<?php echo $mp4 ? ' film--video' : ''; ?>" id="top" data-header="light" style="<?php echo oneam_flavor_style( $first ); // phpcs:ignore ?>">
+<section class="film" id="top" data-header="light" style="<?php echo oneam_flavor_style( $first ); // phpcs:ignore ?>">
 	<div class="film__pin">
 		<div class="film__frame">
 			<?php if ( $mp4 ) : ?>
@@ -43,8 +43,9 @@ $first = oneam_get_flavors()[0];
 				</div>
 			<?php endif; ?>
 
+			<div class="film__tint" aria-hidden="true"></div>
 			<div class="film__bar">
-				<h1 class="film__title"><?php echo esc_html( str_replace( "\n", ' ', oneam_opt( 'oneam_intro_title' ) ) ); ?></h1>
+				<h1 class="film__title"><?php echo oneam_rich( str_replace( "\n", ' ', oneam_opt( 'oneam_intro_title' ) ) ); // phpcs:ignore ?></h1>
 				<p class="film__text"><?php echo esc_html( oneam_opt( 'oneam_intro_text' ) ); ?></p>
 				<div class="film__btns">
 					<?php if ( $mp4 ) : ?>

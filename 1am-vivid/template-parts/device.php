@@ -11,10 +11,8 @@ $callouts = array(
 <section class="device" id="device" data-header="light" style="<?php echo oneam_flavor_style( $hero ); // phpcs:ignore ?>">
 	<div class="device__pin">
 		<h2 class="device__title">
-			<?php foreach ( explode( '.', trim( oneam_opt( 'oneam_device_title' ), '.' ) ) as $part ) : ?>
-				<?php if ( trim( $part ) ) : ?>
-					<span class="line"><span><?php echo esc_html( trim( $part ) ); ?>.</span></span>
-				<?php endif; ?>
+			<?php foreach ( preg_split( '/\r?\n/', trim( oneam_opt( 'oneam_device_title' ) ) ) as $part ) : ?>
+				<span class="line"><span><?php echo oneam_rich( trim( $part ) ); // phpcs:ignore ?></span></span>
 			<?php endforeach; ?>
 		</h2>
 
