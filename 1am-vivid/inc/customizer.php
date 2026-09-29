@@ -11,9 +11,8 @@ function oneam_defaults() {
 	return array(
 		// Confirm the final warning wording against Health Canada requirements.
 		'oneam_topbar'        => 'WARNING: Vaping products contain nicotine, a highly addictive chemical.',
-		'oneam_intro_kicker'  => 'Wholesale only · Canada · 19+',
-		'oneam_intro_title'   => "Stocked for\nretail.",
-		'oneam_intro_text'    => 'Slim HYBRID in 15 flavours, supplied only to approved Canadian retailers.',
+		'oneam_intro_title'   => 'Stocked for retail.',
+		'oneam_intro_text'    => 'Slim HYBRID · 15 flavours · Wholesale only',
 		'oneam_video_mp4'     => '',
 		'oneam_video_youtube' => '',
 		'oneam_video_poster'  => '',
@@ -63,9 +62,8 @@ add_action(
 				'oneam_video_mp4'     => array( 'MP4 video (recommended)', 'upload' ),
 				'oneam_video_poster'  => array( 'Poster image', 'upload' ),
 				'oneam_video_youtube' => array( 'Or YouTube URL', 'url' ),
-				'oneam_intro_kicker'  => array( 'Small label', 'text' ),
-				'oneam_intro_title'   => array( 'Headline (line breaks allowed)', 'textarea' ),
-				'oneam_intro_text'    => array( 'Supporting text', 'textarea' ),
+				'oneam_intro_title'   => array( 'Headline (one line)', 'text' ),
+				'oneam_intro_text'    => array( 'Supporting text (short)', 'text' ),
 			) ),
 			'oneam_about'   => array( 'About', array(
 				'oneam_about_title' => array( 'Headline', 'text' ),

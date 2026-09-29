@@ -442,12 +442,6 @@
 	function film() {
 		var root = $('#top');
 		if (!root) return;
-		var frame = $('.film__frame', root);
-		// 스크롤하면 전체 화면 영상이 둥근 카드로 살짝 줄어들며 넘어감
-		gsap.timeline({ scrollTrigger: { trigger: root, start: 'top top', end: 'bottom top', scrub: true } })
-			.to(frame, { clipPath: 'inset(6% 5% 6% 5% round 32px)', ease: 'none' }, 0)
-			.to('.film__copy', { y: -60, opacity: 0, ease: 'none' }, 0);
-
 		var video = $('video', root);
 		var btn = $('.film__sound', root);
 		if (video && btn) {
@@ -457,45 +451,52 @@
 				btn.textContent = video.muted ? 'Sound off' : 'Sound on';
 			});
 		}
+		// 화면 밖에서는 영상 정지
 		if (video) ST.create({ trigger: root, start: 'top bottom', end: 'bottom top', onToggle: function (s) { s.isActive ? video.play().catch(function () {}) : video.pause(); } });
 	}
 	function filmIntro() {
 		if (!$('#top')) return;
-		gsap.timeline()
-			.from('.film__title .line > span', { yPercent: 110, duration: 1.1, stagger: .1, ease: 'expo.out' })
-			.from('.film__kicker, .film__text, .film__btns', { y: 24, opacity: 0, duration: .8, stagger: .08, ease: 'expo.out' }, .2)
-			.from('.film__media--empty img', { y: 200, rotate: 20, opacity: 0, duration: 1.4, ease: 'elastic.out(1, .7)' }, 0);
+		gsap.from('.film__bar > *', { y: 24, opacity: 0, duration: .9, stagger: .08, ease: 'expo.out' });
+		gsap.from('.film__media--empty img', { y: 200, rotate: 20, opacity: 0, duration: 1.4, ease: 'elastic.out(1, .7)' });
 	}
 
-	/* ------------------------------------------- About + flavour line-up */
+	/* ------------------------------------------- Flavour line-up + About */
 	function about() {
-		var title = $('.about [data-words]');
-		if (title) {
-			title.innerHTML = title.textContent.trim().split(/\s+/).map(function (w) { return '<span class="wd">' + w + '</span>'; }).join(' ');
-			gsap.fromTo($$('.wd', title), { opacity: .15 }, { opacity: 1, stagger: .1, ease: 'none', scrollTrigger: { trigger: title, start: 'top 80%', end: 'bottom 50%', scrub: true } });
-		}
-
 		var row = $('#row');
 		if (!row) return;
 		var items = $$('.row__item', row);
 		var track = $('.row__track', row);
 		var n = items.length;
 		var mid = (n - 1) / 2;
-		var gap = function () { return Math.min(130, Math.max(64, window.innerWidth / 11)); };
+		var avail = function () { return row.clientWidth - 48; };
+		var gap = function () { return Math.max(56, Math.min(120, avail() / n)); };
+		var overflow = function () { return Math.max(0, (n * gap() - avail()) / 2); };
+		// 무더기일 때 각자 살짝 다른 위치/각도
+		var pile = items.map(function (_, i) { return { x: gsap.utils.random(-50, 50), r: gsap.utils.random(-28, 28), y: gsap.utils.random(-30, 30) }; });
 
-		// 한 개로 겹쳐 있다가 → 일자로 쫙 펼쳐지고 → 줄 전체가 옆으로 이동
-		gsap.set(items, { x: 0, rotate: function (i) { return (i - mid) * 1.5; } });
+		// 1) 영상에서 스크롤하면 위에서 무더기로 따라 내려옴
+		gsap.fromTo(items,
+			{ y: function (i) { return -window.innerHeight * .9 + pile[i].y; }, x: function (i) { return pile[i].x * 1.6; }, rotate: function (i) { return pile[i].r * 1.5; } },
+			{ y: function (i) { return pile[i].y * .3; }, x: function (i) { return pile[i].x; }, rotate: function (i) { return pile[i].r; }, ease: 'none',
+				scrollTrigger: { trigger: row, start: 'top bottom', end: 'top top', scrub: true, invalidateOnRefresh: true } });
+
+		// 2) 가운데에서 일자로 쫙 펼쳐지고, 파스텔 원이 퍼지고, 아래 글이 나옴
 		var tl = gsap.timeline({
-			scrollTrigger: { trigger: row, start: 'top top', end: '+=180%', pin: true, scrub: 1, invalidateOnRefresh: true }
+			scrollTrigger: { trigger: row, start: 'top top', end: '+=170%', pin: true, scrub: 1, invalidateOnRefresh: true }
 		});
-		tl.to(items, { x: function (i) { return (i - mid) * gap(); }, rotate: 0, duration: 1, ease: 'power2.inOut', stagger: { each: .01, from: 'center' } }, 0)
-			.fromTo('.row__caption', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .3 }, .7)
-			.fromTo(track, { x: function () { return Math.max(0, (n * gap() - window.innerWidth) / 2 + 40); } },
-				{ x: function () { return -Math.max(0, (n * gap() - window.innerWidth) / 2 + 40); }, duration: 1.2, ease: 'none' }, 1);
+		tl.fromTo(items,
+			{ x: function (i) { return pile[i].x; }, y: function (i) { return pile[i].y * .3; }, rotate: function (i) { return pile[i].r; } },
+			{ x: function (i) { return (i - mid) * gap(); }, y: 0, rotate: 0, duration: 1, ease: 'power3.inOut', stagger: { each: .012, from: 'center' }, immediateRender: false }, 0)
+			.fromTo('.glow', { scale: .2, opacity: 0 }, { scale: 1.3, opacity: .9, duration: 1.2, stagger: .08, ease: 'power2.out' }, .1)
+			.fromTo('.about__intro > *', { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: .5, stagger: .08, ease: 'power2.out' }, .9)
+			.fromTo(track, { x: function () { return overflow(); } }, { x: function () { return -overflow(); }, duration: 1, ease: 'none', immediateRender: false }, 1.1);
 
-		// 펼쳐진 뒤 살짝 물결치듯 움직임
+		// 펼쳐진 뒤 살짝 물결치듯 / 원은 천천히 떠다님
 		items.forEach(function (it, i) {
-			gsap.to($('img', it), { y: -14, duration: 1.6, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: i * .12 });
+			gsap.to($('img', it), { y: -12, duration: 1.8, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: i * .12 });
+		});
+		$$('.glow', row).forEach(function (g, i) {
+			gsap.to(g, { xPercent: i % 2 ? 8 : -8, yPercent: i % 2 ? -6 : 6, duration: 6 + i, ease: 'sine.inOut', yoyo: true, repeat: -1 });
 		});
 	}
 

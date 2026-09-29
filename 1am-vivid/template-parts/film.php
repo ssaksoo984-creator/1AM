@@ -24,7 +24,6 @@ if ( ! $mp4 && $yt && preg_match( '~(?:youtu\.be/|v=|embed/|shorts/)([A-Za-z0-9_
 	$yt_id = $m[1];
 }
 $first = oneam_get_flavors()[0];
-$title = explode( "\n", oneam_opt( 'oneam_intro_title' ) );
 ?>
 <section class="film<?php echo $mp4 ? ' film--video' : ''; ?>" id="top" data-header="light" style="<?php echo oneam_flavor_style( $first ); // phpcs:ignore ?>">
 	<div class="film__pin">
@@ -43,25 +42,17 @@ $title = explode( "\n", oneam_opt( 'oneam_intro_title' ) );
 					<img src="<?php echo esc_url( $first['img'] ); ?>" alt="" width="246" height="1400">
 				</div>
 			<?php endif; ?>
-			<div class="film__shade" aria-hidden="true"></div>
 
-			<div class="film__copy">
-				<p class="film__kicker"><?php echo esc_html( oneam_opt( 'oneam_intro_kicker' ) ); ?></p>
-				<h1 class="film__title">
-					<?php foreach ( $title as $line ) : ?>
-						<span class="line"><span><?php echo esc_html( $line ); ?></span></span>
-					<?php endforeach; ?>
-				</h1>
+			<div class="film__bar">
+				<h1 class="film__title"><?php echo esc_html( str_replace( "\n", ' ', oneam_opt( 'oneam_intro_title' ) ) ); ?></h1>
 				<p class="film__text"><?php echo esc_html( oneam_opt( 'oneam_intro_text' ) ); ?></p>
 				<div class="film__btns">
+					<?php if ( $mp4 ) : ?>
+						<button type="button" class="film__sound" aria-pressed="false">Sound off</button>
+					<?php endif; ?>
 					<?php oneam_member_cta(); ?>
-					<a class="btn btn--glass" href="#products"><span>View products</span></a>
 				</div>
 			</div>
-
-			<?php if ( $mp4 ) : ?>
-				<button type="button" class="film__sound" aria-pressed="false">Sound off</button>
-			<?php endif; ?>
 		</div>
 	</div>
 </section>
