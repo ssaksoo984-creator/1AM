@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_VERSION', '1.3.0' );
+define( 'ONEAM_VERSION', '1.4.0' );
 
 function oneam_asset( $path ) {
 	return get_template_directory_uri() . '/assets/' . ltrim( $path, '/' );
@@ -16,6 +16,7 @@ function oneam_asset( $path ) {
 require get_template_directory() . '/inc/flavors.php';
 require get_template_directory() . '/inc/customizer.php';
 require get_template_directory() . '/inc/products.php';
+require get_template_directory() . '/inc/woo-sync.php';
 
 add_action(
 	'after_setup_theme',

@@ -123,8 +123,9 @@ add_action(
 			'oneam_line',
 			array(
 				'labels'       => array(
-					'name'          => 'Products',
-					'singular_name' => 'Product',
+					'name'          => '1AM Lineup',
+					'menu_name'     => '1AM Lineup',
+					'singular_name' => 'Product line',
 					'add_new_item'  => 'Add product line',
 					'edit_item'     => 'Edit product line',
 				),

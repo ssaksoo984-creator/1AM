@@ -936,7 +936,7 @@ body.nav-open .nav-toggle i:last-child { transform: translateY(-3.5px) rotate(-4
 
 /* ---------- 일반 페이지 ---------- */
 .page-spacer { height: 60px; }
-.page { max-width: 900px; margin: 0 auto; padding: 160px var(--gutter) 100px; }
+.page-index { max-width: 900px; margin: 0 auto; padding: 160px var(--gutter) 100px; }
 .page__title { font-size: clamp(36px, 5.4vw, 76px); line-height: .9; font-weight: 900; font-variation-settings: "wdth" 72; text-transform: uppercase; margin: 0 0 40px; }
 .entry { margin-bottom: 48px; }
 .entry__title { font-size: 32px; font-weight: 900; text-transform: uppercase; margin: 0 0 8px; }

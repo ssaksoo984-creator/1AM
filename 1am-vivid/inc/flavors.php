@@ -77,6 +77,11 @@ function oneam_get_flavors() {
 		);
 	}
 
+	// Flavors 메뉴에 등록한 맛이 없으면 → WooCommerce 상품의 맛(옵션)을 그대로 사용
+	if ( empty( $flavors ) && function_exists( 'oneam_flavors_from_woo' ) ) {
+		$flavors = oneam_flavors_from_woo();
+	}
+
 	if ( empty( $flavors ) ) {
 		foreach ( oneam_default_flavors() as $f ) {
 			$flavors[] = array(
@@ -112,8 +117,9 @@ add_action(
 			'oneam_flavor',
 			array(
 				'labels'       => array(
-					'name'          => 'Flavors',
-					'singular_name' => 'Flavor',
+					'name'          => '1AM Flavours',
+					'menu_name'     => '1AM Flavours',
+					'singular_name' => 'Flavour',
 					'add_new_item'  => 'Add flavour',
 					'edit_item'     => 'Edit flavour',
 				),

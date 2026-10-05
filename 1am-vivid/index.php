@@ -4,7 +4,7 @@
  */
 get_header();
 ?>
-<div class="page">
+<div class="page-index">
 	<?php if ( have_posts() ) : ?>
 		<?php if ( ! is_singular() ) : ?>
 			<h1 class="page__title"><?php echo esc_html( wp_strip_all_tags( get_the_archive_title() ?: get_bloginfo( 'name' ) ) ); ?></h1>

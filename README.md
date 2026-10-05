@@ -44,6 +44,15 @@ tools/              ← 미리보기 생성 스크립트
 
 제목 문구에서 `*단어*` 로 감싸면 세리프 이탤릭(Instrument Serif)으로 표시됩니다. 예: `Stocked for *retail.*`
 
+## 상품·맛 관리 (WooCommerce 연동)
+
+- **WooCommerce → 상품**에 옵션 상품(예: Slim HYBRID)을 만들고 **맛을 옵션(Variation)**으로 추가하면, 메인 라인업과 상품 페이지 슬라이더/맛 목록에 **자동으로** 나옵니다. 코드 수정 필요 없음.
+  - 맛 사진 = 옵션 이미지, 설명 = 옵션 설명
+  - 옵션 편집 화면의 **1AM colour** (Main / Second / Type) 로 색과 분류 지정. 흰색이면 자동.
+- **1AM Lineup** 메뉴 = 공개 상품 소개 페이지 3개 (Slim HYBRID / Max / Refill). 슬러그를 WooCommerce 상품 슬러그와 같게 (예: `slim-hybrid`).
+- **1AM Flavours** 메뉴는 비워 두세요. 여기에 글을 넣으면 WooCommerce 대신 이 목록이 쓰입니다.
+- `woocommerce/1am-products-import.csv` 로 Slim HYBRID + 맛 15개를 한 번에 가져올 수 있습니다 (상품 → 가져오기).
+
 ## 만들어야 할 페이지 (관리자 > 페이지)
 
 | 페이지 | 슬러그 | 템플릿 |
