@@ -75,23 +75,26 @@ tools/              ← 미리보기 생성 스크립트
 | About | `about-us` | About Us (본문은 블록 편집기, 1AM 패턴 사용 가능) |
 | How to Order | `how-to-order` | How to Order (구매 절차) |
 | FAQ | `faq` | 기본 — 질문마다 **세부 정보(Details)** 블록 사용 |
-| Wholesale Sign up | `wholesale-signup` | 기본 — 가입 승인 플러그인의 가입 폼 숏코드 |
+| Wholesale Sign up | `wholesale-signup` | 기본 — 소개 문구만 쓰면 아래에 가입 폼이 자동으로 붙음 |
 | Terms / Privacy / Shipping & Returns | `terms` · `privacy-policy` · `shipping-returns` | 기본 |
 
-## 워드프레스에서 관리하기
+## 도매 회원 가입 · 승인
 
-- **상품(Products)**: 관리자 좌측 **Products** 메뉴 — 이름, 짧은 라벨(2ml Disposable), 상태(판매 중/출시 예정), 컬러, 스펙("이름: 값" 한 줄씩), 대표 이미지. 이미지가 없으면 출시 예정 실루엣이 나옵니다. 상품 주소 `/products/{slug}/`.
-- **맛(Flavors)**: 관리자 좌측 **Flavors** 메뉴 (상품 라인 슬러그로 상품 페이지에 연결)
-  - 제목 = 맛 이름, 요약 = 한 줄 설명, 본문 = 상세 페이지 내용
-  - **대표 이미지** = 배경 투명한 제품 이미지 (세로형)
-  - 우측 박스에서 **메인/서브 컬러**, **카테고리** 지정
-  - **순서(page attributes)** 로 노출 순서 조정. 앞의 5개가 Flavor Lab / Device 섹션에 나옵니다.
-  - Flavors 글이 하나라도 등록되면 테마 기본 데이터 대신 등록한 글만 사용합니다.
-  - 등록 시 슬러그를 `grape-ice` 처럼 두면 대표 이미지가 없을 때 테마 내장 이미지를 씁니다.
-- **메뉴**: 외모 > 메뉴 → `메인 메뉴 (전체화면 메뉴)`, `푸터 메뉴` 위치 지정 (없으면 기본 앵커 링크)
-- **로고**: 사용자 정의하기 > 사이트 아이덴티티 > 로고 (헤더용 검정 로고)
-- **문구**: 사용자 정의하기 > 1AM 설정 (히어로, 마퀴, 스펙 숫자, CTA 링크, 경고 문구, 성인 인증)
-- 맛 상세 페이지 `/flavor/{slug}/`, 전체 목록 `/flavors/` — 활성화 후 **설정 > 고유주소 > 저장** 한 번 눌러주세요.
+1. **가입**: `/wholesale-signup/` 페이지에 신청 폼이 자동으로 붙습니다 (다른 페이지에 넣으려면 `[oneam_wholesale_signup]` 숏코드).
+   항목: 사업자명, 사업자 번호(BN), 매장 주소·도시·주·우편번호, 담당자, 전화, 이메일, 비밀번호, 사업자 서류(PDF/JPG/PNG, 10MB 이하), 19세·소매업 확인.
+2. 신청하면 WooCommerce 고객 계정이 **Pending** 상태로 만들어지고, 관리자 이메일(설정 > 일반 > 관리자 이메일)로 알림이 갑니다. 신청자에게도 접수 메일.
+3. **승인**: 관리자 **Users** (대기 건수 빨간 배지) → **Pending wholesale** 필터 → 신청자 줄에 마우스 → **View document** 로 서류 확인 → **Approve** 또는 **Reject**. 결과 메일이 자동 발송됩니다.
+4. 사용자 편집 화면 아래 **1AM wholesale** 칸에서 사업자 정보 수정·상태 변경도 가능.
+5. 승인되면 가격·장바구니·상점·결제가 열리고 버튼이 `Shop wholesale` 로 바뀝니다. 대기·거절 상태는 가입 페이지로 안내.
+
+- 서류는 `wp-content/uploads/oneam-wholesale-docs/` 에 무작위 이름으로 저장되고 `.htaccess` 로 직접 접근을 막습니다 (관리자만 View document 로 열람).
+- 메일이 안 오면 SMTP 플러그인(예: WP Mail SMTP) 설치를 권장합니다. 호스팅 기본 메일은 스팸함으로 가는 경우가 많습니다.
+
+## 기타 관리
+
+- **메뉴**: 외모 > 메뉴 → Header menu / Footer menu / Footer policies menu (없으면 기본 메뉴)
+- **로고**: 사용자 정의하기 > 사이트 아이덴티티 > 로고
+- **문구**: 사용자 정의하기 > 1AM Settings (영상, 소개 문구, 스펙, CTA, 경고 문구, 성인 인증)
 
 ## 참고 / 확인 필요
 

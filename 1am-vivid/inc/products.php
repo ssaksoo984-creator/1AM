@@ -132,7 +132,7 @@ function oneam_member_cta( $size = '' ) {
 	$state = oneam_member_state();
 	$map   = array(
 		'guest'    => array( oneam_signup_url(), 'Apply for wholesale' ),
-		'pending'  => array( oneam_opt( 'oneam_pending_url' ) ?: oneam_login_url(), 'Application under review' ),
+		'pending'  => array( oneam_opt( 'oneam_pending_url' ) ?: oneam_signup_url(), 'Application under review' ),
 		'approved' => array( oneam_shop_url(), 'Shop wholesale' ),
 	);
 	list( $url, $label ) = $map[ $state ];
@@ -206,7 +206,7 @@ add_action(
 		if ( 'approved' === $state ) {
 			return;
 		}
-		wp_safe_redirect( 'guest' === $state ? oneam_signup_url() : ( oneam_opt( 'oneam_pending_url' ) ?: oneam_login_url() ) );
+		wp_safe_redirect( 'guest' === $state ? oneam_signup_url() : ( oneam_opt( 'oneam_pending_url' ) ?: oneam_signup_url() ) );
 		exit;
 	}
 );
