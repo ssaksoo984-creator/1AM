@@ -1412,6 +1412,7 @@ body.nav-open .nav-toggle i:last-child { transform: translateY(-3.5px) rotate(-4
 .apply__check input { margin-top: 3px; width: 18px; height: 18px; accent-color: #8a3ffc; }
 .apply__hp { position: absolute !important; left: -9999px; }
 .apply__form .btn { margin-top: 8px; border: 0; cursor: pointer; }
+.apply__form .btn:disabled { opacity: .4; cursor: not-allowed; }
 .apply__login { margin-top: 16px !important; font-size: 14px; }
 .apply__note {
 	margin: 0 0 20px;

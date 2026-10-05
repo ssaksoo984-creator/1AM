@@ -107,7 +107,34 @@ function oneam_member_state() {
 	return apply_filters( 'oneam_member_state', $state );
 }
 
+/**
+ * 가입 페이지 찾기: 사용자 정의하기 주소 → 슬러그 wholesale-signup / wholesale-sign-up 등
+ * → [oneam_wholesale_signup] 숏코드가 들어간 페이지
+ */
+function oneam_signup_page_id() {
+	static $id = null;
+	if ( null !== $id || ! function_exists( 'get_page_by_path' ) ) {
+		return (int) $id;
+	}
+	$id   = 0;
+	$path = trim( (string) wp_parse_url( (string) oneam_opt( 'oneam_signup_url' ), PHP_URL_PATH ), '/' );
+	foreach ( array_filter( array( $path, 'wholesale-signup', 'wholesale-sign-up', 'wholesale-application', 'apply', 'signup', 'sign-up' ) ) as $slug ) {
+		$page = get_page_by_path( $slug );
+		if ( $page && 'publish' === $page->post_status ) {
+			$id = $page->ID;
+			return $id;
+		}
+	}
+	$found = get_posts( array( 'post_type' => 'page', 'post_status' => 'publish', 's' => '[oneam_wholesale_signup', 'fields' => 'ids', 'numberposts' => 1 ) );
+	$id    = $found ? (int) $found[0] : 0;
+	return $id;
+}
+
 function oneam_signup_url() {
+	$id = oneam_signup_page_id();
+	if ( $id ) {
+		return get_permalink( $id );
+	}
 	return oneam_opt( 'oneam_signup_url' ) ?: home_url( '/wholesale-signup/' );
 }
 

@@ -185,7 +185,13 @@ function oneam_wholesale_form() {
 	ob_start();
 	echo '<div class="apply" id="apply">';
 
-	if ( is_user_logged_in() ) {
+	// 관리자는 방문자에게 보이는 폼을 미리보기로 확인 (제출은 막음 — 제출하면 새 계정으로 로그인되므로)
+	$preview = current_user_can( 'edit_users' );
+	if ( $preview ) {
+		echo '<div class="apply__note"><strong>Admin preview</strong><p>You are logged in as an admin, so this is a preview of the form visitors see. Log out (or use a private window) to test a real application. Review applications in <a href="' . esc_url( admin_url( 'users.php?oneam_wholesale=pending' ) ) . '">Users &rarr; Pending wholesale</a>.</p></div>';
+	}
+
+	if ( is_user_logged_in() && ! $preview ) {
 		$status = oneam_wholesale_status( get_current_user_id() );
 		if ( 'approved' === $status || 'approved' === oneam_member_state() ) {
 			printf( '<div class="apply__note is-ok"><strong>Your account is approved.</strong><p>You can order at wholesale prices.</p><a class="btn btn--solid" href="%s"><span>Shop wholesale &rarr;</span></a></div>', esc_url( oneam_shop_url() ) );
@@ -248,7 +254,7 @@ function oneam_wholesale_form() {
 			<p class="is-wide apply__check"><label><input type="checkbox" name="oneam_agree" value="1" required> I confirm this is a licensed retail business in Canada and I am 19 or older.</label></p>
 		</fieldset>
 
-		<button class="btn btn--solid btn--xl" type="submit"><span>Submit application &rarr;</span></button>
+		<button class="btn btn--solid btn--xl" type="submit"<?php disabled( $preview ); ?>><span>Submit application &rarr;</span></button>
 		<p class="apply__login">Already applied? <a href="<?php echo esc_url( oneam_login_url() ); ?>">Log in</a></p>
 	</form>
 	<?php
@@ -264,9 +270,7 @@ add_filter(
 		if ( ! is_page() || ! in_the_loop() || has_shortcode( $content, 'oneam_wholesale_signup' ) ) {
 			return $content;
 		}
-		$signup = wp_parse_url( oneam_signup_url(), PHP_URL_PATH );
-		$here   = wp_parse_url( get_permalink(), PHP_URL_PATH );
-		if ( $signup && $here && untrailingslashit( $signup ) === untrailingslashit( $here ) ) {
+		if ( get_the_ID() && get_the_ID() === oneam_signup_page_id() ) {
 			$content .= oneam_wholesale_form();
 		}
 		return $content;

@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_VERSION', '1.6.0' );
+define( 'ONEAM_VERSION', '1.6.1' );
 
 function oneam_asset( $path ) {
 	return get_template_directory_uri() . '/assets/' . ltrim( $path, '/' );
