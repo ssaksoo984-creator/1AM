@@ -6,7 +6,7 @@ fogformulas.com 처럼 맛마다 화면 전체 컬러가 바뀌고, 스크롤에
 ```
 1am-vivid/          ← 워드프레스 테마 (이 폴더를 wp-content/themes/ 에 업로드)
 dist/1am-vivid.zip  ← 관리자 > 외모 > 테마 > 새로 추가 > 테마 업로드 용 zip
-preview/index.html, preview/slim-hybrid.html  ← 워드프레스 없이 브라우저로 열어보는 정적 미리보기 (메인 / 상품 페이지)
+preview/index.html  ← 워드프레스 없이 브라우저로 열어보는 메인 정적 미리보기
 tools/              ← 미리보기 생성 스크립트
 ```
 
@@ -44,20 +44,35 @@ tools/              ← 미리보기 생성 스크립트
 
 제목 문구에서 `*단어*` 로 감싸면 세리프 이탤릭(Instrument Serif)으로 표시됩니다. 예: `Stocked for *retail.*`
 
-## 상품·맛 관리 (WooCommerce 연동)
+## 상품 관리 = WooCommerce 하나로
 
-- **WooCommerce → 상품**에 옵션 상품(예: Slim HYBRID)을 만들고 **맛을 옵션(Variation)**으로 추가하면, 메인 라인업과 상품 페이지 슬라이더/맛 목록에 **자동으로** 나옵니다. 코드 수정 필요 없음.
-  - 맛 사진 = 옵션 이미지, 설명 = 옵션 설명
-  - 옵션 편집 화면의 **1AM colour** (Main / Second / Type) 로 색과 분류 지정. 흰색이면 자동.
-- **1AM Lineup** 메뉴 = 공개 상품 소개 페이지 3개 (Slim HYBRID / Max / Refill). 슬러그를 WooCommerce 상품 슬러그와 같게 (예: `slim-hybrid`).
-- **1AM Flavours** 메뉴는 비워 두세요. 여기에 글을 넣으면 WooCommerce 대신 이 목록이 쓰입니다.
-- `woocommerce/1am-products-import.csv` 로 Slim HYBRID + 맛 15개를 한 번에 가져올 수 있습니다 (상품 → 가져오기).
+테마 전용 상품 메뉴는 없습니다. **WooCommerce → Products** 에서만 관리하면 사이트 전체에 반영됩니다.
+
+| WooCommerce 에서 | 사이트에 나오는 곳 |
+|---|---|
+| 상품 (이름 / 짧은 설명 / 대표 이미지 / 순서) | 메인 "상품 라인업" 가로 스크롤 |
+| General 탭 **1AM homepage** 칸 (Label, Coming soon, 색 2개) | 라인업 패널의 라벨·출시 예정 표시·배경색 |
+| 옵션이 아닌 속성 (예: E-liquid: 2ml) | 라인업·상품 페이지의 스펙 |
+| 옵션 상품의 **옵션(맛)** — 이름·사진·설명 + **1AM colour** | 메인 15개 라인업 애니메이션, 상품 페이지 맛 슬라이더·맛 목록 |
+
+- **상품 페이지는 공개**: 맛 슬라이더 → 상품 정보 → 맛 목록 → 가입 유도. 가격·장바구니 버튼은 승인 회원에게만 보이고, 비회원에게는 가입/로그인 버튼이 나옵니다.
+- **상점 목록·장바구니·결제는 비공개** (승인 회원만).
+- 출시 예정 상품은 Published + Catalog visibility "Hidden" + Coming soon 체크 → 라인업에만 나오고 상점 목록엔 안 나옵니다.
+- WooCommerce 에 상품이 하나도 없으면 테마 기본 데이터(맛 15개, 상품 3종)가 대신 보입니다.
+- `woocommerce/1am-products-import.csv` 를 **상품 → 가져오기** 로 올리면 위 설정이 다 된 상태로 3개 상품 + 맛 15개가 들어옵니다.
+- 사이트 공개 전에는 WooCommerce → Settings → **Site visibility → Live** 로 바꿔야 상품 페이지가 방문자에게 보입니다 ("Coming soon" 상태에서는 관리자만 보임).
+
+## 편집기 = 사이트와 같은 모양
+
+- 페이지/글 편집기와 WooCommerce 상품 설명 편집기에서 글꼴·제목·이탤릭·버튼이 사이트와 똑같이 보입니다.
+- 편집기 **+ → Patterns → 1AM** 에서 섹션을 클릭 한 번으로 넣을 수 있습니다: Colour header / Four benefit cards / Three steps / FAQ / Wholesale call to action. 넣은 뒤 글자만 바꾸면 됩니다.
+- 색상 선택 칸에 1AM 색(Grape, Mint, Watermelon…)과 그라데이션이 들어 있습니다.
 
 ## 만들어야 할 페이지 (관리자 > 페이지)
 
 | 페이지 | 슬러그 | 템플릿 |
 |---|---|---|
-| About | `about-us` | About Us |
+| About | `about-us` | About Us (본문은 블록 편집기, 1AM 패턴 사용 가능) |
 | How to Order | `how-to-order` | How to Order (구매 절차) |
 | FAQ | `faq` | 기본 — 질문마다 **세부 정보(Details)** 블록 사용 |
 | Wholesale Sign up | `wholesale-signup` | 기본 — 가입 승인 플러그인의 가입 폼 숏코드 |
@@ -89,5 +104,4 @@ tools/              ← 미리보기 생성 스크립트
 
 ```bash
 php tools/preview-shim.php 1am-vivid front-page.php > preview/index.html
-php tools/preview-shim.php 1am-vivid single-oneam_line.php > preview/slim-hybrid.html
 ```

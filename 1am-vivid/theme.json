@@ -1,0 +1,36 @@
+{
+	"$schema": "https://schemas.wp.org/wp/6.8/theme.json",
+	"version": 3,
+	"settings": {
+		"appearanceTools": true,
+		"layout": {
+			"contentSize": "860px",
+			"wideSize": "1280px"
+		},
+		"color": {
+			"palette": [
+				{ "slug": "ink", "name": "Ink", "color": "#0d0b12" },
+				{ "slug": "paper", "name": "Paper", "color": "#fbf8f2" },
+				{ "slug": "white", "name": "White", "color": "#ffffff" },
+				{ "slug": "grape", "name": "Grape", "color": "#8a3ffc" },
+				{ "slug": "mint", "name": "Mint", "color": "#16c75a" },
+				{ "slug": "watermelon", "name": "Watermelon", "color": "#ff2e4d" },
+				{ "slug": "mango", "name": "Mango", "color": "#ffb321" },
+				{ "slug": "razz", "name": "Blue Razz", "color": "#1e5bff" },
+				{ "slug": "pastel-pink", "name": "Pastel pink", "color": "#ffc6dc" },
+				{ "slug": "pastel-lilac", "name": "Pastel lilac", "color": "#d9c9ff" }
+			],
+			"gradients": [
+				{ "slug": "grape-mint", "name": "Grape → Mint", "gradient": "linear-gradient(135deg, #8a3ffc, #16c75a)" },
+				{ "slug": "watermelon-mango", "name": "Watermelon → Mango", "gradient": "linear-gradient(135deg, #ff2e4d, #ffb321)" },
+				{ "slug": "razz-teal", "name": "Blue Razz → Teal", "gradient": "linear-gradient(135deg, #1e5bff, #00c2a8)" }
+			]
+		},
+		"typography": {
+			"fontFamilies": [
+				{ "slug": "display", "name": "Archivo (1AM)", "fontFamily": "\"Archivo\", \"Arial Black\", sans-serif" },
+				{ "slug": "serif", "name": "Instrument Serif (accent)", "fontFamily": "\"Instrument Serif\", Georgia, serif" }
+			]
+		}
+	}
+}

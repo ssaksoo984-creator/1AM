@@ -1,9 +1,9 @@
 <?php
 /**
- * Flavor 커스텀 포스트 타입 + 기본 데이터.
+ * 맛 데이터.
  *
- * 관리자에서 Flavor 글을 하나도 만들지 않으면 테마에 포함된 15개 기본 맛이 그대로 노출됩니다.
- * Flavor 글을 등록하면 그 글들이 기본 데이터를 대체합니다.
+ * WooCommerce 옵션 상품의 옵션(맛)을 사용합니다. (inc/woo-sync.php)
+ * WooCommerce 에 상품이 없을 때만 테마에 포함된 15개 기본 맛을 보여줍니다.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -52,36 +52,10 @@ function oneam_get_flavors() {
 		return $cache;
 	}
 
-	$flavors = array();
-	$posts   = get_posts(
-		array(
-			'post_type'      => 'oneam_flavor',
-			'posts_per_page' => -1,
-			'orderby'        => array( 'menu_order' => 'ASC', 'date' => 'ASC' ),
-			'post_status'    => 'publish',
-		)
-	);
+	// WooCommerce 옵션 상품의 맛(옵션)을 그대로 사용
+	$flavors = function_exists( 'oneam_flavors_from_woo' ) ? oneam_flavors_from_woo() : array();
 
-	foreach ( $posts as $p ) {
-		$img = get_the_post_thumbnail_url( $p, 'large' );
-		$flavors[] = array(
-			'name' => get_the_title( $p ),
-			'slug' => $p->post_name,
-			'cat'  => get_post_meta( $p->ID, '_oneam_cat', true ) ?: 'ice',
-			'c1'   => get_post_meta( $p->ID, '_oneam_c1', true ) ?: '#FF2E4D',
-			'c2'   => get_post_meta( $p->ID, '_oneam_c2', true ) ?: '#2F6BFF',
-			'img'  => $img ?: oneam_asset( 'img/flavors/' . $p->post_name . '.webp' ),
-			'desc' => get_the_excerpt( $p ),
-			'url'  => get_permalink( $p ),
-			'line' => get_post_meta( $p->ID, '_oneam_line', true ) ?: 'slim-hybrid',
-		);
-	}
-
-	// Flavors 메뉴에 등록한 맛이 없으면 → WooCommerce 상품의 맛(옵션)을 그대로 사용
-	if ( empty( $flavors ) && function_exists( 'oneam_flavors_from_woo' ) ) {
-		$flavors = oneam_flavors_from_woo();
-	}
-
+	// WooCommerce 에 아직 상품이 없으면 테마 기본 15종
 	if ( empty( $flavors ) ) {
 		foreach ( oneam_default_flavors() as $f ) {
 			$flavors[] = array(
@@ -106,79 +80,3 @@ function oneam_get_flavors() {
 function oneam_flavor_style( $f ) {
 	return sprintf( '--c1:%s;--c2:%s;', esc_attr( $f['c1'] ), esc_attr( $f['c2'] ) );
 }
-
-/* ---------------------------------------------------------------------------
- * CPT
- * ------------------------------------------------------------------------- */
-add_action(
-	'init',
-	function () {
-		register_post_type(
-			'oneam_flavor',
-			array(
-				'labels'       => array(
-					'name'          => '1AM Flavours',
-					'menu_name'     => '1AM Flavours',
-					'singular_name' => 'Flavour',
-					'add_new_item'  => 'Add flavour',
-					'edit_item'     => 'Edit flavour',
-				),
-				'public'       => true,
-				'has_archive'  => 'flavors',
-				'rewrite'      => array( 'slug' => 'flavor' ),
-				'menu_icon'    => 'dashicons-art',
-				'supports'     => array( 'title', 'editor', 'excerpt', 'thumbnail', 'page-attributes' ),
-				'show_in_rest' => true,
-			)
-		);
-	}
-);
-
-add_action(
-	'add_meta_boxes',
-	function () {
-		add_meta_box( 'oneam_flavor_meta', 'Flavour colour / category', 'oneam_flavor_meta_box', 'oneam_flavor', 'side' );
-	}
-);
-
-function oneam_flavor_meta_box( $post ) {
-	wp_nonce_field( 'oneam_flavor_meta', 'oneam_flavor_nonce' );
-	$c1  = get_post_meta( $post->ID, '_oneam_c1', true ) ?: '#FF2E4D';
-	$c2  = get_post_meta( $post->ID, '_oneam_c2', true ) ?: '#2F6BFF';
-	$cat = get_post_meta( $post->ID, '_oneam_cat', true ) ?: 'ice';
-	?>
-	<p><label>Main colour<br><input type="color" name="oneam_c1" value="<?php echo esc_attr( $c1 ); ?>"></label></p>
-	<p><label>Second colour<br><input type="color" name="oneam_c2" value="<?php echo esc_attr( $c2 ); ?>"></label></p>
-	<p><label>Category<br>
-		<select name="oneam_cat">
-			<?php foreach ( oneam_flavor_categories() as $k => $label ) : ?>
-				<option value="<?php echo esc_attr( $k ); ?>" <?php selected( $cat, $k ); ?>><?php echo esc_html( $label ); ?></option>
-			<?php endforeach; ?>
-		</select></label></p>
-	<p><label>Product line slug<br><input type="text" name="oneam_line" value="<?php echo esc_attr( get_post_meta( $post->ID, '_oneam_line', true ) ?: 'slim-hybrid' ); ?>"></label></p>
-	<p class="description">Featured image = transparent PNG/WebP product shot (portrait).</p>
-	<?php
-}
-
-add_action(
-	'save_post_oneam_flavor',
-	function ( $post_id ) {
-		if ( ! isset( $_POST['oneam_flavor_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['oneam_flavor_nonce'] ) ), 'oneam_flavor_meta' ) ) {
-			return;
-		}
-		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return;
-		}
-		foreach ( array( 'c1', 'c2' ) as $k ) {
-			if ( isset( $_POST[ 'oneam_' . $k ] ) ) {
-				update_post_meta( $post_id, '_oneam_' . $k, sanitize_hex_color( wp_unslash( $_POST[ 'oneam_' . $k ] ) ) );
-			}
-		}
-		if ( isset( $_POST['oneam_line'] ) ) {
-			update_post_meta( $post_id, '_oneam_line', sanitize_title( wp_unslash( $_POST['oneam_line'] ) ) );
-		}
-		if ( isset( $_POST['oneam_cat'] ) && array_key_exists( wp_unslash( $_POST['oneam_cat'] ), oneam_flavor_categories() ) ) {
-			update_post_meta( $post_id, '_oneam_cat', sanitize_key( wp_unslash( $_POST['oneam_cat'] ) ) );
-		}
-	}
-);

@@ -1282,7 +1282,8 @@ body.nav-open .nav-toggle i:last-child { transform: translateY(-3.5px) rotate(-4
 	position: relative;
 	transition: transform .4s var(--ease), background .3s;
 }
-.entry__content summary::after { content: ""; background: var(--ink) no-repeat center / 14px 14px linear-gradient(var(--white), var(--white)); }
+.entry__content summary::after { content: "+"; display: grid; place-items: center; color: var(--white); font-size: 22px; font-weight: 700; line-height: 1; }
+.entry__content details[open] > summary::after { content: "\2212"; background: linear-gradient(135deg, var(--c1), var(--c2)); }
 .faq__item summary i::before, .faq__item summary i::after {
 	content: "";
 	position: absolute;
@@ -1334,6 +1335,9 @@ body.nav-open .nav-toggle i:last-child { transform: translateY(-3.5px) rotate(-4
 .page-head__title .ch { display: inline-block; }
 .page-head__lead { max-width: 56ch; margin: 24px 0 0; font-size: clamp(17px, 1.4vw, 21px); }
 .page-body { max-width: 860px; margin: 0 auto; padding: clamp(60px, 7vw, 100px) var(--gutter); }
+.page-body > * + * { margin-top: 1.2em; }
+.page-body .alignwide { width: min(1280px, calc(100vw - 2 * var(--gutter))); max-width: none; margin-left: 50%; transform: translateX(-50%); }
+.page-body .alignfull { width: 100vw; max-width: none; margin-left: 50%; transform: translateX(-50%); }
 .page-body h2 { font-size: clamp(30px, 3.4vw, 52px); line-height: .95; font-weight: 900; font-variation-settings: "wdth" 76; text-transform: uppercase; margin: 1.6em 0 .5em; }
 .page-body h3 { font-size: 22px; font-weight: 900; text-transform: uppercase; margin: 1.4em 0 .4em; }
 .pdp .btn { margin-top: 8px; }

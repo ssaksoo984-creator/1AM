@@ -6,6 +6,7 @@ $THEME = realpath($argv[1] ?? __DIR__.'/../1am-vivid'); $TPL = $argv[2] ?? 'fron
 $GLOBALS['styles']=[]; $GLOBALS['scripts']=[]; $GLOBALS['l10n']=[]; $GLOBALS['actions']=[];
 function add_action($h,$cb,$p=10,$a=1){ $GLOBALS['actions'][$h][]=$cb; }
 function add_filter(){ }
+function remove_action(){} function add_editor_style(){} function is_admin(){ return false; }
 function apply_filters($h,$v){
 	if ($h==='oneam_video_placeholder') return true;
 	if ($h==='oneam_products') { foreach ($v as &$p) { if ($p['slug']==='slim-hybrid') $p['url']='slim-hybrid.html'; } }

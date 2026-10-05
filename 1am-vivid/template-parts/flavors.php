@@ -8,11 +8,12 @@ if ( ! $flavors ) {
 	return;
 }
 $cats    = oneam_flavor_categories();
+$heading = isset( $args['title'] ) ? $args['title'] : 'Slim HYBRID';
 ?>
 <section class="flavors" id="flavors">
 	<div class="flavors__head">
 		<h2 class="section-title" data-reveal>
-			<span class="line"><span><em>Slim HYBRID</em></span></span>
+			<span class="line"><span><em><?php echo esc_html( $heading ); ?></em></span></span>
 			<span class="line"><span>flavours</span></span>
 		</h2>
 		<div class="chips" role="tablist" aria-label="Filter">

@@ -1,9 +1,11 @@
 <?php
 /**
- * 상품 라인업 (Products) + 도매 회원 상태 + WooCommerce 비공개 쇼핑몰.
+ * 상품 라인업 + 도매 회원 상태 + WooCommerce 연동.
  *
- * 견적서 기준 상품 페이지 1·2·3.
- * 관리자 > Products 에 글이 없으면 아래 기본 3종이 노출됩니다.
+ * 상품은 WooCommerce 에서만 관리합니다. (WooCommerce 에 상품이 없을 때만 아래 기본 3종을 보여줌)
+ * - 메인 "상품 라인업" = WooCommerce 상품 (순서: 상품 목록의 Menu order)
+ * - 상품 페이지(공개)   = WooCommerce 상품 페이지 + 맛 슬라이더 / 맛 목록
+ * - 쇼핑몰·장바구니·결제 = 승인 회원만
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -52,42 +54,13 @@ function oneam_default_products() {
 	);
 }
 
-/** 모든 상품 (관리자 등록분 우선) */
+/** 모든 상품 (WooCommerce 우선, 없으면 기본 3종) */
 function oneam_get_products() {
 	static $cache = null;
 	if ( null !== $cache ) {
 		return $cache;
 	}
-	$out   = array();
-	$posts = get_posts(
-		array(
-			'post_type'      => 'oneam_line',
-			'posts_per_page' => -1,
-			'orderby'        => array( 'menu_order' => 'ASC', 'date' => 'ASC' ),
-			'post_status'    => 'publish',
-		)
-	);
-	foreach ( $posts as $p ) {
-		$specs = array();
-		foreach ( preg_split( '/\r?\n/', (string) get_post_meta( $p->ID, '_oneam_specs', true ) ) as $line ) {
-			if ( false !== strpos( $line, ':' ) ) {
-				list( $k, $v ) = array_map( 'trim', explode( ':', $line, 2 ) );
-				$specs[ $k ]   = $v;
-			}
-		}
-		$out[] = array(
-			'name'   => get_the_title( $p ),
-			'slug'   => $p->post_name,
-			'tag'    => get_post_meta( $p->ID, '_oneam_tag', true ),
-			'status' => get_post_meta( $p->ID, '_oneam_status', true ) ?: 'available',
-			'c1'     => get_post_meta( $p->ID, '_oneam_c1', true ) ?: '#8A3FFC',
-			'c2'     => get_post_meta( $p->ID, '_oneam_c2', true ) ?: '#16C75A',
-			'img'    => get_the_post_thumbnail_url( $p, 'large' ) ?: '',
-			'desc'   => get_the_excerpt( $p ),
-			'specs'  => $specs,
-			'url'    => get_permalink( $p ),
-		);
-	}
+	$out = function_exists( 'oneam_products_from_woo' ) ? oneam_products_from_woo() : array();
 	if ( empty( $out ) ) {
 		foreach ( oneam_default_products() as $d ) {
 			$d['url'] = home_url( '/#products' );
@@ -112,85 +85,6 @@ function oneam_product_visual( $p, $class = '' ) {
 		esc_html( $p['name'] )
 	);
 }
-
-/* ---------------------------------------------------------------------------
- * CPT: Products
- * ------------------------------------------------------------------------- */
-add_action(
-	'init',
-	function () {
-		register_post_type(
-			'oneam_line',
-			array(
-				'labels'       => array(
-					'name'          => '1AM Lineup',
-					'menu_name'     => '1AM Lineup',
-					'singular_name' => 'Product line',
-					'add_new_item'  => 'Add product line',
-					'edit_item'     => 'Edit product line',
-				),
-				'public'       => true,
-				'has_archive'  => false,
-				'rewrite'      => array( 'slug' => 'products' ),
-				'menu_icon'    => 'dashicons-products',
-				'supports'     => array( 'title', 'editor', 'excerpt', 'thumbnail', 'page-attributes' ),
-				'show_in_rest' => true,
-			)
-		);
-	}
-);
-
-add_action(
-	'add_meta_boxes',
-	function () {
-		add_meta_box( 'oneam_line_meta', 'Product details', 'oneam_line_meta_box', 'oneam_line', 'side' );
-	}
-);
-
-function oneam_line_meta_box( $post ) {
-	wp_nonce_field( 'oneam_line_meta', 'oneam_line_nonce' );
-	$v = function ( $k, $d = '' ) use ( $post ) {
-		return get_post_meta( $post->ID, '_oneam_' . $k, true ) ?: $d;
-	};
-	?>
-	<p><label>Short label (e.g. 2ml Disposable)<br><input type="text" class="widefat" name="oneam_tag" value="<?php echo esc_attr( $v( 'tag' ) ); ?>"></label></p>
-	<p><label>Status<br>
-		<select name="oneam_status">
-			<option value="available" <?php selected( $v( 'status', 'available' ), 'available' ); ?>>Available</option>
-			<option value="soon" <?php selected( $v( 'status' ), 'soon' ); ?>>Coming soon</option>
-		</select></label></p>
-	<p><label>Main colour<br><input type="color" name="oneam_c1" value="<?php echo esc_attr( $v( 'c1', '#8A3FFC' ) ); ?>"></label></p>
-	<p><label>Second colour<br><input type="color" name="oneam_c2" value="<?php echo esc_attr( $v( 'c2', '#16C75A' ) ); ?>"></label></p>
-	<p><label>Specs (one per line, "Name: Value")<br><textarea class="widefat" rows="4" name="oneam_specs"><?php echo esc_textarea( $v( 'specs', "E-liquid: 2ml\nFlavours: 15\nType: Disposable" ) ); ?></textarea></label></p>
-	<p class="description">Flavours with this product line slug are listed on the product page.</p>
-	<?php
-}
-
-add_action(
-	'save_post_oneam_line',
-	function ( $post_id ) {
-		if ( ! isset( $_POST['oneam_line_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['oneam_line_nonce'] ) ), 'oneam_line_meta' ) ) {
-			return;
-		}
-		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return;
-		}
-		if ( isset( $_POST['oneam_tag'] ) ) {
-			update_post_meta( $post_id, '_oneam_tag', sanitize_text_field( wp_unslash( $_POST['oneam_tag'] ) ) );
-		}
-		if ( isset( $_POST['oneam_status'] ) ) {
-			update_post_meta( $post_id, '_oneam_status', 'soon' === $_POST['oneam_status'] ? 'soon' : 'available' );
-		}
-		foreach ( array( 'c1', 'c2' ) as $k ) {
-			if ( isset( $_POST[ 'oneam_' . $k ] ) ) {
-				update_post_meta( $post_id, '_oneam_' . $k, sanitize_hex_color( wp_unslash( $_POST[ 'oneam_' . $k ] ) ) );
-			}
-		}
-		if ( isset( $_POST['oneam_specs'] ) ) {
-			update_post_meta( $post_id, '_oneam_specs', sanitize_textarea_field( wp_unslash( $_POST['oneam_specs'] ) ) );
-		}
-	}
-);
 
 /* ---------------------------------------------------------------------------
  * 도매 회원 상태
@@ -304,7 +198,8 @@ add_action(
 		if ( ! function_exists( 'is_woocommerce' ) || ! apply_filters( 'oneam_private_shop', true ) ) {
 			return;
 		}
-		if ( ! ( is_woocommerce() || is_cart() || is_checkout() ) ) {
+		// 상품 페이지는 공개 (가격·장바구니는 승인 회원에게만), 상점 목록·장바구니·결제는 비공개
+		if ( ! ( is_shop() || is_product_taxonomy() || is_cart() || is_checkout() ) ) {
 			return;
 		}
 		$state = oneam_member_state();
@@ -316,11 +211,11 @@ add_action(
 	}
 );
 
-/** 쇼핑몰 영역은 검색 노출 제외 */
+/** 비공개 쇼핑몰 영역은 검색 노출 제외 (상품 페이지는 노출) */
 add_filter(
 	'wp_robots',
 	function ( $robots ) {
-		if ( oneam_is_shop_area() ) {
+		if ( function_exists( 'is_woocommerce' ) && ( is_shop() || is_product_taxonomy() || is_cart() || is_checkout() || is_account_page() ) ) {
 			$robots['noindex']  = true;
 			$robots['nofollow'] = true;
 		}
