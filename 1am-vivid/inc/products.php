@@ -256,9 +256,40 @@ function oneam_member_cta( $size = '' ) {
 add_action(
 	'after_setup_theme',
 	function () {
-		add_theme_support( 'woocommerce' );
+		add_theme_support(
+			'woocommerce',
+			array(
+				'thumbnail_image_width' => 400,
+				'single_image_width'    => 800,
+			)
+		);
+		add_theme_support( 'wc-product-gallery-zoom' );
+		add_theme_support( 'wc-product-gallery-lightbox' );
+		add_theme_support( 'wc-product-gallery-slider' );
 	}
 );
+
+// 제품 사진이 세로로 긴 형태라 상점 썸네일을 정사각형으로 자르지 않음
+add_filter(
+	'woocommerce_get_image_size_thumbnail',
+	function ( $size ) {
+		$size['height'] = 0;
+		$size['crop']   = 0;
+		return $size;
+	}
+);
+
+// 테마의 <main> 이 이미 있으므로 WooCommerce 기본 감싸개·사이드바는 쓰지 않음
+add_action(
+	'init',
+	function () {
+		remove_action( 'woocommerce_before_main_content', 'woocommerce_output_content_wrapper', 10 );
+		remove_action( 'woocommerce_after_main_content', 'woocommerce_output_content_wrapper_end', 10 );
+		remove_action( 'woocommerce_sidebar', 'woocommerce_get_sidebar', 10 );
+	}
+);
+add_action( 'woocommerce_before_main_content', function () { echo '<div class="shop-wrap">'; }, 10 );
+add_action( 'woocommerce_after_main_content', function () { echo '</div>'; }, 10 );
 
 /** WooCommerce 페이지인지 */
 function oneam_is_shop_area() {

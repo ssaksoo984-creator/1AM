@@ -2,8 +2,20 @@
    1AM Vivid — WooCommerce (쇼핑몰·장바구니·결제·내 계정)
    기본 레이아웃은 유지하고 브랜드 컬러·폰트·버튼만 입힙니다.
    ========================================================================== */
-.woocommerce-page .site-main,
-.woocommerce .site-main { max-width: 1280px; margin: 0 auto; padding: calc(var(--warn-h) + 120px) var(--gutter) 100px; }
+/* 상점 · 상품 상세 (WooCommerce 템플릿) */
+.shop-wrap { max-width: 1280px; margin: 0 auto; padding: calc(var(--warn-h) + var(--head-h) + 48px) var(--gutter) 100px; }
+.woocommerce .woocommerce-breadcrumb { font-size: 13px; opacity: .6; margin-bottom: 20px; }
+.woocommerce div.product .product_title { font-size: clamp(32px, 4vw, 60px); line-height: .95; font-weight: 900; font-variation-settings: "wdth" 76; text-transform: uppercase; }
+.woocommerce div.product form.cart .variations select { border: 2px solid var(--ink); border-radius: 14px; padding: 10px 12px; font: inherit; background: var(--white); }
+.woocommerce div.product div.images { background: var(--white); border-radius: var(--radius); padding: 24px; }
+.woocommerce div.product div.images img { width: auto !important; max-width: 100%; height: min(64vh, 620px) !important; object-fit: contain; margin: 0 auto; }
+.woocommerce div.product div.images .flex-control-thumbs img { height: 90px !important; }
+/* 상점 목록: 세로형 제품 사진을 잘리지 않게 */
+.woocommerce ul.products li.product a img { width: auto; max-width: 100%; height: 300px; object-fit: contain; margin: 0 auto 14px; }
+/* 장바구니 · 결제 · 내 계정 은 page.php (상단 컬러 헤더 + 본문) 를 사용 */
+.woocommerce-cart .page-body,
+.woocommerce-checkout .page-body,
+.woocommerce-account .page-body { max-width: 1180px; }
 .woocommerce-products-header__title,
 .woocommerce-page h1.entry-title,
 .woocommerce-page .page-title {
