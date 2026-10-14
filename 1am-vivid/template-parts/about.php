@@ -42,10 +42,10 @@ $blooms = array(
 		</div>
 
 		<div class="about__intro">
-			<p class="eyebrow">About 1AM</p>
+			<p class="eyebrow"><?php echo esc_html( oneam_ctx( 'eyebrow', 'About 1AM' ) ); ?></p>
 			<h2 class="about__title"><?php echo oneam_rich( oneam_opt( 'oneam_about_title' ) ); // phpcs:ignore ?></h2>
 			<p class="about__text"><?php echo esc_html( oneam_opt( 'oneam_about_text' ) ); ?></p>
-			<a class="btn btn--round" href="<?php echo esc_url( oneam_opt( 'oneam_about_url' ) ); ?>"><span>About</span><span class="btn__arrow" aria-hidden="true">&rarr;</span></a>
+			<a class="btn btn--round" href="<?php echo esc_url( oneam_opt( 'oneam_about_url' ) ); ?>"><span><?php echo esc_html( oneam_ctx( 'button', 'About' ) ); ?></span><span class="btn__arrow" aria-hidden="true">&rarr;</span></a>
 		</div>
 	</div>
 </section>

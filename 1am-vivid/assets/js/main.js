@@ -13,6 +13,13 @@
 	var body = document.body;
 	var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 	var lite = !!cfg.lite; // 쇼핑몰(장바구니·결제·내 계정) 페이지
+	// Elementor 편집 화면: 스크롤 애니메이션 없이 완성된 모습만 (CSS .is-builder)
+	var builder = !!cfg.builder || body.classList.contains('elementor-editor-active');
+	if (builder) {
+		body.classList.add('is-builder');
+		body.classList.remove('is-loading');
+		return;
+	}
 	var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
 	if (!gsap) { body.classList.remove('is-loading'); return; }

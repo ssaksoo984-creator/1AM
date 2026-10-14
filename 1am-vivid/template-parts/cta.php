@@ -20,5 +20,5 @@ $mid     = ( count( $fan ) - 1 ) / 2;
 			<a class="btn btn--ghost btn--xl" href="<?php echo esc_url( oneam_login_url() ); ?>" data-magnetic><span>Log in</span></a>
 		<?php endif; ?>
 	</div>
-	<p class="cta__note">Retailers only · <?php echo (int) oneam_opt( 'oneam_min_age' ); ?>+ · Canada</p>
+	<p class="cta__note"><?php echo esc_html( oneam_ctx( 'note', 'Retailers only · ' . (int) oneam_opt( 'oneam_min_age' ) . '+ · Canada' ) ); ?></p>
 </section>

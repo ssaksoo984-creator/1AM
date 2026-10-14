@@ -2,7 +2,7 @@
 /**
  * 구매 절차 (가입 → 승인 → 주문)
  */
-$steps = array(
+$steps = oneam_ctx( 'items', array() ) ? array_map( function ( $r ) { return array( $r['title'], $r['text'] ); }, oneam_ctx( 'items' ) ) : array(
 	array( 'Apply', 'Submit the wholesale application with your business documents (business registration and retail licence).' ),
 	array( 'Get approved', 'Our team reviews your documents and emails you once your account is approved.' ),
 	array( 'Order', 'Log in to the private shop, see wholesale pricing and place your order.' ),
@@ -10,11 +10,8 @@ $steps = array(
 ?>
 <section class="steps" id="how-to-order" data-header="light">
 	<div class="steps__head">
-		<p class="eyebrow">How to order</p>
-		<h2 class="section-title section-title--md" data-reveal>
-			<span class="line"><span>Three steps</span></span>
-			<span class="line"><span><em>to your first</em> order</span></span>
-		</h2>
+		<p class="eyebrow"><?php echo esc_html( oneam_ctx( 'eyebrow', 'How to order' ) ); ?></p>
+		<h2 class="section-title section-title--md" data-reveal><?php echo oneam_lines( oneam_ctx( 'title', "Three steps\n*to your first* order" ) ); // phpcs:ignore ?></h2>
 	</div>
 	<div class="steps__track">
 	<span class="steps__line" aria-hidden="true"><i></i></span>

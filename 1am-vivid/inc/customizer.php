@@ -41,11 +41,34 @@ function oneam_defaults() {
 function oneam_opt( $key ) {
 	$d = oneam_defaults();
 	$v = get_theme_mod( $key, isset( $d[ $key ] ) ? $d[ $key ] : '' );
+	// Elementor 위젯에서 입력한 값이 있으면 그 값이 우선
+	$v = oneam_ctx( $key, $v );
 	// Site-relative paths ("/faq/") become full URLs.
 	if ( is_string( $v ) && preg_match( '/_url$/', $key ) && 0 === strpos( $v, '/' ) ) {
 		$v = home_url( $v );
 	}
 	return $v;
+}
+
+/**
+ * 섹션별 덮어쓰기 값 (Elementor 위젯 설정). 비어 있으면 기본값.
+ */
+function oneam_ctx( $key, $default = '' ) {
+	if ( isset( $GLOBALS['oneam_ctx'][ $key ] ) ) {
+		$v = $GLOBALS['oneam_ctx'][ $key ];
+		if ( ( is_string( $v ) && '' !== trim( $v ) ) || ( is_array( $v ) && $v ) ) {
+			return $v;
+		}
+	}
+	return $default;
+}
+
+/** 섹션 출력 (덮어쓰기 값과 함께) */
+function oneam_render_part( $part, $ctx = array(), $args = array() ) {
+	$prev               = isset( $GLOBALS['oneam_ctx'] ) ? $GLOBALS['oneam_ctx'] : array();
+	$GLOBALS['oneam_ctx'] = $ctx;
+	get_template_part( 'template-parts/' . $part, null, $args );
+	$GLOBALS['oneam_ctx'] = $prev;
 }
 
 add_action(

@@ -2,7 +2,7 @@
 /**
  * FAQ 미리보기 (전체 FAQ 는 FAQ 페이지에서 '세부 정보(Details)' 블록으로 작성)
  */
-$faqs = apply_filters(
+$faqs = oneam_ctx( 'items', array() ) ? array_map( function ( $r ) { return array( $r['q'], $r['a'] ); }, oneam_ctx( 'items' ) ) : apply_filters(
 	'oneam_faq_preview',
 	array(
 		array( 'Who can buy from 1AM?', 'Only Canadian retailers approved after a business document check can order. We do not sell to consumers.' ),
@@ -15,11 +15,8 @@ $faqs = apply_filters(
 ?>
 <section class="faq" id="faq">
 	<div class="faq__head">
-		<p class="eyebrow">FAQ</p>
-		<h2 class="section-title section-title--md" data-reveal>
-			<span class="line"><span>Questions,</span></span>
-			<span class="line"><span><em>answered.</em></span></span>
-		</h2>
+		<p class="eyebrow"><?php echo esc_html( oneam_ctx( 'eyebrow', 'FAQ' ) ); ?></p>
+		<h2 class="section-title section-title--md" data-reveal><?php echo oneam_lines( oneam_ctx( 'title', "Questions,\n*answered.*" ) ); // phpcs:ignore ?></h2>
 		<a class="link-arrow" href="<?php echo esc_url( oneam_opt( 'oneam_faq_url' ) ); ?>">All FAQ <span>&rarr;</span></a>
 	</div>
 	<div class="faq__list">

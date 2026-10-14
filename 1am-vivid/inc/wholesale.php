@@ -267,7 +267,7 @@ add_shortcode( 'oneam_wholesale_signup', 'oneam_wholesale_form' );
 add_filter(
 	'the_content',
 	function ( $content ) {
-		if ( ! is_page() || ! in_the_loop() || has_shortcode( $content, 'oneam_wholesale_signup' ) ) {
+		if ( ! is_page() || ! in_the_loop() || has_shortcode( $content, 'oneam_wholesale_signup' ) || false !== strpos( $content, 'class="apply"' ) ) {
 			return $content;
 		}
 		if ( get_the_ID() && get_the_ID() === oneam_signup_page_id() ) {

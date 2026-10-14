@@ -1429,3 +1429,27 @@ body.nav-open .nav-toggle i:last-child { transform: translateY(-3.5px) rotate(-4
 @media (max-width: 640px) {
 	.apply__form fieldset { grid-template-columns: minmax(0, 1fr); padding: 20px; }
 }
+
+/* ==========================================================================
+   Elementor
+   ========================================================================== */
+/* 1AM 섹션은 항상 화면 꽉 차게 (박스형 컨테이너 안에 넣어도) */
+.elementor-widget[class*="elementor-widget-oneam-"] { margin-bottom: 0 !important; margin-block-end: 0 !important; }
+.e-con-boxed .elementor-widget[class*="elementor-widget-oneam-"]:not(.elementor-widget-oneam-signup),
+.elementor-section-boxed .elementor-widget[class*="elementor-widget-oneam-"]:not(.elementor-widget-oneam-signup) {
+	width: 100vw;
+	max-width: 100vw;
+	margin-left: calc(50% - 50vw);
+}
+.builder-content .elementor-widget-oneam-signup { padding: 0 var(--gutter); }
+
+/* 편집 화면 미리보기: 스크롤 애니메이션이 끝난 모습 그대로 */
+.is-builder .bloom { opacity: .95; transform: none; }
+.is-builder .row__item.is-clone { opacity: 1; }
+.is-builder .row__track { --gap: 28px; transform: translateX(calc(-100% / 3)); }
+.is-builder .lab { height: auto; }
+.is-builder .lab__track { width: auto; height: auto; flex-direction: column; }
+.is-builder .lab__panel { width: 100%; height: 100vh; }
+.is-builder .cta__fan img { transform: translateX(calc(var(--o) * 50px)) rotate(calc(var(--o) * 11deg)); }
+.is-builder [data-fill] { --fill: 100%; }
+.is-builder .agegate, .is-builder .loader, .is-builder .cursor { display: none !important; }

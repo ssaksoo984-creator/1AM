@@ -1,12 +1,18 @@
 <?php
 $flavors = oneam_get_flavors();
 $hero    = $flavors[0];
-$callouts = array(
+$callouts = oneam_ctx( 'callouts', array() ) ? array_map( function ( $r ) { return array( $r['title'], $r['text'] ); }, oneam_ctx( 'callouts' ) ) : array(
 	array( 'Crystal shell', 'A clear crystal body shows the colour core inside.' ),
 	array( 'Gradient core', 'Each flavour has its own gradient.' ),
 	array( 'Slim HYBRID', 'A slim body that sits easily in the hand.' ),
 	array( 'Soft mouthpiece', 'A smooth, rounded mouthpiece.' ),
 );
+$specs = oneam_ctx( 'specs', array() );
+if ( ! $specs ) {
+	for ( $n = 1; $n <= 3; $n++ ) {
+		$specs[] = array( 'num' => oneam_opt( "oneam_spec_{$n}_num" ), 'label' => oneam_opt( "oneam_spec_{$n}_label" ) );
+	}
+}
 ?>
 <section class="device" id="device" data-header="light" style="<?php echo oneam_flavor_style( $hero ); // phpcs:ignore ?>">
 	<div class="device__pin">
@@ -33,12 +39,12 @@ $callouts = array(
 		</div>
 
 		<dl class="specs">
-			<?php for ( $n = 1; $n <= 3; $n++ ) : ?>
+			<?php foreach ( $specs as $sp ) : ?>
 				<div class="spec">
-					<dt><?php echo esc_html( oneam_opt( "oneam_spec_{$n}_label" ) ); ?></dt>
-					<dd data-count="<?php echo esc_attr( oneam_opt( "oneam_spec_{$n}_num" ) ); ?>"><?php echo esc_html( oneam_opt( "oneam_spec_{$n}_num" ) ); ?></dd>
+					<dt><?php echo esc_html( $sp['label'] ); ?></dt>
+					<dd data-count="<?php echo esc_attr( $sp['num'] ); ?>"><?php echo esc_html( $sp['num'] ); ?></dd>
 				</div>
-			<?php endfor; ?>
+			<?php endforeach; ?>
 		</dl>
 	</div>
 </section>

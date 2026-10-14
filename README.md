@@ -62,6 +62,30 @@ tools/              ← 미리보기 생성 스크립트
 - `woocommerce/1am-products-import.csv` 를 **상품 → 가져오기** 로 올리면 위 설정이 다 된 상태로 3개 상품 + 맛 15개가 들어옵니다.
 - 사이트 공개 전에는 WooCommerce → Settings → **Site visibility → Live** 로 바꿔야 상품 페이지가 방문자에게 보입니다 ("Coming soon" 상태에서는 관리자만 보임).
 
+## Elementor 로 편집하기 (추천)
+
+Elementor 가 설치돼 있으면 테마의 모든 섹션이 **Elementor 위젯**이 됩니다. 끌어다 놓고, 순서를 바꾸고, 지우고, 오른쪽 패널에서 글자·이미지·영상을 바꾸면 미리보기에 바로 보입니다.
+
+1. **Pages** 화면 상단의 **Build homepage in Elementor** 버튼 → 지금 홈 구성(영상 → 맛 라인업 → 상품 → 디바이스 → 가입 유도)이 위젯으로 들어간 채 Elementor 편집기가 열립니다.
+2. 왼쪽 위젯 목록 → **1AM** 카테고리:
+
+| 위젯 | 내용 |
+|---|---|
+| Video intro | 첫 화면 영상 + 한 줄 문구 + 도매 버튼 (영상·포스터 업로드 가능) |
+| Flavour line-up + About | 15개 제품 일렬 애니메이션 + 소개 문구 |
+| Product line-up | 상품 3종 가로 스크롤 |
+| Device + specs | Slim outside. Loud inside. + 콜아웃 + 숫자 |
+| Wholesale call to action | Stock 1AM. 가입 유도 |
+| Benefit cards / How to order steps / FAQ | 장점 카드, 구매 절차, 자주 묻는 질문 (항목 추가·삭제) |
+| Flavour grid / Flavour slider | 맛 목록(필터), 맛 슬라이더 |
+| Wholesale application form | 도매 가입 신청 폼 |
+
+- 상품·맛 이미지와 이름은 **WooCommerce 에서 자동으로** 들어옵니다. 위젯에서는 문구만 바꿉니다.
+- 편집 화면에서는 스크롤 애니메이션 없이 완성된 모습으로 보이고, 실제 사이트(미리보기 버튼)에서 애니메이션이 동작합니다.
+- Elementor 기본 위젯(제목, 이미지, HTML, 버튼…)도 1AM 위젯 사이에 자유롭게 섞어 쓸 수 있습니다.
+- 다른 페이지(About 등)도 **Edit with Elementor** 로 만들 수 있습니다. 위에 컬러 제목 영역이 붙고, 페이지 설정의 **Hide Title** 을 켜면 숨겨집니다.
+- 홈을 Elementor 로 만들지 않으면 테마 기본 홈 구성이 그대로 나옵니다.
+
 ## 편집기 = 사이트와 같은 모양
 
 - 페이지/글 편집기와 WooCommerce 상품 설명 편집기에서 글꼴·제목·이탤릭·버튼이 사이트와 똑같이 보입니다.

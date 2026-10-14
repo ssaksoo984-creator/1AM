@@ -2,7 +2,7 @@
 /**
  * 도매 거래처를 위한 장점 (문구는 실제 정책에 맞게 수정)
  */
-$items = apply_filters(
+$items = oneam_ctx( 'items', array() ) ? array_map( function ( $r ) { return array( $r['title'], $r['text'], $r['c1'] ?: '#8A3FFC', $r['c2'] ?: '#16C75A' ); }, oneam_ctx( 'items' ) ) : apply_filters(
 	'oneam_benefits',
 	array(
 		array( 'Wholesale pricing', 'Trade pricing for approved accounts, visible as soon as you log in.', '#FF2E4D', '#FFB321' ),
@@ -14,11 +14,8 @@ $items = apply_filters(
 ?>
 <section class="benefits" id="why">
 	<div class="benefits__head">
-		<p class="eyebrow">For retailers</p>
-		<h2 class="section-title section-title--md" data-reveal>
-			<span class="line"><span>Why stock</span></span>
-			<span class="line"><span><em>1AM</em>?</span></span>
-		</h2>
+		<p class="eyebrow"><?php echo esc_html( oneam_ctx( 'eyebrow', 'For retailers' ) ); ?></p>
+		<h2 class="section-title section-title--md" data-reveal><?php echo oneam_lines( oneam_ctx( 'title', "Why stock\n*1AM*?" ) ); // phpcs:ignore ?></h2>
 	</div>
 	<ul class="benefits__list">
 		<?php foreach ( $items as $b ) : ?>

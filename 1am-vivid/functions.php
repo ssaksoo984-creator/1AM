@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_VERSION', '1.6.1' );
+define( 'ONEAM_VERSION', '1.7.0' );
 
 function oneam_asset( $path ) {
 	return get_template_directory_uri() . '/assets/' . ltrim( $path, '/' );
@@ -19,6 +19,7 @@ require get_template_directory() . '/inc/products.php';
 require get_template_directory() . '/inc/woo-sync.php';
 require get_template_directory() . '/inc/editor.php';
 require get_template_directory() . '/inc/wholesale.php';
+require get_template_directory() . '/inc/elementor.php';
 
 add_action(
 	'after_setup_theme',
@@ -64,6 +65,7 @@ add_action(
 				'ageGate' => (bool) get_theme_mod( 'oneam_age_gate', true ),
 				'minAge'  => (int) get_theme_mod( 'oneam_min_age', 19 ),
 				'lite'    => $shop,
+				'builder' => function_exists( 'oneam_is_builder_preview' ) && oneam_is_builder_preview(),
 			)
 		);
 	}
@@ -149,6 +151,17 @@ function oneam_fallback_legal_menu() {
  */
 function oneam_rich( $text ) {
 	return nl2br( preg_replace( '/\*(.+?)\*/u', '<em>$1</em>', esc_html( $text ) ) );
+}
+
+/** 여러 줄 제목 → 줄마다 리빌 애니메이션용 span */
+function oneam_lines( $text ) {
+	$out = '';
+	foreach ( preg_split( '/\r?\n/', trim( (string) $text ) ) as $part ) {
+		if ( '' !== trim( $part ) ) {
+			$out .= '<span class="line"><span>' . oneam_rich( trim( $part ) ) . '</span></span>';
+		}
+	}
+	return $out;
 }
 
 /** 글자 단위로 쪼개서 애니메이션용 span 으로 감싸기 (단어는 줄바꿈되지 않도록 .w 로 묶음) */

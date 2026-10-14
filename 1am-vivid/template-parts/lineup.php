@@ -7,7 +7,7 @@ $products = oneam_get_products();
 <section class="lab" id="products">
 	<div class="lab__bg"></div>
 	<div class="lab__head">
-		<p class="eyebrow">Product lineup · <?php echo count( $products ); ?> lines</p>
+		<p class="eyebrow"><?php echo esc_html( oneam_ctx( 'eyebrow', 'Product lineup' ) ); ?> · <?php echo count( $products ); ?> lines</p>
 		<p class="lab__hint">Keep scrolling &rarr;</p>
 	</div>
 	<div class="lab__track">
