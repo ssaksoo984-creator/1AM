@@ -37,7 +37,7 @@ tools/              ← 미리보기 생성 스크립트
 
 **영상 넣기**: `1am-vivid/assets/video/brand.mp4` (+ `brand.jpg`) 에 넣으면 자동 사용. 운영 시에는 사용자 정의하기 > 1AM Settings > Home video 에서 업로드.
 
-**헤더는 항상 위에 고정**. **로그인하면 헤더**에 내 계정 · 장바구니(개수) · 로그아웃 아이콘.
+**상단 경고 바 + 헤더는 항상 위에 고정** (경고 바: 검정 배경 · 흰 글씨. 문구와 색은 관리자 바의 **Warning bar** 또는 사용자 정의하기 > 1AM Settings > General / Warnings). **로그인하면 헤더**에 내 계정 · 장바구니(개수) · 로그아웃 아이콘.
 
 **회원 상태별 버튼**: 비회원 → `Apply for wholesale` / 승인 대기 → `Application under review` / 승인 완료 → `Shop wholesale`.
 승인 판단: 사용자 메타 `oneam_wholesale_status = approved` 또는 `wholesale_customer` 역할. 가입 승인 플러그인을 쓰면 `oneam_member_state` 필터로 연결합니다.

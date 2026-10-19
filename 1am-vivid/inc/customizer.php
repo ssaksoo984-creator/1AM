@@ -11,6 +11,8 @@ function oneam_defaults() {
 	return array(
 		// Confirm the final warning wording against Health Canada requirements.
 		'oneam_topbar'        => 'WARNING: Vaping products contain nicotine, a highly addictive chemical.',
+		'oneam_topbar_bg'     => '#0d0b12',
+		'oneam_topbar_fg'     => '#ffffff',
 		'oneam_intro_title'   => 'Stocked for *retail.*',
 		'oneam_intro_text'    => 'Slim HYBRID · 15 flavours · Wholesale only',
 		'oneam_video_mp4'     => '',
@@ -80,7 +82,9 @@ add_action(
 
 		$sections = array(
 			'oneam_general' => array( 'General / Warnings', array(
-				'oneam_topbar'  => array( 'Top warning bar', 'textarea' ),
+				'oneam_topbar'    => array( 'Top warning bar — text', 'textarea' ),
+				'oneam_topbar_bg' => array( 'Top warning bar — background colour', 'color' ),
+				'oneam_topbar_fg' => array( 'Top warning bar — text colour', 'color' ),
 				'oneam_warning' => array( 'Footer warning', 'textarea' ),
 				'oneam_company' => array( 'Distributor (company name)', 'text' ),
 				'oneam_email'   => array( 'Contact / sales email (also receives new applications)', 'text' ),
@@ -121,9 +125,11 @@ add_action(
 		foreach ( $sections as $sid => $sec ) {
 			$wp_customize->add_section( $sid, array( 'title' => $sec[0], 'panel' => 'oneam', 'priority' => $p++ ) );
 			foreach ( $sec[1] as $key => $ctl ) {
-				$sanitize = in_array( $ctl[1], array( 'upload', 'url' ), true ) ? 'esc_url_raw' : 'sanitize_textarea_field';
+				$sanitize = in_array( $ctl[1], array( 'upload', 'url' ), true ) ? 'esc_url_raw' : ( 'color' === $ctl[1] ? 'sanitize_hex_color' : 'sanitize_textarea_field' );
 				$wp_customize->add_setting( $key, array( 'default' => $d[ $key ], 'sanitize_callback' => $sanitize ) );
-				if ( 'upload' === $ctl[1] ) {
+				if ( 'color' === $ctl[1] ) {
+					$wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, $key, array( 'label' => $ctl[0], 'section' => $sid ) ) );
+				} elseif ( 'upload' === $ctl[1] ) {
 					$wp_customize->add_control( new WP_Customize_Upload_Control( $wp_customize, $key, array( 'label' => $ctl[0], 'section' => $sid ) ) );
 				} else {
 					$wp_customize->add_control( $key, array( 'label' => $ctl[0], 'section' => $sid, 'type' => $ctl[1] ) );
@@ -137,4 +143,22 @@ add_action(
 		$wp_customize->add_setting( 'oneam_min_age', array( 'default' => 19, 'sanitize_callback' => 'absint' ) );
 		$wp_customize->add_control( 'oneam_min_age', array( 'label' => 'Minimum age', 'section' => 'oneam_general', 'type' => 'number' ) );
 	}
+);
+
+/** 관리자 바에 "Warning bar" 바로가기 → 사용자 정의하기의 경고 바 문구 · 색 */
+add_action(
+	'admin_bar_menu',
+	function ( $bar ) {
+		if ( ! current_user_can( 'customize' ) ) {
+			return;
+		}
+		$bar->add_node(
+			array(
+				'id'    => 'oneam-warning-bar',
+				'title' => 'Warning bar',
+				'href'  => admin_url( 'customize.php?autofocus[section]=oneam_general&url=' . rawurlencode( home_url( add_query_arg( array() ) ) ) ),
+			)
+		);
+	},
+	90
 );

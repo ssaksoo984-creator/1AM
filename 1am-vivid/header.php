@@ -37,7 +37,7 @@ $oneam_first   = $oneam_flavors[0];
 
 <div class="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__label"></span></div>
 
-<div class="topbar" role="note"><p><?php echo esc_html( oneam_opt( 'oneam_topbar' ) ); ?></p></div>
+<div class="topbar" role="note" style="--warn-bg:<?php echo esc_attr( oneam_opt( 'oneam_topbar_bg' ) ?: '#0d0b12' ); ?>;--warn-fg:<?php echo esc_attr( oneam_opt( 'oneam_topbar_fg' ) ?: '#ffffff' ); ?>"><p><?php echo esc_html( oneam_opt( 'oneam_topbar' ) ); ?></p></div>
 
 <header class="site-header" id="site-header">
 	<a class="site-header__logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="1AM home">

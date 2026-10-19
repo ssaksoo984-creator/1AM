@@ -1826,3 +1826,19 @@ body.nav-open .nav-toggle i:last-child { transform: translateY(-3.5px) rotate(-4
 .pinfo__buy .button:hover { background-size: 100% 100%, auto; }
 .pinfo__buy .button.disabled, .pinfo__buy .button:disabled { opacity: .45; cursor: not-allowed; }
 .pinfo__buy .reset_variations { margin-left: 10px; font-size: 13px; text-decoration: underline; }
+
+/* 상단 경고 바: 항상 고정 · 검정 배경 흰 글씨 (사용자 정의하기 > 1AM Settings > General 에서 문구 · 색 변경) */
+.topbar { background: var(--warn-bg, #0d0b12); color: var(--warn-fg, #fff); border-bottom: 0; }
+/* 로그인했을 때 워드프레스 관리자 바에 가려지지 않게 */
+.admin-bar .topbar { top: 32px; }
+.admin-bar .site-header { top: calc(32px + var(--warn-h)); }
+@media screen and (max-width: 782px) {
+	.admin-bar .topbar { top: 46px; }
+	.admin-bar .site-header { top: calc(46px + var(--warn-h)); }
+}
+@media screen and (max-width: 600px) {
+	/* 이 폭에서는 관리자 바가 스크롤되며 올라가므로 맨 위에 고정 */
+	.admin-bar .topbar { top: 0; }
+	.admin-bar .site-header { top: var(--warn-h); }
+	#wpadminbar { position: absolute; }
+}
