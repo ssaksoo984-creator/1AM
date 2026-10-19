@@ -33,9 +33,10 @@ $woo = ( $woo && 'publish' === $woo->post_status ) ? wc_get_product( $woo->ID ) 
 		<?php if ( $text ) : ?>
 			<p class="pinfo__text"><?php echo esc_html( $text ); ?></p>
 		<?php endif; ?>
+		<?php echo oneam_regions_html( $woo ? array_keys( oneam_province_prices( $woo ) ) : ( $p['regions'] ?? array() ), $woo ); // phpcs:ignore ?>
 		<?php if ( $woo && 'approved' === oneam_member_state() && 'yes' !== $woo->get_meta( '_oneam_soon' ) && ! oneam_is_builder_preview() ) : ?>
 			<div class="pinfo__buy">
-				<p class="pinfo__price"><?php echo wp_kses_post( $woo->get_price_html() ); ?> <small>wholesale</small></p>
+				<p class="pinfo__price"><?php echo wp_kses_post( $woo->get_price_html() ); ?></p>
 				<?php
 				global $product;
 				$oneam_prev = $product;

@@ -33,7 +33,7 @@ $heading = isset( $args['title'] ) ? $args['title'] : 'Slim HYBRID';
 	<ul class="grid">
 		<?php foreach ( $flavors as $f ) : ?>
 			<li class="card" data-cat="<?php echo esc_attr( $f['cat'] ); ?>" style="<?php echo oneam_flavor_style( $f ); // phpcs:ignore ?>">
-				<a href="<?php echo esc_url( $f['url'] ); ?>" data-cursor="View">
+				<a href="<?php echo esc_url( $f['url'] ); ?>" data-cursor="View" data-flavour="<?php echo esc_attr( wp_json_encode( oneam_flavour_popup_data( $f, $cats ) ) ); ?>">
 					<span class="card__fill" aria-hidden="true"></span>
 					<span class="card__cat"><?php echo esc_html( $cats[ $f['cat'] ] ?? '' ); ?></span>
 					<span class="card__img"><img src="<?php echo esc_url( $f['img'] ); ?>" alt="" width="246" height="1400" loading="lazy"></span>
@@ -44,3 +44,4 @@ $heading = isset( $args['title'] ) ? $args['title'] : 'Slim HYBRID';
 		<?php endforeach; ?>
 	</ul>
 </section>
+<?php oneam_flavour_popup(); ?>

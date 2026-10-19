@@ -142,6 +142,20 @@ Home · About · **Slim HYBRID**(상품 페이지) · How to Order · FAQ · Ter
 - WooCommerce 결제 화면의 약관 동의에 Terms 페이지가 연결되고, 클래식 결제 화면에는 소비세 스탬프·컴플라이언스 확인 체크박스가 추가됩니다.
 - 회사명·영업 메일은 **사용자 정의하기 > 1AM Settings > General** (기본: VanSkai Trading Ltd. / sales@1amvape.com). 푸터, 메일 서명, 페이지 문구에 함께 쓰입니다.
 
+## 주(Province)별 판매 · 가격 · GST
+
+- 상품 편집 > General 탭 **1AM province prices** 에 한 줄씩 `BC: 80` / `SK: 80` / `AB: 90` (GST 별도), **Unit** = `carton`.
+  Slim HYBRID 는 처음 관리자 화면에 들어갈 때 이 값으로 자동 설정됩니다.
+- 가격은 **배송지 주**(→ 청구지 → 가입 때 매장 주)에 따라 자동 적용. 목록에 없는 주는 주문 불가, 결제 화면에서도 판매 주(AB · BC · SK)만 선택 가능.
+- 주문 상품마다 **Province / excise stamp** 가 기록되어 어느 주 스탬프로 출고할지 알 수 있습니다.
+- 가격 옆에 `/ carton + GST`. 상품 페이지에 판매 지역(승인 회원은 주별 가격) 표시.
+- **GST**: 상품 화면 또는 WooCommerce 설정 화면의 **Set up 5% GST** 버튼 → 세금 켜기 + 캐나다 5% GST (가격은 세금 제외, 배송지 기준).
+
+## 맛 팝업
+
+상품 페이지 맛 목록에서 카드를 누르면 팝업: 왼쪽 제품 이미지(← → 로 다음 맛), 오른쪽 분류 · 이름 · 맛 특징 4가지 · 판매 지역 · 가격.
+승인 회원은 수량(카톤) 입력 후 **Add to cart** (페이지 이동 없이 담기고 헤더 장바구니 숫자 갱신), 그 외에는 Apply / Log in.
+
 ## 맛 분류
 
 Fruit Ice / Mint / Classic Ice 3가지. 맛 설명은 특징 4가지 (예: Rich red grape · Juicy & sweet · Icy cooling · Classic refreshment). WooCommerce 에 예전 기본 설명이 그대로 있으면 자동으로 새 설명이 보입니다.

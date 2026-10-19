@@ -50,9 +50,10 @@ $oneam_text  = $product->get_short_description() ? $product->get_short_descripti
 			<?php if ( $oneam_text ) : ?>
 				<p class="pinfo__text"><?php echo esc_html( wp_strip_all_tags( $oneam_text ) ); ?></p>
 			<?php endif; ?>
+			<?php echo oneam_regions_html( array_keys( oneam_province_prices( $product ) ), $product ); // phpcs:ignore ?>
 			<?php if ( 'approved' === oneam_member_state() && 'yes' !== $product->get_meta( '_oneam_soon' ) ) : ?>
 				<div class="pinfo__buy">
-					<p class="pinfo__price"><?php echo wp_kses_post( $product->get_price_html() ); ?> <small>wholesale</small></p>
+					<p class="pinfo__price"><?php echo wp_kses_post( $product->get_price_html() ); ?></p>
 					<?php woocommerce_template_single_add_to_cart(); ?>
 				</div>
 			<?php endif; ?>

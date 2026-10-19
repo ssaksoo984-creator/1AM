@@ -28,6 +28,7 @@ function oneam_default_products() {
 			'img'     => oneam_asset( 'img/flavors/grape-ice.webp' ),
 			'desc'    => 'A slim disposable with a crystal-clear body. 15 flavours, ready to stock.',
 			'specs'   => array( 'E-liquid' => '2ml', 'Flavours' => '15', 'Type' => 'Disposable' ),
+			'regions' => array( 'BC', 'AB', 'SK' ),
 		),
 		array(
 			'name'    => 'HYBRID Max',

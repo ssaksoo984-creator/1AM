@@ -101,6 +101,10 @@ function oneam_flavors_from_woo() {
 				'desc' => $desc,
 				'url'  => $line_url,
 				'line' => $product->get_slug(),
+				// 팝업에서 바로 장바구니에 담기용
+				'pid'  => $product->get_id(),
+				'vid'  => $vid,
+				'attr' => $v->get_variation_attributes(),
 			);
 		}
 	}
@@ -204,7 +208,8 @@ function oneam_products_from_woo() {
 			'img'    => $product->get_image_id() ? wp_get_attachment_image_url( $product->get_image_id(), 'large' ) : '',
 			'desc'   => wp_strip_all_tags( $product->get_short_description() ),
 			'specs'  => $specs,
-			'url'    => get_permalink( $product->get_id() ),
+			'url'     => get_permalink( $product->get_id() ),
+			'regions' => function_exists( 'oneam_province_prices' ) ? array_keys( oneam_province_prices( $product ) ) : array(),
 		);
 	}
 	return $out;
@@ -367,3 +372,90 @@ add_filter(
 	10,
 	3
 );
+
+/* ---------------------------------------------------------------------------
+ * 맛 팝업 (맛 목록에서 카드를 누르면)
+ * 왼쪽 제품 이미지 · 오른쪽 이름 · 분류 · 맛 특징 · 판매 지역/가격 · 장바구니 또는 가입 안내
+ * ------------------------------------------------------------------------- */
+function oneam_flavour_popup_data( $f, $cats ) {
+	$d = array(
+		'name'  => $f['name'],
+		'cat'   => isset( $cats[ $f['cat'] ] ) ? $cats[ $f['cat'] ] : '',
+		'notes' => array_values( array_filter( array_map( 'trim', explode( '·', (string) $f['desc'] ) ) ) ),
+		'img'   => $f['img'],
+		'c1'    => $f['c1'],
+		'c2'    => $f['c2'],
+		'url'   => $f['url'],
+	);
+	$product = ! empty( $f['pid'] ) && function_exists( 'wc_get_product' ) ? wc_get_product( $f['pid'] ) : null;
+	if ( $product ) {
+		$pp           = function_exists( 'oneam_province_prices' ) ? oneam_province_prices( $product ) : array();
+		$d['line']    = $product->get_name();
+		$d['regions'] = array_keys( $pp );
+		if ( 'approved' === oneam_member_state() ) {
+			$v          = wc_get_product( $f['vid'] );
+			$d['pid']   = (int) $f['pid'];
+			$d['vid']   = (int) $f['vid'];
+			$d['attr']  = $f['attr'];
+			$d['price'] = $v ? wp_strip_all_tags( wc_price( wc_get_price_to_display( $v ) ) ) : '';
+			$d['unit']  = function_exists( 'oneam_unit_label' ) ? oneam_unit_label( $product ) : 'unit';
+			$d['ok']    = $v ? $v->is_purchasable() && $v->is_in_stock() : false;
+			$d['prov']  = function_exists( 'oneam_customer_province' ) ? oneam_customer_province() : '';
+		}
+	} else {
+		$def          = function_exists( 'oneam_product_by_slug' ) ? oneam_product_by_slug( $f['line'] ) : null;
+		$d['line']    = $def ? $def['name'] : '';
+		$d['regions'] = $def && ! empty( $def['regions'] ) ? $def['regions'] : array();
+	}
+	return $d;
+}
+
+function oneam_flavour_popup() {
+	static $done = false;
+	if ( $done ) {
+		return;
+	}
+	$done  = true;
+	$state = oneam_member_state();
+	?>
+	<div class="fpop" id="fpop" hidden aria-hidden="true">
+		<div class="fpop__backdrop" data-close></div>
+		<div class="fpop__box" role="dialog" aria-modal="true" aria-labelledby="fpop-name">
+			<button type="button" class="fpop__close" data-close aria-label="Close">&times;</button>
+			<div class="fpop__media">
+				<span class="fpop__glow" aria-hidden="true"></span>
+				<img class="fpop__img" src="" alt="">
+				<button type="button" class="fpop__nav fpop__nav--prev" data-step="-1" aria-label="Previous flavour">&larr;</button>
+				<button type="button" class="fpop__nav fpop__nav--next" data-step="1" aria-label="Next flavour">&rarr;</button>
+			</div>
+			<div class="fpop__body">
+				<p class="fpop__meta"><span class="fpop__cat"></span><span class="fpop__line"></span></p>
+				<h2 class="fpop__name" id="fpop-name"></h2>
+				<ul class="fpop__notes"></ul>
+				<p class="fpop__regions"></p>
+				<?php if ( 'approved' === $state && function_exists( 'WC' ) ) : ?>
+					<form class="fpop__buy" method="post">
+						<p class="fpop__price"></p>
+						<div class="fpop__row">
+							<label class="fpop__qty"><span>Qty</span><input type="number" name="quantity" value="1" min="1" step="1" inputmode="numeric"></label>
+							<button type="submit" class="btn btn--solid fpop__add"><span>Add to cart</span></button>
+						</div>
+						<p class="fpop__msg" role="status"></p>
+						<a class="link-arrow fpop__cart" href="<?php echo esc_url( wc_get_cart_url() ); ?>" hidden>View cart <span>&rarr;</span></a>
+					</form>
+				<?php else : ?>
+					<div class="fpop__gate">
+						<p><?php echo 'pending' === $state ? 'Your application is under review. Pricing and ordering open once you are approved.' : 'Wholesale pricing and ordering are available to approved retailers.'; ?></p>
+						<div class="fpop__row">
+							<?php oneam_member_cta(); ?>
+							<?php if ( 'guest' === $state ) : ?>
+								<a class="link-arrow" href="<?php echo esc_url( oneam_login_url() ); ?>">Log in <span>&rarr;</span></a>
+							<?php endif; ?>
+						</div>
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
+	</div>
+	<?php
+}

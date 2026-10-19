@@ -35,6 +35,7 @@
 	if (window.Lenis && !reduce && !lite) {
 		lenis = new window.Lenis({ lerp: 0.1, smoothWheel: true });
 		lenis.on('scroll', ST.update);
+		window.ONEAM_LENIS = lenis; // 팝업이 열려 있는 동안 멈춤
 		gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
 		gsap.ticker.lagSmoothing(0);
 	}

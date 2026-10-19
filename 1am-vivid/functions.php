@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_VERSION', '1.13.1' );
+define( 'ONEAM_VERSION', '1.14.0' );
 
 function oneam_asset( $path ) {
 	return get_template_directory_uri() . '/assets/' . ltrim( $path, '/' );
@@ -17,6 +17,7 @@ require get_template_directory() . '/inc/flavors.php';
 require get_template_directory() . '/inc/customizer.php';
 require get_template_directory() . '/inc/products.php';
 require get_template_directory() . '/inc/woo-sync.php';
+require get_template_directory() . '/inc/pricing.php';
 require get_template_directory() . '/inc/editor.php';
 require get_template_directory() . '/inc/wholesale.php';
 require get_template_directory() . '/inc/elementor.php';
@@ -60,6 +61,15 @@ add_action(
 		}
 		wp_enqueue_script( 'oneam-main', oneam_asset( 'js/main.js' ), $deps, ONEAM_VERSION, true );
 
+		wp_enqueue_script( 'oneam-popup', oneam_asset( 'js/popup.js' ), array(), ONEAM_VERSION, true );
+		wp_localize_script(
+			'oneam-popup',
+			'ONEAM_POP',
+			array(
+				'addUrl'    => home_url( '/' ),
+				'fragments' => class_exists( 'WC_AJAX' ) ? WC_AJAX::get_endpoint( 'get_refreshed_fragments' ) : '',
+			)
+		);
 		wp_localize_script(
 			'oneam-main',
 			'ONEAM',
