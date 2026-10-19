@@ -17,7 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /** 이 페이지를 Elementor 로 만들었는지 */
 function oneam_is_builder_page( $post_id = 0 ) {
 	$post_id = $post_id ? $post_id : get_the_ID();
-	return $post_id && 'builder' === get_post_meta( $post_id, '_elementor_edit_mode', true ) && did_action( 'elementor/loaded' );
+	// 빈 Elementor 페이지는 "아직 안 만든 것"으로 봄 (홈이 하얗게 비지 않도록)
+	return $post_id && 'builder' === get_post_meta( $post_id, '_elementor_edit_mode', true ) && did_action( 'elementor/loaded' ) && ! oneam_el_is_empty( $post_id );
 }
 
 /** Elementor 편집 화면(미리보기) 안인지 */
@@ -265,7 +266,34 @@ function oneam_el_id() {
 }
 
 /** 위젯 하나를 꽉 찬 섹션에 담은 Elementor 데이터 */
+function oneam_el_uses_containers() {
+	return class_exists( '\Elementor\Plugin' ) && isset( \Elementor\Plugin::$instance->experiments )
+		&& \Elementor\Plugin::$instance->experiments->is_feature_active( 'container' );
+}
+
 function oneam_el_section( $widget, $settings = array() ) {
+	$w = array(
+		'id'         => oneam_el_id(),
+		'elType'     => 'widget',
+		'widgetType' => 'oneam-' . $widget,
+		'settings'   => (object) $settings,
+		'elements'   => array(),
+	);
+	// 새 Elementor (Flexbox 컨테이너)
+	if ( oneam_el_uses_containers() ) {
+		return array(
+			'id'       => oneam_el_id(),
+			'elType'   => 'container',
+			'settings' => array(
+				'content_width' => 'full',
+				'flex_gap'      => array( 'size' => 0, 'column' => '0', 'row' => '0', 'unit' => 'px', 'isLinked' => true ),
+				'padding'       => array( 'unit' => 'px', 'top' => '0', 'right' => '0', 'bottom' => '0', 'left' => '0', 'isLinked' => true ),
+			),
+			'elements' => array( $w ),
+			'isInner'  => false,
+		);
+	}
+	// 예전 Elementor (섹션 + 칼럼)
 	return array(
 		'id'       => oneam_el_id(),
 		'elType'   => 'section',
@@ -295,6 +323,57 @@ function oneam_home_layout() {
 	return array_map( 'oneam_el_section', array( 'film', 'about', 'lineup', 'device', 'cta' ) );
 }
 
+/** 홈이 "최신 글 페이지"로도 지정돼 있으면 해제 (같은 페이지면 Elementor 로 편집할 수 없음) */
+function oneam_fix_posts_page() {
+	$front = (int) get_option( 'page_on_front' );
+	if ( $front && 'page' === get_option( 'show_on_front' ) && (int) get_option( 'page_for_posts' ) === $front ) {
+		update_option( 'page_for_posts', 0 );
+	}
+}
+add_action( 'admin_init', 'oneam_fix_posts_page' );
+add_filter(
+	'option_page_for_posts',
+	function ( $v ) {
+		return ( (int) $v && (int) $v === (int) get_option( 'page_on_front' ) && 'page' === get_option( 'show_on_front' ) ) ? 0 : $v;
+	}
+);
+
+/** Elementor 데이터가 비어 있는지 */
+function oneam_el_is_empty( $id ) {
+	$data = get_post_meta( $id, '_elementor_data', true );
+	if ( is_string( $data ) ) {
+		$data = json_decode( $data, true );
+	}
+	return empty( $data );
+}
+
+/** 페이지에 1AM 홈 구성을 채워 넣음 */
+function oneam_fill_home( $id ) {
+	update_post_meta( $id, '_elementor_edit_mode', 'builder' );
+	update_post_meta( $id, '_elementor_template_type', 'wp-page' );
+	if ( defined( 'ELEMENTOR_VERSION' ) ) {
+		update_post_meta( $id, '_elementor_version', ELEMENTOR_VERSION );
+	}
+	update_post_meta( $id, '_elementor_data', wp_slash( wp_json_encode( oneam_home_layout() ) ) );
+	delete_post_meta( $id, '_elementor_css' );
+	if ( class_exists( '\Elementor\Plugin' ) && isset( \Elementor\Plugin::$instance->files_manager ) ) {
+		\Elementor\Plugin::$instance->files_manager->clear_cache();
+	}
+}
+
+/** 홈 페이지 (없으면 만들어서 홈으로 지정) */
+function oneam_home_page_id( $create = false ) {
+	$id = 'page' === get_option( 'show_on_front' ) ? (int) get_option( 'page_on_front' ) : 0;
+	if ( ! $id && $create ) {
+		$id = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Home' ) );
+		update_option( 'show_on_front', 'page' );
+		update_option( 'page_on_front', $id );
+	}
+	oneam_fix_posts_page();
+	return $id;
+}
+
+/** 버튼: 홈을 1AM 구성으로 (다시) 만들기 */
 add_action(
 	'admin_post_oneam_build_home',
 	function () {
@@ -302,27 +381,23 @@ add_action(
 		if ( ! current_user_can( 'edit_pages' ) || ! did_action( 'elementor/loaded' ) ) {
 			wp_die( 'Not allowed.' );
 		}
-		$id = 'page' === get_option( 'show_on_front' ) ? (int) get_option( 'page_on_front' ) : 0;
-		if ( ! $id ) {
-			$id = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'Home' ) );
-			update_option( 'show_on_front', 'page' );
-			update_option( 'page_on_front', $id );
-		}
-		// 홈이 "최신 글" 페이지로도 지정돼 있으면 해제 (같은 페이지면 편집이 안 됨)
-		if ( (int) get_option( 'page_for_posts' ) === $id ) {
-			update_option( 'page_for_posts', 0 );
-		}
-		update_post_meta( $id, '_elementor_edit_mode', 'builder' );
-		update_post_meta( $id, '_elementor_template_type', 'wp-page' );
-		update_post_meta( $id, '_wp_page_template', 'default' );
-		if ( defined( 'ELEMENTOR_VERSION' ) ) {
-			update_post_meta( $id, '_elementor_version', ELEMENTOR_VERSION );
-		}
-		update_post_meta( $id, '_elementor_data', wp_slash( wp_json_encode( oneam_home_layout() ) ) );
-		delete_post_meta( $id, '_elementor_css' );
+		$id = oneam_home_page_id( true );
+		oneam_fill_home( $id );
 		wp_safe_redirect( admin_url( 'post.php?post=' . $id . '&action=elementor' ) );
 		exit;
 	}
+);
+
+/** 빈 홈을 Elementor 로 열면 1AM 구성을 자동으로 넣어 줌 (빈 화면 대신) */
+add_action(
+	'admin_action_elementor',
+	function () {
+		$id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification
+		if ( $id && current_user_can( 'edit_post', $id ) && $id === oneam_home_page_id() && oneam_el_is_empty( $id ) ) {
+			oneam_fill_home( $id );
+		}
+	},
+	1
 );
 
 /** 버튼: 페이지 목록 · 대시보드 · 홈 편집 화면 상단 */
@@ -336,17 +411,22 @@ add_action(
 		if ( ! $screen || ! in_array( $screen->id, array( 'dashboard', 'edit-page', 'page' ), true ) ) {
 			return;
 		}
-		$home = 'page' === get_option( 'show_on_front' ) ? (int) get_option( 'page_on_front' ) : 0;
-		if ( $home && oneam_is_builder_page( $home ) ) {
-			if ( 'edit-page' === $screen->id ) {
-				printf( '<div class="notice notice-info"><p><strong>1AM:</strong> Your homepage is built with Elementor. <a class="button button-primary" href="%s">Edit homepage in Elementor</a></p></div>', esc_url( admin_url( 'post.php?post=' . $home . '&action=elementor' ) ) );
+		$home  = oneam_home_page_id();
+		$build = wp_nonce_url( admin_url( 'admin-post.php?action=oneam_build_home' ), 'oneam_build_home' );
+		if ( $home && oneam_is_builder_page( $home ) && ! oneam_el_is_empty( $home ) ) {
+			if ( 'dashboard' === $screen->id ) {
+				return;
 			}
+			printf(
+				'<div class="notice notice-info"><p><strong>1AM:</strong> Your homepage is built with Elementor. <a class="button button-primary" href="%1$s">Edit homepage in Elementor</a> <a class="button" href="%2$s" onclick="return confirm(\'Replace the homepage with the original 1AM sections? Your Elementor changes on the homepage will be lost.\');">Reset to 1AM layout</a></p></div>',
+				esc_url( admin_url( 'post.php?post=' . $home . '&action=elementor' ) ),
+				esc_url( $build )
+			);
 			return;
 		}
-		$url = wp_nonce_url( admin_url( 'admin-post.php?action=oneam_build_home' ), 'oneam_build_home' );
 		printf(
 			'<div class="notice notice-info"><p><strong>1AM:</strong> Edit the homepage visually in Elementor — the current sections (video, flavour line-up, products, device, call to action) are added as 1AM widgets you can move, delete and edit. <a class="button button-primary" href="%s">Build homepage in Elementor</a></p></div>',
-			esc_url( $url )
+			esc_url( $build )
 		);
 	}
 );
