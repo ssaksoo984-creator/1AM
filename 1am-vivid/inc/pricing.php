@@ -334,16 +334,43 @@ function oneam_regions_html( $regions, $product = null ) {
 	$pp   = $product ? oneam_province_prices( $product ) : array();
 	$show = $pp && 'approved' === oneam_member_state();
 	$you  = oneam_customer_province();
-	$out  = '<ul class="pinfo__regions" aria-label="Available in">';
+	$pick = $show && is_product(); // 상품 페이지: 눌러서 주(배송지) 선택
+	$out  = '<ul class="pinfo__regions' . ( $pick ? ' is-pick' : '' ) . '" aria-label="Available in"' . ( $pick ? ' data-nonce="' . esc_attr( wp_create_nonce( 'oneam_prov' ) ) . '"' : '' ) . '>';
 	foreach ( $regions as $code ) {
 		$label = $code;
 		if ( $show && isset( $pp[ $code ] ) ) {
 			$label .= ' ' . wp_strip_all_tags( wc_price( $pp[ $code ] ) ) . ' / ' . oneam_unit_label( $product ) . ' + GST';
 		}
-		$out .= '<li' . ( $code === $you ? ' class="is-you"' : '' ) . '>' . esc_html( $label ) . '</li>';
+		if ( $pick && isset( $pp[ $code ] ) ) {
+			$out .= '<li' . ( $code === $you ? ' class="is-you"' : '' ) . '><button type="button" data-prov="' . esc_attr( $code ) . '" data-name="' . esc_attr( oneam_provinces()[ $code ] ?? $code ) . '" data-price="' . esc_attr( wc_price( $pp[ $code ] ) ) . '" aria-pressed="' . ( $code === $you ? 'true' : 'false' ) . '">' . esc_html( $label ) . '</button></li>';
+		} else {
+			$out .= '<li' . ( $code === $you ? ' class="is-you"' : '' ) . '>' . esc_html( $label ) . '</li>';
+		}
 	}
 	return $out . '</ul>';
 }
+
+/** 상품 페이지에서 주를 누르면: 손님의 배송 주를 바꿔 가격 · 스탬프 · 결제 화면 주소에 반영 */
+function oneam_ajax_set_province() {
+	check_ajax_referer( 'oneam_prov', 'nonce' );
+	$prov = strtoupper( sanitize_text_field( wp_unslash( $_POST['prov'] ?? '' ) ) );
+	if ( ! isset( oneam_provinces()[ $prov ] ) || ! function_exists( 'WC' ) || ! WC()->customer ) {
+		wp_send_json_error();
+	}
+	WC()->customer->set_shipping_country( 'CA' );
+	WC()->customer->set_shipping_state( $prov );
+	if ( ! WC()->customer->get_billing_state() ) {
+		WC()->customer->set_billing_country( 'CA' );
+		WC()->customer->set_billing_state( $prov );
+	}
+	WC()->customer->save();
+	if ( WC()->cart ) {
+		WC()->cart->calculate_totals();
+	}
+	wp_send_json_success( array( 'prov' => $prov ) );
+}
+add_action( 'wp_ajax_oneam_set_province', 'oneam_ajax_set_province' );
+add_action( 'wp_ajax_nopriv_oneam_set_province', 'oneam_ajax_set_province' );
 
 /* ---------------------------------------------------------------------------
  * 결제 수단 표시 (카드사 · Moneris 요구: 사용 가능한 카드 · 통화 · 보안 결제 안내)

@@ -90,7 +90,7 @@ $oneam_lines = function ( $key ) {
 
 			<?php if ( $oneam_pp ) : ?>
 				<div class="spdp__regions">
-					<p class="spdp__label">Sales regions</p>
+					<p class="spdp__label"><?php echo 'approved' === $oneam_state ? 'Choose your sales region' : 'Sales regions'; ?></p>
 					<?php echo oneam_regions_html( array_keys( $oneam_pp ), $product ); // phpcs:ignore ?>
 				</div>
 			<?php endif; ?>

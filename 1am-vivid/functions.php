@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_VERSION', '1.17.1' );
+define( 'ONEAM_VERSION', '1.17.2' );
 
 function oneam_asset( $path ) {
 	return get_template_directory_uri() . '/assets/' . ltrim( $path, '/' );
@@ -74,6 +74,7 @@ add_action(
 			'ONEAM_POP',
 			array(
 				'addUrl'    => home_url( '/' ),
+				'ajax'      => admin_url( 'admin-ajax.php' ),
 				'fragments' => class_exists( 'WC_AJAX' ) ? WC_AJAX::get_endpoint( 'get_refreshed_fragments' ) : '',
 			)
 		);

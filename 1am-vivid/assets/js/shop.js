@@ -129,4 +129,33 @@
 			})
 			.then(function () { btn.classList.remove('loading'); btn.disabled = false; });
 	});
+
+	/* ---------- 판매 지역(주) 선택: 누르면 가격이 바로 바뀌고, 결제 화면 배송 주로 들어감 ---------- */
+	var regions = document.querySelector('.spdp__regions .pinfo__regions.is-pick');
+	var priceNow = null;
+	function paintPrice() {
+		if (!priceNow) return;
+		wrap.querySelectorAll('.spdp__price .price .woocommerce-Price-amount, .woocommerce-variation-price .woocommerce-Price-amount').forEach(function (el) { el.outerHTML = priceNow; });
+	}
+	if (regions) {
+		$(form).on('show_variation', function () { setTimeout(paintPrice, 0); });
+		regions.addEventListener('click', function (e) {
+			var b = e.target.closest('button[data-prov]');
+			if (!b || b.getAttribute('aria-pressed') === 'true') return;
+			regions.querySelectorAll('li').forEach(function (li) {
+				var on = li.contains(b);
+				li.classList.toggle('is-you', on);
+				var x = li.querySelector('button'); if (x) x.setAttribute('aria-pressed', on ? 'true' : 'false');
+			});
+			priceNow = b.dataset.price;
+			paintPrice();
+			var note = wrap.querySelector('.spdp__prov');
+			if (note) note.innerHTML = 'Price for <strong>' + b.dataset.name + ' (' + b.dataset.prov + ')</strong>. This order ships to ' + b.dataset.prov + ' with ' + b.dataset.prov + ' excise stamps.';
+			var body = new URLSearchParams();
+			body.set('action', 'oneam_set_province');
+			body.set('prov', b.dataset.prov);
+			body.set('nonce', regions.dataset.nonce || '');
+			fetch(cfg.ajax || '/wp-admin/admin-ajax.php', { method: 'POST', credentials: 'same-origin', body: body }).catch(function () {});
+		});
+	}
 })(window.jQuery);
