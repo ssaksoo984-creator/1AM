@@ -50,6 +50,8 @@ function oneam_el_page_defs() {
 		'faq'           => array( 'FAQ', false, array( array( 'faq', array( 'items' => oneam_el_rows( $faq ) ) ), array( 'work' ) ) ),
 		'terms'         => array( 'Terms & Conditions', false, array( array( 'core:text-editor', array( 'editor' => oneam_el_page_html( 'terms' ) ) ) ) ),
 		'return-policy' => array( 'Return Policy', false, array( array( 'core:text-editor', array( 'editor' => oneam_el_page_html( 'return-policy' ) ) ) ) ),
+		'shipping-policy' => array( 'Shipping Policy', false, array( array( 'core:text-editor', array( 'editor' => oneam_el_page_html( 'shipping-policy' ) ) ) ) ),
+		'privacy-policy'  => array( 'Privacy Policy', false, array( array( 'core:text-editor', array( 'editor' => oneam_el_page_html( 'privacy-policy' ) ) ) ) ),
 		$signup         => array(
 			'Wholesale Sign up',
 			false,

@@ -128,24 +128,52 @@ function oneam_setup_pages() {
 		'return-policy' => array(
 			'title'    => 'Return Policy',
 			'template' => '',
-			'content'  => oneam_b_p( 'All orders are final sale. We do not accept returns or exchanges, except as required by applicable law.' )
-				. oneam_b_p( "However, if you experience any issues with your order, please don’t hesitate to contact our customer service team at {$mail}. We will do our best to address your concerns and find a satisfactory resolution." )
-				. oneam_b_p( 'For damaged, defective or incorrect products, please include your order number, product details and supporting photos.' ),
+			'content'  => oneam_policy_returns(),
+			'policy'   => true,
+		),
+		'shipping-policy' => array(
+			'title'    => 'Shipping Policy',
+			'template' => '',
+			'content'  => oneam_policy_shipping(),
+			'policy'   => true,
 		),
 		'terms'         => array(
 			'title'    => 'Terms & Conditions',
 			'template' => '',
-			'content'  => oneam_compliance_blocks(),
+			'content'  => oneam_policy_terms(),
 			'append'   => 'Vaping Product Compliance',
+			'policy'   => true,
+		),
+		'privacy-policy' => array(
+			'title'    => 'Privacy Policy',
+			'template' => '',
+			'content'  => oneam_policy_privacy(),
+			'policy'   => true,
 		),
 	);
 }
 
 /** 실행: 결과 목록 반환 */
-function oneam_run_setup_pages( $overwrite = false ) {
+function oneam_run_setup_pages( $overwrite = false, $policies = false ) {
 	$report = array();
 	foreach ( oneam_setup_pages() as $slug => $pg ) {
 		$page = get_page_by_path( $slug );
+		// "정책 전체 글로 교체": 약관 · 반품 · 배송 · 개인정보 페이지 내용을 1AM 전체 글로
+		if ( $policies ) {
+			if ( empty( $pg['policy'] ) ) {
+				continue;
+			}
+			$id = $page ? $page->ID : wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => $pg['title'], 'post_name' => $slug ) );
+			wp_update_post( wp_slash( array( 'ID' => $id, 'post_content' => $pg['content'], 'post_status' => 'publish' ) ) );
+			if ( 'builder' === get_post_meta( $id, '_elementor_edit_mode', true ) && function_exists( 'oneam_fill_page' ) ) {
+				oneam_fill_page( $id, $slug ); // Elementor 글 위젯도 새 글로
+			}
+			if ( 'privacy-policy' === $slug ) {
+				update_option( 'wp_page_for_privacy_policy', $id );
+			}
+			$report[] = $pg['title'] . ': full 1AM text';
+			continue;
+		}
 		if ( ! $page ) {
 			$id = wp_insert_post(
 				array(
@@ -176,6 +204,9 @@ function oneam_run_setup_pages( $overwrite = false ) {
 			$report[] = $pg['title'] . ': already has content (left as is)';
 		}
 	}
+	if ( function_exists( 'oneam_setup_checkout_terms' ) && oneam_setup_checkout_terms() ) {
+		$report[] = 'Checkout: terms checkbox required, with links to Terms, Shipping and Return policies';
+	}
 	// WooCommerce 결제 화면의 "약관 동의" 에 Terms 페이지 연결 (비어 있을 때만)
 	$terms = get_page_by_path( 'terms' );
 	if ( $terms && class_exists( 'WooCommerce' ) && ! (int) get_option( 'woocommerce_terms_page_id' ) ) {
@@ -192,7 +223,7 @@ add_action(
 		if ( ! current_user_can( 'publish_pages' ) ) {
 			wp_die( 'Not allowed.' );
 		}
-		set_transient( 'oneam_setup_report', oneam_run_setup_pages( ! empty( $_GET['overwrite'] ) ), 120 );
+		set_transient( 'oneam_setup_report', oneam_run_setup_pages( ! empty( $_GET['overwrite'] ), ! empty( $_GET['policies'] ) ), 120 );
 		wp_safe_redirect( admin_url( 'edit.php?post_type=page' ) );
 		exit;
 	}
@@ -222,11 +253,13 @@ add_action(
 		}
 		$url  = wp_nonce_url( admin_url( 'admin-post.php?action=oneam_setup_pages' ), 'oneam_setup_pages' );
 		$over = wp_nonce_url( admin_url( 'admin-post.php?action=oneam_setup_pages&overwrite=1' ), 'oneam_setup_pages' );
+		$pol  = wp_nonce_url( admin_url( 'admin-post.php?action=oneam_setup_pages&policies=1' ), 'oneam_setup_pages' );
 		printf(
-			'<div class="notice notice-info"><p><strong>1AM pages:</strong> %s <a class="button" href="%s">Set up 1AM pages</a> <a class="button-link" href="%s" onclick="return confirm(\'Replace the text of About, FAQ and Return Policy with the 1AM text? Their current content will be replaced (you can restore it from Revisions).\');">Replace About, FAQ &amp; Return Policy text</a></p></div>',
+			'<div class="notice notice-info"><p><strong>1AM pages:</strong> %s <a class="button" href="%s">Set up 1AM pages</a> <a class="button-link" href="%s" onclick="return confirm(\'Replace the text of About, FAQ and Return Policy with the 1AM text? Their current content will be replaced (you can restore it from Revisions).\');">Replace About, FAQ &amp; Return Policy text</a> · <a class="button-link" href="%s" onclick="return confirm(\'Replace Terms, Return Policy, Shipping Policy and Privacy Policy with the full 1AM text? Their current text will be replaced (you can restore it from Revisions).\');">Replace policy pages with the full 1AM text</a></p></div>',
 			$missing ? esc_html( 'Missing: ' . implode( ', ', $missing ) . '. Create them with the 1AM text (About, FAQ, Return Policy, Terms with vape compliance).' ) : 'About, FAQ, Return Policy and Terms are set up. Pages that already have content are never overwritten.',
 			esc_url( $url ),
-			esc_url( $over )
+			esc_url( $over ),
+			esc_url( $pol )
 		);
 	}
 );

@@ -550,27 +550,55 @@ add_action( 'personal_options_update', 'oneam_wholesale_profile_save' );
 add_action( 'edit_user_profile_update', 'oneam_wholesale_profile_save' );
 
 /* ---------------------------------------------------------------------------
- * 결제: 판매 지역 · 소비세 스탬프 · 컴플라이언스 확인 (클래식 결제 화면)
- * 블록 결제 화면은 WooCommerce 의 Terms 동의 체크박스를 사용 (Terms 페이지 연결됨)
+ * 결제 전 필수 확인: Excise Stamp & Regulatory Compliance Confirmation
+ * 블록 결제 화면(우커머스 기본) · 클래식 결제 화면 모두. 체크해야만 주문 가능.
+ * 문구: 사용자 정의하기 > 1AM Settings > Checkout confirmation
  * ------------------------------------------------------------------------- */
+function oneam_confirm_label() {
+	return trim( oneam_opt( 'oneam_confirm_title' ) . ' — ' . oneam_opt( 'oneam_confirm_text' ), ' —' );
+}
+
+// 블록 결제 화면: 필수 체크박스 (주문 정보 영역, 약관 동의 · 결제 버튼 위)
+add_action(
+	'woocommerce_init',
+	function () {
+		if ( ! function_exists( 'woocommerce_register_additional_checkout_field' ) ) {
+			return;
+		}
+		woocommerce_register_additional_checkout_field(
+			array(
+				'id'            => 'oneam/excise-confirmation',
+				'label'         => oneam_confirm_label(),
+				'location'      => 'order',
+				'type'          => 'checkbox',
+				'required'      => true,
+				'error_message' => oneam_opt( 'oneam_confirm_error' ),
+			)
+		);
+	}
+);
+
+// 클래식 결제 화면
 add_action(
 	'woocommerce_review_order_before_submit',
 	function () {
 		?>
-		<p class="form-row validate-required oneam-ack">
+		<div class="form-row validate-required oneam-ack">
+			<p class="oneam-ack__title"><strong><?php echo esc_html( oneam_opt( 'oneam_confirm_title' ) ); ?></strong></p>
 			<label class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox">
 				<input type="checkbox" class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox" name="oneam_compliance_ack" value="1">
-				<span>I confirm the products in this order carry the correct excise stamps for my retail sales jurisdiction and will be sold in compliance with the <a href="<?php echo esc_url( home_url( '/terms/#vape-compliance' ) ); ?>" target="_blank">Vaping Product Compliance</a> terms.</span>&nbsp;<abbr class="required" title="required">*</abbr>
+				<span><?php echo esc_html( oneam_opt( 'oneam_confirm_text' ) ); ?></span>&nbsp;<abbr class="required" title="required">*</abbr>
 			</label>
-		</p>
+		</div>
 		<?php
-	}
+	},
+	5
 );
 add_action(
 	'woocommerce_checkout_process',
 	function () {
 		if ( empty( $_POST['oneam_compliance_ack'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-			wc_add_notice( 'Please confirm the excise stamp and Vaping Product Compliance statement.', 'error' );
+			wc_add_notice( oneam_opt( 'oneam_confirm_error' ), 'error' );
 		}
 	}
 );
@@ -580,5 +608,12 @@ add_action(
 		if ( ! empty( $_POST['oneam_compliance_ack'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			$order->update_meta_data( '_oneam_compliance_ack', current_time( 'mysql' ) );
 		}
+	}
+);
+// 클래식 결제 화면의 약관 동의 문구
+add_filter(
+	'woocommerce_get_terms_and_conditions_checkbox_text',
+	function () {
+		return oneam_opt( 'oneam_terms_text' );
 	}
 );

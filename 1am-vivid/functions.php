@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_VERSION', '1.14.0' );
+define( 'ONEAM_VERSION', '1.15.0' );
 
 function oneam_asset( $path ) {
 	return get_template_directory_uri() . '/assets/' . ltrim( $path, '/' );
@@ -21,6 +21,7 @@ require get_template_directory() . '/inc/pricing.php';
 require get_template_directory() . '/inc/editor.php';
 require get_template_directory() . '/inc/wholesale.php';
 require get_template_directory() . '/inc/elementor.php';
+require get_template_directory() . '/inc/policies.php';
 require get_template_directory() . '/inc/setup-pages.php';
 require get_template_directory() . '/inc/elementor-pages.php';
 
@@ -62,6 +63,9 @@ add_action(
 		wp_enqueue_script( 'oneam-main', oneam_asset( 'js/main.js' ), $deps, ONEAM_VERSION, true );
 
 		wp_enqueue_script( 'oneam-popup', oneam_asset( 'js/popup.js' ), array(), ONEAM_VERSION, true );
+		if ( function_exists( 'is_product' ) && is_product() ) {
+			wp_enqueue_script( 'oneam-shop', oneam_asset( 'js/shop.js' ), array( 'jquery', 'oneam-popup' ), ONEAM_VERSION, true );
+		}
 		wp_localize_script(
 			'oneam-popup',
 			'ONEAM_POP',
@@ -154,6 +158,7 @@ function oneam_fallback_legal_menu() {
 			array( 'Terms & Conditions', home_url( '/terms/' ) ),
 			array( 'Vaping Product Compliance', home_url( '/terms/#vape-compliance' ) ),
 			array( 'Privacy Policy', function_exists( 'get_privacy_policy_url' ) && get_privacy_policy_url() ? get_privacy_policy_url() : home_url( '/privacy-policy/' ) ),
+			array( 'Shipping Policy', home_url( '/shipping-policy/' ) ),
 			array( 'Return Policy', home_url( '/return-policy/' ) ),
 		)
 	);

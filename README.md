@@ -156,6 +156,17 @@ Home · About · **Slim HYBRID**(상품 페이지) · How to Order · FAQ · Ter
 상품 페이지 맛 목록에서 카드를 누르면 팝업: 왼쪽 제품 이미지(← → 로 다음 맛), 오른쪽 분류 · 이름 · 맛 특징 4가지 · 판매 지역 · 가격.
 승인 회원은 수량(카톤) 입력 후 **Add to cart** (페이지 이동 없이 담기고 헤더 장바구니 숫자 갱신), 그 외에는 Apply / Log in.
 
+## 쇼핑몰 상품 페이지 (/product/…)
+
+소개 페이지(/slim-hybrid/)와 분리된 구매 화면: 왼쪽 상품 이미지(맛을 고르면 그 맛 이미지) · 오른쪽 옵션 버튼(우커머스 속성 = 옵션, 추가하면 자동으로 버튼) · 수량 · 주별 가격 · **Add to cart (페이지 이동 없이 바로 아래 "담김" 표시)** · 아래 펼치기: Description / Flavour profiles / Sales regions & excise stamps / Shipping & returns / Compliance & terms. 리뷰는 끔 (연방 규정상 베이핑 홍보에 후기·추천 사용 불가).
+펼치기 문구: 사용자 정의하기 > 1AM Settings > Shop product page.
+
+## 결제 전 필수 확인 · 정책
+
+- 결제 화면(블록 · 클래식)에 **Excise Stamp & Regulatory Compliance Confirmation** 필수 체크박스 → 체크해야만 주문. 주문에 확인 기록이 남음. 문구: 사용자 정의하기 > 1AM Settings > Checkout confirmation.
+- 약관 동의 체크박스도 필수 + Terms · Shipping · Return Policy 링크 ("Set up 1AM pages" 실행 시 설정).
+- 정책 페이지: Terms & Conditions(일반 약관 + Vaping Product Compliance) · Return Policy · Shipping Policy · Privacy Policy(PIPEDA). Pages 화면 **Replace policy pages with the full 1AM text** 로 전체 글 적용. 모두 편집기 · Elementor 에서 수정 가능.
+
 ## 맛 분류
 
 Fruit Ice / Mint / Classic Ice 3가지. 맛 설명은 특징 4가지 (예: Rich red grape · Juicy & sweet · Icy cooling · Classic refreshment). WooCommerce 에 예전 기본 설명이 그대로 있으면 자동으로 새 설명이 보입니다.

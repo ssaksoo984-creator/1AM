@@ -316,43 +316,10 @@ function oneam_product_flavour_line( $product ) {
 	return oneam_get_flavors() ? '' : false;
 }
 
-add_action(
-	'woocommerce_before_main_content',
-	function () {
-		if ( ! is_product() ) {
-			return;
-		}
-		$product = wc_get_product( get_queried_object_id() );
-		$line    = $product ? oneam_product_flavour_line( $product ) : false;
-		if ( false !== $line ) {
-			get_template_part(
-				'template-parts/hero',
-				null,
-				array(
-					'line'   => $line,
-					'title'  => $product->get_name() . '.',
-					'kicker' => $product->get_meta( '_oneam_label' ) ?: count( oneam_flavours_for_line( $line ) ) . ' flavours',
-				)
-			);
-		}
-	},
-	5
-);
-add_action(
-	'woocommerce_after_main_content',
-	function () {
-		if ( ! is_product() ) {
-			return;
-		}
-		$product = wc_get_product( get_queried_object_id() );
-		$line    = $product ? oneam_product_flavour_line( $product ) : false;
-		if ( false !== $line ) {
-			get_template_part( 'template-parts/flavors', null, array( 'line' => $line, 'title' => $product->get_name() ) );
-		}
-		get_template_part( 'template-parts/cta' );
-	},
-	20
-);
+/*
+ * 상품 페이지(쇼핑몰)는 woocommerce/content-single-product.php 의 쇼핑 화면만 보여줌.
+ * 브랜드 소개(맛 슬라이더 · 맛 목록 · 팝업)는 소개 페이지(/slim-hybrid/)에.
+ */
 
 /** 맛 선택 시 우커머스가 보여주는 설명도 예전 기본 문구면 새 맛 특징으로 */
 add_filter(
@@ -459,3 +426,24 @@ function oneam_flavour_popup() {
 	</div>
 	<?php
 }
+
+/* ---------------------------------------------------------------------------
+ * 리뷰 끄기 (연방 규정상 베이핑 제품 홍보에 후기 · 추천 사용 불가)
+ * ------------------------------------------------------------------------- */
+add_filter( 'pre_option_woocommerce_enable_reviews', function () { return 'no'; } );
+add_filter(
+	'comments_open',
+	function ( $open, $post_id ) {
+		return 'product' === get_post_type( $post_id ) ? false : $open;
+	},
+	10,
+	2
+);
+add_filter(
+	'woocommerce_product_tabs',
+	function ( $tabs ) {
+		unset( $tabs['reviews'] );
+		return $tabs;
+	},
+	98
+);
