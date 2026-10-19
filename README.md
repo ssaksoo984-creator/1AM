@@ -121,6 +121,18 @@ Elementor 가 설치돼 있으면 테마의 모든 섹션이 **Elementor 위젯*
 - **로고**: 사용자 정의하기 > 사이트 아이덴티티 > 로고
 - **문구**: 사용자 정의하기 > 1AM Settings (영상, 소개 문구, 스펙, CTA, 경고 문구, 성인 인증)
 
+## 기본 페이지 · 약관 (Pages 화면의 "Set up 1AM pages" 버튼)
+
+- **About**, **FAQ**(12문항, 아코디언), **Return Policy**, **Terms & Conditions**(Vaping Product Compliance 6개 조항, `/terms/#vape-compliance`) 를 1AM 문구로 만듭니다.
+- 이미 내용이 있는 페이지는 건드리지 않습니다. Terms 에 컴플라이언스 조항이 없으면 맨 아래에 덧붙입니다.
+- "Replace About, FAQ & Return Policy text" 로 기존 내용을 1AM 문구로 교체할 수 있습니다 (리비전에서 복구 가능).
+- WooCommerce 결제 화면의 약관 동의에 Terms 페이지가 연결되고, 클래식 결제 화면에는 소비세 스탬프·컴플라이언스 확인 체크박스가 추가됩니다.
+- 회사명·영업 메일은 **사용자 정의하기 > 1AM Settings > General** (기본: VanSkai Trading Ltd. / sales@1amvape.com). 푸터, 메일 서명, 페이지 문구에 함께 쓰입니다.
+
+## 맛 분류
+
+Fruit Ice / Mint / Classic Ice 3가지. 맛 설명은 특징 4가지 (예: Rich red grape · Juicy & sweet · Icy cooling · Classic refreshment). WooCommerce 에 예전 기본 설명이 그대로 있으면 자동으로 새 설명이 보입니다.
+
 ## 참고 / 확인 필요
 
 - 회사 소개, 장점 4개, FAQ 답변, 상품 2·3 이름(HYBRID Max / HYBRID Refill)과 스펙, 디바이스 콜아웃은 **임시 문구**입니다.

@@ -39,6 +39,19 @@ function oneam_wholesale_fields() {
 	);
 }
 
+/** 메일 보내기: 답장은 영업 메일로, 서명은 유통사 */
+function oneam_mail( $to, $subject, $body ) {
+	$email = oneam_opt( 'oneam_email' );
+	$sign  = "\n\n—\n1AM · Distributed by " . oneam_opt( 'oneam_company' ) . "\n" . $email;
+	$head  = $email ? array( 'Reply-To: 1AM <' . $email . '>' ) : array();
+	return wp_mail( $to, $subject, $body . $sign, $head );
+}
+
+/** 새 신청 알림 받을 주소: 영업 메일 + 사이트 관리자 메일 */
+function oneam_staff_emails() {
+	return array_values( array_unique( array_filter( array( oneam_opt( 'oneam_email' ), get_option( 'admin_email' ) ), 'is_email' ) ) );
+}
+
 function oneam_wholesale_status( $user_id ) {
 	$s = get_user_meta( $user_id, 'oneam_wholesale_status', true );
 	return $s ? $s : '';
@@ -141,6 +154,7 @@ add_action(
 		}
 		update_user_meta( $user_id, 'oneam_wholesale_status', 'pending' );
 		update_user_meta( $user_id, 'oneam_applied_at', current_time( 'mysql' ) );
+		update_user_meta( $user_id, 'oneam_terms_accepted', current_time( 'mysql' ) );
 		// WooCommerce 청구지 정보도 미리 채워둠
 		update_user_meta( $user_id, 'billing_company', $data['oneam_business_name'] );
 		update_user_meta( $user_id, 'billing_phone', $data['oneam_phone'] );
@@ -159,15 +173,15 @@ add_action(
 
 		// 알림 메일
 		$admin_url = admin_url( 'users.php?oneam_wholesale=pending' );
-		wp_mail(
-			get_option( 'admin_email' ),
+		oneam_mail(
+			oneam_staff_emails(),
 			'[1AM] New wholesale application: ' . $data['oneam_business_name'],
-			"A new wholesale application is waiting for review.\n\nBusiness: {$data['oneam_business_name']}\nContact: {$data['oneam_contact_name']}\nEmail: {$email}\nPhone: {$data['oneam_phone']}\nProvince: {$data['oneam_province']}\n\nReview it here: {$admin_url}"
+			"A new retail account application is waiting for verification.\n\nBusiness: {$data['oneam_business_name']}\nBusiness number: {$data['oneam_business_number']}\nStore: {$data['oneam_store_address']}, {$data['oneam_city']}, {$data['oneam_province']} {$data['oneam_postcode']}\nContact: {$data['oneam_contact_name']}\nEmail: {$email}\nPhone: {$data['oneam_phone']}\n\nCheck the documents and approve or reject here:\n{$admin_url}"
 		);
-		wp_mail(
+		oneam_mail(
 			$email,
-			'We received your 1AM wholesale application',
-			"Hi {$data['oneam_contact_name']},\n\nThanks for applying for a 1AM wholesale account. We will review your documents and email you once your account is approved.\n\n1AM"
+			'We received your 1AM retail account application',
+			"Hi {$data['oneam_contact_name']},\n\nThank you for applying for a 1AM retail account. 1AM products are sold exclusively to verified and approved adult-only vape retailers in Canada.\n\nOur team will review your business information and documents, usually within 1–2 business days. We may contact you if additional documentation is needed. You will receive an email as soon as your account is approved.\n\nQuestions? Just reply to this email."
 		);
 
 		// 바로 로그인 → 승인 대기 안내
@@ -210,7 +224,7 @@ function oneam_wholesale_form() {
 		'email'    => 'Please enter a valid email address.',
 		'exists'   => 'An account with this email already exists. Please log in instead.',
 		'password' => 'Your password must be at least 8 characters.',
-		'agree'    => 'Please confirm that you are a licensed retailer and 19 or older.',
+		'agree'    => 'Please confirm your business is an authorized adult-only vape retailer and accept the Terms & Conditions.',
 		'file'     => 'Please upload your business document as a PDF, JPG or PNG under 10 MB.',
 		'invalid'  => 'Something went wrong. Please try again.',
 	);
@@ -250,8 +264,8 @@ function oneam_wholesale_form() {
 
 		<fieldset>
 			<legend>Documents</legend>
-			<p class="is-wide"><label for="oneam_document">Business licence or registration (PDF, JPG or PNG, max 10 MB)</label><input id="oneam_document" name="oneam_document" type="file" accept=".pdf,.jpg,.jpeg,.png" required></p>
-			<p class="is-wide apply__check"><label><input type="checkbox" name="oneam_agree" value="1" required> I confirm this is a licensed retail business in Canada and I am 19 or older.</label></p>
+			<p class="is-wide"><label for="oneam_document">Proof of your authorized adult-only vape retail store — e.g. business licence or registration (PDF, JPG or PNG, max 10 MB). We may ask for more documents.</label><input id="oneam_document" name="oneam_document" type="file" accept=".pdf,.jpg,.jpeg,.png" required></p>
+			<p class="is-wide apply__check"><label><input type="checkbox" name="oneam_agree" value="1" required> <span>I confirm my business is an authorized adult-only vape retail store in Canada, legally permitted to purchase and resell vaping products, that the information provided is accurate, and that I am <?php echo (int) oneam_opt( 'oneam_min_age' ); ?> or older. I agree to the <a href="<?php echo esc_url( home_url( '/terms/' ) ); ?>" target="_blank">Terms &amp; Conditions</a>, including <a href="<?php echo esc_url( home_url( '/terms/#vape-compliance' ) ); ?>" target="_blank">Vaping Product Compliance</a>.</span></label></p>
 		</fieldset>
 
 		<button class="btn btn--solid btn--xl" type="submit"<?php disabled( $preview ); ?>><span>Submit application &rarr;</span></button>
@@ -309,16 +323,16 @@ function oneam_set_wholesale_status( $user_id, $status ) {
 	}
 	$name = get_user_meta( $user_id, 'oneam_contact_name', true ) ?: $user->display_name;
 	if ( 'approved' === $status ) {
-		wp_mail(
+		oneam_mail(
 			$user->user_email,
-			'Your 1AM wholesale account is approved',
-			"Hi {$name},\n\nGood news — your 1AM wholesale account is approved. Log in to see wholesale pricing and place your first order:\n" . oneam_login_url() . "\n\n1AM"
+			'Your 1AM retail account is approved',
+			"Hi {$name},\n\nGood news — your business has been verified and your 1AM retail account is approved. Log in to see wholesale pricing and place your first order:\n" . oneam_login_url() . "\n\nBefore ordering, please make sure the products you select carry the correct excise stamps for your retail sales jurisdiction. If you are unsure which stamp you need, contact us before placing your order.\n\nOrders are subject to our Terms & Conditions, including Vaping Product Compliance:\n" . home_url( '/terms/#vape-compliance' ) . "\n\nWelcome aboard."
 		);
 	} elseif ( 'rejected' === $status ) {
-		wp_mail(
+		oneam_mail(
 			$user->user_email,
-			'Your 1AM wholesale application',
-			"Hi {$name},\n\nThank you for applying. Unfortunately we can't approve your wholesale account at this time. Reply to this email if you have questions.\n\n1AM"
+			'Your 1AM retail account application',
+			"Hi {$name},\n\nThank you for your interest in 1AM. Unfortunately we are unable to approve your retail account at this time. 1AM products are sold only to verified, authorized adult-only vape retailers.\n\nIf you believe this is a mistake or can provide additional documentation, please reply to this email."
 		);
 	}
 }
@@ -534,3 +548,37 @@ function oneam_wholesale_profile_save( $user_id ) {
 }
 add_action( 'personal_options_update', 'oneam_wholesale_profile_save' );
 add_action( 'edit_user_profile_update', 'oneam_wholesale_profile_save' );
+
+/* ---------------------------------------------------------------------------
+ * 결제: 판매 지역 · 소비세 스탬프 · 컴플라이언스 확인 (클래식 결제 화면)
+ * 블록 결제 화면은 WooCommerce 의 Terms 동의 체크박스를 사용 (Terms 페이지 연결됨)
+ * ------------------------------------------------------------------------- */
+add_action(
+	'woocommerce_review_order_before_submit',
+	function () {
+		?>
+		<p class="form-row validate-required oneam-ack">
+			<label class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox">
+				<input type="checkbox" class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox" name="oneam_compliance_ack" value="1">
+				<span>I confirm the products in this order carry the correct excise stamps for my retail sales jurisdiction and will be sold in compliance with the <a href="<?php echo esc_url( home_url( '/terms/#vape-compliance' ) ); ?>" target="_blank">Vaping Product Compliance</a> terms.</span>&nbsp;<abbr class="required" title="required">*</abbr>
+			</label>
+		</p>
+		<?php
+	}
+);
+add_action(
+	'woocommerce_checkout_process',
+	function () {
+		if ( empty( $_POST['oneam_compliance_ack'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			wc_add_notice( 'Please confirm the excise stamp and Vaping Product Compliance statement.', 'error' );
+		}
+	}
+);
+add_action(
+	'woocommerce_checkout_create_order',
+	function ( $order ) {
+		if ( ! empty( $_POST['oneam_compliance_ack'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			$order->update_meta_data( '_oneam_compliance_ack', current_time( 'mysql' ) );
+		}
+	}
+);

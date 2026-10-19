@@ -4,13 +4,7 @@
  */
 $faqs = oneam_ctx( 'items', array() ) ? array_map( function ( $r ) { return array( $r['q'], $r['a'] ); }, oneam_ctx( 'items' ) ) : apply_filters(
 	'oneam_faq_preview',
-	array(
-		array( 'Who can buy from 1AM?', 'Only Canadian retailers approved after a business document check can order. We do not sell to consumers.' ),
-		array( 'How long does approval take?', 'We review applications within 1–2 business days and email you once you are approved.' ),
-		array( 'Is there a minimum order?', 'Minimum order quantities and pricing are shown in the wholesale shop after approval.' ),
-		array( 'Where do you ship?', 'We ship only to provinces where our products can be sold. Other addresses cannot be selected at checkout.' ),
-		array( 'How do I pay?', 'Pay by credit card or Interac e-Transfer / bank transfer.' ),
-	)
+	array_slice( oneam_faq_items(), 0, 5 )
 );
 ?>
 <section class="faq" id="faq">

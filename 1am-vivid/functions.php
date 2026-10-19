@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_VERSION', '1.8.1' );
+define( 'ONEAM_VERSION', '1.9.0' );
 
 function oneam_asset( $path ) {
 	return get_template_directory_uri() . '/assets/' . ltrim( $path, '/' );
@@ -20,6 +20,7 @@ require get_template_directory() . '/inc/woo-sync.php';
 require get_template_directory() . '/inc/editor.php';
 require get_template_directory() . '/inc/wholesale.php';
 require get_template_directory() . '/inc/elementor.php';
+require get_template_directory() . '/inc/setup-pages.php';
 
 add_action(
 	'after_setup_theme',
@@ -139,9 +140,10 @@ function oneam_fallback_footer_menu() {
 function oneam_fallback_legal_menu() {
 	oneam_render_menu(
 		array(
-			array( 'Terms of Use', home_url( '/terms/' ) ),
+			array( 'Terms & Conditions', home_url( '/terms/' ) ),
+			array( 'Vaping Product Compliance', home_url( '/terms/#vape-compliance' ) ),
 			array( 'Privacy Policy', function_exists( 'get_privacy_policy_url' ) && get_privacy_policy_url() ? get_privacy_policy_url() : home_url( '/privacy-policy/' ) ),
-			array( 'Shipping & Returns', home_url( '/shipping-returns/' ) ),
+			array( 'Return Policy', home_url( '/return-policy/' ) ),
 		)
 	);
 }

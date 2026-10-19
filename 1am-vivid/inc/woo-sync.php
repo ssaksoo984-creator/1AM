@@ -86,14 +86,19 @@ function oneam_flavors_from_woo() {
 			if ( ! $img && $product->get_image_id() ) {
 				$img = wp_get_attachment_image_url( $product->get_image_id(), 'large' );
 			}
+			// 예전 기본 설명이 그대로면 새 맛 특징으로
+			$desc = trim( wp_strip_all_tags( $v->get_description() ) );
+			if ( ( '' === $desc || in_array( $desc, oneam_old_flavor_texts(), true ) ) && $def ) {
+				$desc = $def[5];
+			}
 			$out[] = array(
 				'name' => $name,
 				'slug' => $slug,
-				'cat'  => $v->get_meta( '_oneam_cat' ) ?: ( $def ? $def[2] : 'ice' ),
+				'cat'  => array_key_exists( (string) $v->get_meta( '_oneam_cat' ), oneam_flavor_categories() ) ? $v->get_meta( '_oneam_cat' ) : ( $def ? $def[2] : 'fruit-ice' ),
 				'c1'   => $v->get_meta( '_oneam_c1' ) ?: ( $def ? $def[3] : $auto[0] ),
 				'c2'   => $v->get_meta( '_oneam_c2' ) ?: ( $def ? $def[4] : $auto[1] ),
 				'img'  => $img ?: oneam_asset( 'img/flavors/grape-ice.webp' ),
-				'desc' => wp_strip_all_tags( $v->get_description() ) ?: ( $def ? $def[5] : '' ),
+				'desc' => $desc,
 				'url'  => $line_url,
 				'line' => $product->get_slug(),
 			);

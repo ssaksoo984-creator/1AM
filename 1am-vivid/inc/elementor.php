@@ -296,13 +296,7 @@ function oneam_elementor_widgets() {
 						'q' => array( 'label' => 'Question', 'type' => 'text' ),
 						'a' => array( 'label' => 'Answer', 'type' => 'textarea' ),
 					),
-					'default' => array(
-						array( 'q' => 'Who can buy from 1AM?', 'a' => 'Only Canadian retailers approved after a business document check can order. We do not sell to consumers.' ),
-						array( 'q' => 'How long does approval take?', 'a' => 'We review applications within 1–2 business days and email you once you are approved.' ),
-						array( 'q' => 'Is there a minimum order?', 'a' => 'Minimum order quantities and pricing are shown in the wholesale shop after approval.' ),
-						array( 'q' => 'Where do you ship?', 'a' => 'We ship only to provinces where our products can be sold. Other addresses cannot be selected at checkout.' ),
-						array( 'q' => 'How do I pay?', 'a' => 'Pay by Interac e-Transfer or bank transfer.' ),
-					),
+					'default' => array_map( function ( $q ) { return array( 'q' => $q[0], 'a' => $q[1] ); }, array_slice( oneam_faq_items(), 0, 5 ) ),
 				),
 			),
 			'style'    => array(

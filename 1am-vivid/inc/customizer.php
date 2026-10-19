@@ -33,6 +33,8 @@ function oneam_defaults() {
 		'oneam_faq_url'       => '/faq/',
 		'oneam_order_url'     => '/how-to-order/',
 		'oneam_warning'       => 'WARNING: Vaping products contain nicotine, a highly addictive chemical. For adults 19+ only.',
+		'oneam_company'       => 'VanSkai Trading Ltd.',
+		'oneam_email'         => 'sales@1amvape.com',
 		'oneam_min_age'       => 19,
 		'oneam_age_gate'      => true,
 	);
@@ -80,6 +82,8 @@ add_action(
 			'oneam_general' => array( 'General / Warnings', array(
 				'oneam_topbar'  => array( 'Top warning bar', 'textarea' ),
 				'oneam_warning' => array( 'Footer warning', 'textarea' ),
+				'oneam_company' => array( 'Distributor (company name)', 'text' ),
+				'oneam_email'   => array( 'Contact / sales email (also receives new applications)', 'text' ),
 			) ),
 			'oneam_intro'   => array( 'Home video', array(
 				'oneam_video_mp4'     => array( 'MP4 video (recommended)', 'upload' ),

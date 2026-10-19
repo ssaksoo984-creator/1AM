@@ -44,7 +44,11 @@
 	</div>
 	<div class="site-footer__bottom">
 		<p class="site-footer__warning"><?php echo esc_html( oneam_opt( 'oneam_warning' ) ); ?></p>
-		<p>&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> 1AM. All rights reserved.</p>
+		<p>
+			Distributed by <?php echo esc_html( oneam_opt( 'oneam_company' ) ); ?> ·
+			<a href="mailto:<?php echo esc_attr( oneam_opt( 'oneam_email' ) ); ?>"><?php echo esc_html( oneam_opt( 'oneam_email' ) ); ?></a><br>
+			&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> 1AM. All rights reserved.
+		</p>
 	</div>
 </footer>
 

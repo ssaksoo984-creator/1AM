@@ -13,31 +13,41 @@ if ( ! defined( 'ABSPATH' ) ) {
 /** 카테고리 라벨 */
 function oneam_flavor_categories() {
 	return array(
-		'ice'   => 'Ice',
-		'fruit' => 'Fruity',
-		'mint'  => 'Mint',
-		'sweet' => 'Sweet',
+		'fruit-ice'   => 'Fruit Ice',
+		'mint'        => 'Mint',
+		'classic-ice' => 'Classic Ice',
 	);
 }
 
-/** 테마에 포함된 기본 맛 데이터 (이미지: assets/img/flavors/{slug}.webp) */
+/** 테마에 포함된 기본 맛 데이터 (이미지: assets/img/flavors/{slug}.webp). 설명 = 맛 특징 4가지 */
 function oneam_default_flavors() {
 	return array(
-		array( 'Grape Ice', 'grape-ice', 'fruit', '#8A3FFC', '#16C75A', 'Purple grape with a cool finish.' ),
-		array( 'Blue Razz Ice', 'blue-razz-ice', 'ice', '#00C2A8', '#1E5BFF', 'Blue raspberry, lightly cooled.' ),
-		array( 'Watermelon Ice', 'watermelon-ice', 'fruit', '#FF2E4D', '#2BD45A', 'Ripe watermelon with a cool finish.' ),
-		array( 'Lemon Lime Ice', 'lemon-lime-ice', 'fruit', '#1FD65A', '#D7F21A', 'Lemon and lime, bright and crisp.' ),
-		array( 'Raspberry Dragonfruit Ice', 'raspberry-dragonfruit-ice', 'fruit', '#B026FF', '#FF1464', 'Raspberry and dragonfruit, lightly cooled.' ),
-		array( 'Miami Mint', 'miami-mint', 'mint', '#12D16B', '#19C6E6', 'Spearmint with a clean, cool finish.' ),
-		array( 'Double Mint', 'double-mint', 'mint', '#2F6BFF', '#12D16B', 'Layered mint, extra cool.' ),
-		array( 'Classic Ice', 'classic-ice', 'ice', '#FF2A2A', '#FF8A7A', 'Clean and cool. The original.' ),
-		array( 'Red Classic Ice', 'red-classic-ice', 'ice', '#E0115F', '#3D5BFF', 'A red-berry take on the classic.' ),
-		array( 'Milky Ice', 'milky-ice', 'sweet', '#1FB8E6', '#F58CC0', 'Smooth milk flavour, lightly cooled.' ),
-		array( 'Cheesy Strawberry', 'cheesy-strawberry', 'sweet', '#FF3B5C', '#FFB321', 'Strawberry with a smooth, rich finish.' ),
-		array( 'Juicy Peach Ice', 'juicy-peach-ice', 'fruit', '#FF8A4D', '#FFC857', 'Soft peach, lightly cooled.' ),
-		array( 'Guava Ice', 'guava-ice', 'fruit', '#FF5C8A', '#E8174B', 'Pink guava, cool and smooth.' ),
-		array( 'Banana Ice', 'banana-ice', 'sweet', '#FFD60A', '#FF9F1C', 'Ripe banana, lightly cooled.' ),
-		array( 'Double Birch Ice', 'double-birch-ice', 'ice', '#F2B705', '#A0461F', 'Birch with a double cool finish.' ),
+		array( 'Grape Ice', 'grape-ice', 'fruit-ice', '#8A3FFC', '#16C75A', 'Rich red grape · Juicy & sweet · Icy cooling · Classic refreshment' ),
+		array( 'Blue Razz Ice', 'blue-razz-ice', 'fruit-ice', '#00C2A8', '#1E5BFF', 'Sweet & sour · Tangy raspberry · Extra frosty · Bold punch' ),
+		array( 'Watermelon Ice', 'watermelon-ice', 'fruit-ice', '#FF2E4D', '#2BD45A', 'Fresh watermelon juice · Bright & sweet · Summer cooling · Hydrating vibe' ),
+		array( 'Lemon Lime Ice', 'lemon-lime-ice', 'fruit-ice', '#1FD65A', '#D7F21A', 'Zesty lemon citrus · Tangy lime twist · Super refreshing · Crisp icy' ),
+		array( 'Raspberry Dragonfruit Ice', 'raspberry-dragonfruit-ice', 'fruit-ice', '#B026FF', '#FF1464', 'Exotic dragonfruit · Tangy raspberry · Sweet & fruity · Chilled ice finish' ),
+		array( 'Miami Mint', 'miami-mint', 'mint', '#12D16B', '#19C6E6', 'Smooth spearmint · Citrus touch · Gentle cooling · All-day refresh' ),
+		array( 'Double Mint', 'double-mint', 'mint', '#2F6BFF', '#12D16B', 'Pure spearmint · Zero sweetness · Extra frosty · Clean mouthfeel' ),
+		array( 'Classic Ice', 'classic-ice', 'classic-ice', '#FF2A2A', '#FF8A7A', 'Crisp frosted blast · Pure refreshing chill · Clean smooth finish · Timeless icy cool' ),
+		array( 'Red Classic Ice', 'red-classic-ice', 'classic-ice', '#E0115F', '#3D5BFF', 'Juicy red apple · Sweet & crisp notes · Chilly ice finish · Refreshing fruit blend' ),
+		array( 'Milky Ice', 'milky-ice', 'classic-ice', '#1FB8E6', '#F58CC0', 'Creamy milk base · Subtle sweetness · Smooth & silky texture · Refreshing ice coolness' ),
+		array( 'Cheesy Strawberry', 'cheesy-strawberry', 'fruit-ice', '#FF3B5C', '#FFB321', 'Rich creamy feeling · Sweet fresh strawberry · Smooth blend · Indulgent flavour profile' ),
+		array( 'Juicy Peach Ice', 'juicy-peach-ice', 'fruit-ice', '#FF8A4D', '#FFC857', 'Ripe peach · Sweet & luscious · Crisp ice finish · Fragrant aroma' ),
+		array( 'Guava Ice', 'guava-ice', 'fruit-ice', '#FF5C8A', '#E8174B', 'Exotic tropical · Soft sweetness · Mild cooling · Smooth aromatic' ),
+		array( 'Banana Ice', 'banana-ice', 'fruit-ice', '#FFD60A', '#FF9F1C', 'Sweet creamy banana · Smooth tropical blend · Crisp frost · Icy refreshment' ),
+		array( 'Double Birch Ice', 'double-birch-ice', 'mint', '#F2B705', '#A0461F', 'Woody sweetness · Deep birch sap · Crisp chilly · Clean finish' ),
+	);
+}
+
+/** 예전 기본 설명 (WooCommerce 에 이 문구가 그대로 남아 있으면 새 설명으로 교체) */
+function oneam_old_flavor_texts() {
+	return array(
+		'Purple grape with a cool finish.', 'Blue raspberry, lightly cooled.', 'Ripe watermelon with a cool finish.',
+		'Lemon and lime, bright and crisp.', 'Raspberry and dragonfruit, lightly cooled.', 'Spearmint with a clean, cool finish.',
+		'Layered mint, extra cool.', 'Clean and cool. The original.', 'A red-berry take on the classic.',
+		'Smooth milk flavour, lightly cooled.', 'Strawberry with a smooth, rich finish.', 'Soft peach, lightly cooled.',
+		'Pink guava, cool and smooth.', 'Ripe banana, lightly cooled.', 'Birch with a double cool finish.',
 	);
 }
 
