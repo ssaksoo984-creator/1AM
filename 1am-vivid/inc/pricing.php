@@ -350,7 +350,7 @@ function oneam_regions_html( $regions, $product = null ) {
  * ------------------------------------------------------------------------- */
 function oneam_payment_badges() {
 	$methods = array_filter( array_map( 'trim', explode( '·', (string) oneam_opt( 'oneam_payments' ) ) ) );
-	$out     = '<div class="paybadges"><p class="paybadges__title">' . oneam_icon( 'check' ) . ' Secure payment' . ( oneam_opt( 'oneam_processor' ) ? ' by ' . esc_html( oneam_opt( 'oneam_processor' ) ) : '' ) . ' · CAD</p><ul>';
+	$out     = '<div class="paybadges"><p class="paybadges__title">' . oneam_icon( 'check' ) . ' ' . ( oneam_opt( 'oneam_processor' ) ? 'Secure payment by ' . esc_html( oneam_opt( 'oneam_processor' ) ) : 'Payment' ) . ' · CAD</p><ul>';
 	foreach ( $methods as $m ) {
 		$out .= '<li>' . esc_html( $m ) . '</li>';
 	}
@@ -368,3 +368,92 @@ add_filter(
 );
 // 클래식 결제 화면
 add_action( 'woocommerce_review_order_after_payment', function () { echo oneam_payment_badges(); } ); // phpcs:ignore
+
+/* ---------------------------------------------------------------------------
+ * Interac e-Transfer 결제 (지금은 e-Transfer 만, 카드는 Moneris 연결 후)
+ * 우커머스 기본 "Direct bank transfer" 를 e-Transfer 로 설정 (블록 결제 화면 지원)
+ * 받는 이메일: 사용자 정의하기 > 1AM Settings > Checkout confirmation > Interac e-Transfer email
+ * ------------------------------------------------------------------------- */
+function oneam_etransfer_email() {
+	return oneam_opt( 'oneam_etransfer' ) ?: oneam_opt( 'oneam_email' );
+}
+
+function oneam_setup_etransfer() {
+	if ( ! class_exists( 'WooCommerce' ) ) {
+		return;
+	}
+	$email = oneam_etransfer_email();
+	$bacs  = (array) get_option( 'woocommerce_bacs_settings', array() );
+	update_option(
+		'woocommerce_bacs_settings',
+		array_merge(
+			$bacs,
+			array(
+				'enabled'      => 'yes',
+				'title'        => 'Interac e-Transfer',
+				'description'  => "After you place your order, send an Interac e-Transfer for the order total to {$email}. Put your order number in the message. Your order ships once payment is received.",
+				'instructions' => "Please send an Interac e-Transfer for the order total to {$email} and include your order number in the message. We process your order as soon as the payment arrives. Unpaid orders may be cancelled after 3 business days.",
+			)
+		)
+	);
+	update_option( 'woocommerce_bacs_accounts', array() ); // 은행 계좌 표는 표시하지 않음
+	// 지금은 e-Transfer 만: 수표 · 착불 결제 끄기
+	foreach ( array( 'cheque', 'cod' ) as $gw ) {
+		$o = (array) get_option( "woocommerce_{$gw}_settings", array() );
+		if ( ( $o['enabled'] ?? 'no' ) === 'yes' ) {
+			$o['enabled'] = 'no';
+			update_option( "woocommerce_{$gw}_settings", $o );
+		}
+	}
+}
+// 테마 업데이트 후 한 번, 그리고 사용자 정의하기에서 이메일을 바꾸면 다시 적용
+add_action(
+	'admin_init',
+	function () {
+		if ( ONEAM_VERSION !== get_option( 'oneam_etransfer_v' ) ) {
+			oneam_setup_etransfer();
+			if ( function_exists( 'oneam_setup_checkout_terms' ) ) {
+				oneam_setup_checkout_terms();
+			}
+			update_option( 'oneam_etransfer_v', ONEAM_VERSION );
+		}
+	}
+);
+add_action( 'customize_save_after', 'oneam_setup_etransfer' );
+
+/** 주문 완료 화면 · 주문 메일: 보낼 금액 · 이메일 · 주문번호를 정확히 */
+function oneam_etransfer_box( $order, $plain = false ) {
+	if ( ! $order || 'bacs' !== $order->get_payment_method() || $order->is_paid() ) {
+		return;
+	}
+	$total = wp_strip_all_tags( wc_price( $order->get_total(), array( 'currency' => $order->get_currency() ) ) );
+	$email = oneam_etransfer_email();
+	$num   = $order->get_order_number();
+	if ( $plain ) {
+		echo "\nINTERAC E-TRANSFER\nSend: {$total}\nTo: {$email}\nMessage: Order #{$num}\nUnpaid orders may be cancelled after 3 business days.\n\n"; // phpcs:ignore
+		return;
+	}
+	printf(
+		'<div class="etransfer"><p class="etransfer__title">Pay by Interac e-Transfer</p><dl><div><dt>Send</dt><dd>%s</dd></div><div><dt>To</dt><dd>%s</dd></div><div><dt>Message</dt><dd>Order #%s</dd></div></dl><p class="etransfer__note">We process your order as soon as the payment arrives. Unpaid orders may be cancelled after 3 business days.</p></div>',
+		esc_html( $total ),
+		esc_html( $email ),
+		esc_html( $num )
+	);
+}
+add_action(
+	'woocommerce_thankyou_bacs',
+	function ( $order_id ) {
+		oneam_etransfer_box( wc_get_order( $order_id ) );
+	},
+	5
+);
+add_action(
+	'woocommerce_email_before_order_table',
+	function ( $order, $sent_to_admin, $plain ) {
+		if ( ! $sent_to_admin ) {
+			oneam_etransfer_box( $order, $plain );
+		}
+	},
+	5,
+	3
+);

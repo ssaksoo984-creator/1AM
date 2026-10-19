@@ -77,7 +77,7 @@ function oneam_faq_items() {
 		array( 'Are 1AM products available in all Canadian provinces?', 'Product availability may vary depending on provincial and territorial regulations, excise stamp requirements, and inventory availability. Please ensure that the products you order are permitted for sale in your intended retail jurisdiction.' ),
 		array( 'Can I order products with different provincial excise stamps?', 'Products may be available with different excise stamps depending on inventory and applicable regulations. Retailers are responsible for selecting products with the appropriate excise stamps for their intended sales jurisdiction. If you are unsure which stamp is required, please contact us before placing your order.' ),
 		array( 'Is there a minimum order quantity (MOQ)?', 'Minimum order quantities may vary by product. Please refer to the product details or contact our sales team for more information.' ),
-		array( 'What payment methods are accepted?', 'We accept ' . oneam_opt( 'oneam_payments' ) . '. Card payments are processed securely by ' . ( oneam_opt( 'oneam_processor' ) ?: 'our payment processor' ) . '. All prices are in Canadian dollars (CAD), before GST.' ),
+		array( 'What payment methods are accepted?', 'We accept ' . oneam_opt( 'oneam_payments' ) . '.' . ( oneam_opt( 'oneam_processor' ) ? ' Card payments are processed securely by ' . oneam_opt( 'oneam_processor' ) . '.' : ' After placing your order, send an Interac e-Transfer for the order total to ' . ( function_exists( 'oneam_etransfer_email' ) ? oneam_etransfer_email() : $email ) . ' with your order number in the message.' ) . ' All prices are in Canadian dollars (CAD), before GST.' ),
 		array( 'How long does shipping take?', 'We ship via Purolator Ground, UPS Ground, and Canpar Ground. Estimated delivery time is 1–5 business days, depending on your location, after your order has been shipped.' ),
 		array( 'What should I do if I receive damaged, defective, or incorrect products?', 'Please contact our customer service team with your order number, product details, and supporting photos. Our team will review the issue and provide further assistance.' ),
 		array( 'Can I cancel or modify an order?', 'Please contact us as soon as possible if you need to cancel or modify your order. Changes may not be possible once the order has been processed or shipped.' ),
@@ -293,7 +293,7 @@ function oneam_orderinfo_defaults() {
 		array(
 			'icon'  => 'card',
 			'title' => 'Payment',
-			'lines' => oneam_opt( 'oneam_payments' ) . "\nCards processed securely by " . ( oneam_opt( 'oneam_processor' ) ?: 'our payment processor' ) . "\nPrices in CAD, before GST · shown after you log in.",
+			'lines' => oneam_opt( 'oneam_payments' ) . "\n" . ( oneam_opt( 'oneam_processor' ) ? 'Cards processed securely by ' . oneam_opt( 'oneam_processor' ) : 'Send the order total to ' . ( function_exists( 'oneam_etransfer_email' ) ? oneam_etransfer_email() : $email ) . ' with your order number' ) . "\nPrices in CAD, before GST · shown after you log in.",
 		),
 		array(
 			'icon'  => 'truck',

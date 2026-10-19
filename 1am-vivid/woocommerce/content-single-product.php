@@ -49,7 +49,7 @@ $oneam_lines = function ( $key ) {
 	return array_filter( array_map( 'trim', preg_split( '/\r?\n/', (string) oneam_opt( $key ) ) ) );
 };
 ?>
-<div id="product-<?php the_ID(); ?>" <?php wc_product_class( 'spdp', $product ); ?> style="<?php echo oneam_flavor_style( $oneam_first ); // phpcs:ignore ?>">
+<div id="product-<?php the_ID(); ?>" <?php wc_product_class( 'spdp', $product ); ?> style="<?php echo oneam_flavor_style( $oneam_first ); // phpcs:ignore ?>;--img-bg:<?php echo esc_attr( oneam_opt( 'oneam_shop_img_bg' ) ?: '#ffffff' ); ?>">
 
 	<nav class="spdp__crumbs" aria-label="Breadcrumb">
 		<a href="<?php echo esc_url( oneam_shop_url() ); ?>">Shop</a>
@@ -141,7 +141,7 @@ $oneam_lines = function ( $key ) {
 				<li><?php echo oneam_icon( 'truck' ); // phpcs:ignore ?> Ships in 1–5 business days · Purolator, UPS, Canpar</li>
 				<li><?php echo oneam_icon( 'check' ); // phpcs:ignore ?> Provincial excise stamps for <?php echo esc_html( $oneam_pp ? implode( ', ', array_keys( $oneam_pp ) ) : 'your province' ); ?></li>
 				<li><?php echo oneam_icon( 'card' ); // phpcs:ignore ?> <?php echo esc_html( oneam_opt( 'oneam_payments' ) ); ?> · Prices in CAD before GST</li>
-				<li><?php echo oneam_icon( 'check' ); // phpcs:ignore ?> Secure payment<?php echo oneam_opt( 'oneam_processor' ) ? ' by ' . esc_html( oneam_opt( 'oneam_processor' ) ) : ''; ?> · All sales final</li>
+				<li><?php echo oneam_icon( 'check' ); // phpcs:ignore ?> <?php echo oneam_opt( 'oneam_processor' ) ? 'Secure payment by ' . esc_html( oneam_opt( 'oneam_processor' ) ) . ' · ' : ''; ?>All sales final</li>
 			</ul>
 
 			<p class="spdp__warning"><?php echo esc_html( oneam_opt( 'oneam_topbar' ) ); ?></p>

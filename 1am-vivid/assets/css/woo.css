@@ -233,3 +233,108 @@
 .paybadges__title .icon { width: 18px; height: 18px; }
 .paybadges ul { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
 .paybadges li { padding: 5px 10px; border-radius: 8px; background: var(--paper); font-size: 12px; font-weight: 800; letter-spacing: .02em; }
+
+/* ==========================================================================
+   v1.16 — 상품 이미지 흰 배경 · 확대 화면 흰색 · 장바구니 썸네일 · 정렬 · 내 계정
+   ========================================================================== */
+/* 상품 이미지: 배경색(기본 흰색, 사용자 정의하기 > Shop product page > Product image background) · 조금 작게 */
+.woocommerce .spdp div.images { padding: 0; background: none; }
+.spdp .woocommerce-product-gallery__wrapper { background: var(--img-bg, #fff); }
+.spdp .woocommerce-product-gallery__image img { height: 70% !important; max-height: 540px; filter: drop-shadow(0 12px 18px rgba(40, 20, 60, .1)); }
+.spdp .flex-control-thumbs img { background: var(--img-bg, #fff); }
+
+/* 돋보기(확대) 화면: 흰 배경 */
+.pswp { --pswp-bg: #fff; --pswp-icon-color: #0d0b12; --pswp-icon-color-secondary: #fff; --pswp-icon-stroke-color: #fff; }
+.pswp__bg { background: #fff !important; }
+.pswp--open .pswp__bg { opacity: 1 !important; }
+.pswp__top-bar, .pswp__caption { background: transparent !important; }
+.pswp__counter, .pswp__caption__center { color: var(--ink) !important; }
+.pswp__button:not(.pswp__button--arrow--left):not(.pswp__button--arrow--right) { filter: invert(1); }
+.pswp__button--arrow--left::before, .pswp__button--arrow--right::before { background-color: var(--ink) !important; }
+
+/* 장바구니 · 결제 요약: 정사각형 칸 안에 작게 */
+.wc-block-cart-item__image, .wc-block-components-order-summary-item__image { width: 84px !important; }
+.wc-block-cart-item__image img, .wc-block-components-order-summary-item__image img,
+.woocommerce-cart-form .product-thumbnail img, .woocommerce-checkout-review-order-table img, .woocommerce-mini-cart-item img {
+	width: 84px !important;
+	height: 84px !important;
+	max-width: 84px !important;
+	object-fit: contain;
+	padding: 6px;
+	border-radius: 14px;
+	background: #fff;
+	box-shadow: inset 0 0 0 1px rgba(13, 11, 18, .06);
+}
+.wc-block-components-order-summary-item__image { position: relative; }
+.wc-block-components-order-summary-item__image > img { width: 64px !important; height: 64px !important; max-width: 64px !important; }
+
+/* 상점 목록: 정렬 · 결과 수 */
+.woocommerce .woocommerce-result-count { margin: 0 0 24px; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .6; }
+.woocommerce .woocommerce-ordering { margin: 0 0 24px; }
+.woocommerce .woocommerce-ordering select.orderby {
+	height: 46px;
+	padding: 0 44px 0 18px;
+	border: 0;
+	border-radius: 999px;
+	background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%230d0b12' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 18px center;
+	box-shadow: inset 0 0 0 1.5px rgba(13, 11, 18, .12);
+	font: inherit;
+	font-size: 14px;
+	font-weight: 800;
+	color: var(--ink);
+	appearance: none;
+	-webkit-appearance: none;
+	cursor: pointer;
+	transition: box-shadow .2s;
+}
+.woocommerce .woocommerce-ordering select.orderby:hover, .woocommerce .woocommerce-ordering select.orderby:focus { outline: none; box-shadow: inset 0 0 0 1.5px var(--ink); }
+
+/* 내 계정 */
+.woocommerce-account .entry__content a, .woocommerce-account .woocommerce a:not(.button):not(.btn) { color: var(--c1); text-decoration: none !important; font-weight: 700; }
+.woocommerce-account .entry__content a:hover { color: var(--ink); }
+.woocommerce-account .woocommerce::before, .woocommerce-account .woocommerce::after { display: none !important; }
+.woocommerce-account .woocommerce > :not(.woocommerce-MyAccount-navigation):not(.woocommerce-MyAccount-content) { grid-column: 1 / -1; }
+.woocommerce-account .woocommerce { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 28px; align-items: start; }
+.woocommerce-account .woocommerce-MyAccount-navigation { position: sticky; top: calc(var(--warn-h) + var(--head-h) + 20px); float: none; width: auto; padding: 10px; border-radius: 26px; background: var(--white); }
+.woocommerce-account .woocommerce-MyAccount-navigation ul { margin: 0; gap: 2px; }
+.woocommerce-account .woocommerce-MyAccount-navigation a { display: flex !important; align-items: center; padding: 13px 16px; border-radius: 16px; background: none; color: var(--ink) !important; text-decoration: none !important; font-size: 14px; font-weight: 800; text-transform: none; letter-spacing: 0; transition: background .2s; }
+.woocommerce-account .woocommerce-MyAccount-navigation a:hover { background: var(--paper); }
+.woocommerce-account .woocommerce-MyAccount-navigation .is-active a { background: linear-gradient(120deg, var(--c1), var(--c2)); color: var(--white) !important; }
+.woocommerce-account .woocommerce-MyAccount-navigation-link--customer-logout a { color: #b3261e !important; }
+.woocommerce-account .woocommerce-MyAccount-content { float: none; width: auto; min-height: 320px; padding: clamp(22px, 3vw, 40px); border-radius: 26px; background: var(--white); transition: opacity .2s; }
+.woocommerce-account .woocommerce-MyAccount-content.is-loading { opacity: .4; }
+.woocommerce-account .woocommerce-MyAccount-content table { border-radius: 16px; overflow: hidden; }
+@media (max-width: 860px) {
+	.woocommerce-account .woocommerce { grid-template-columns: 1fr; }
+	.woocommerce-account .woocommerce-MyAccount-navigation { position: static; }
+	.woocommerce-account .woocommerce-MyAccount-navigation ul { display: flex; overflow-x: auto; }
+	.woocommerce-account .woocommerce-MyAccount-navigation a { white-space: nowrap; }
+}
+
+/* 대시보드 */
+.acct__hello { margin: 0 0 6px; font-size: clamp(28px, 3vw, 44px); line-height: 1; font-weight: 900; font-variation-settings: "wdth" 76; text-transform: uppercase; }
+.acct__meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 26px; }
+.acct__pill { padding: 7px 14px; border-radius: 999px; background: var(--paper); font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.acct__pill.is-ok { color: #fff; background: linear-gradient(120deg, var(--c1), var(--c2)); }
+.acct__pill.is-wait { background: #fff4e0; color: #6b3f00; }
+.acct__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+.acct__card { display: grid; gap: 8px; padding: 20px; border-radius: 20px; background: var(--paper); color: var(--ink) !important; transition: transform .3s var(--ease), background .3s; }
+.acct__card:hover { transform: translateY(-3px); background: #f1ece2; }
+.acct__card .icon { width: 26px; height: 26px; color: var(--c1); }
+.acct__card strong { font-size: 16px; font-weight: 900; text-transform: uppercase; }
+.acct__card span { font-size: 13px; font-weight: 500; opacity: .7; }
+.acct__card--shop { color: #fff !important; background: linear-gradient(135deg, var(--c1), var(--c2)); }
+.acct__card--shop .icon { color: #fff; }
+.acct__card--shop:hover { background: linear-gradient(135deg, var(--c1), var(--c2)); }
+.acct__recent { margin-top: 28px; }
+.acct__recent h3 { margin: 0 0 12px; font-size: 14px; letter-spacing: .12em; text-transform: uppercase; }
+
+/* e-Transfer 안내 (주문 완료 화면) */
+.etransfer { margin: 0 0 24px; padding: 22px; border-radius: 22px; color: #fff; background: linear-gradient(135deg, var(--c1), var(--c2)); }
+.etransfer__title { margin: 0 0 12px; font-size: 20px; font-weight: 900; text-transform: uppercase; }
+.etransfer dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin: 0 0 12px; }
+.etransfer dl div { padding: 12px 14px; border-radius: 14px; background: rgba(255, 255, 255, .18); }
+.etransfer dt { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; opacity: .8; }
+.etransfer dd { margin: 4px 0 0; font-size: 17px; font-weight: 900; word-break: break-all; }
+.etransfer__note { margin: 0; font-size: 14px; opacity: .9; }
+.wc-block-components-product-name, .woocommerce-cart-form .product-name a { color: var(--c1) !important; text-decoration: none !important; font-weight: 800; }

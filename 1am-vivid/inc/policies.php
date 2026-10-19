@@ -95,11 +95,11 @@ function oneam_policy_terms() {
 		. oneam_ps(
 			array(
 				"We accept {$v['pay']}. All transactions are in Canadian dollars (CAD).",
-				"Card payments are processed securely by {$v['proc']}. Your card is charged when you place your order. We never see or store your full card number; card details are encrypted and handled by {$v['proc']} in line with payment card industry (PCI DSS) security standards. This website uses an encrypted (SSL/TLS) connection.",
-				'Orders paid by Interac e-Transfer or bank transfer are processed once payment is received. Unpaid orders may be cancelled after 3 business days.',
+				'Interac e-Transfer: after placing your order, send the order total to ' . esc_html( function_exists( 'oneam_etransfer_email' ) ? oneam_etransfer_email() : oneam_opt( 'oneam_email' ) ) . ' with your order number in the message. Orders are processed once payment is received. Unpaid orders may be cancelled after 3 business days.',
 				'Title to products passes to you when payment is received in full.',
 			)
 		)
+		. ( oneam_opt( 'oneam_processor' ) ? oneam_b_p( "Card payments are processed securely by {$v['proc']}. Your card is charged when you place your order. We never see or store your full card number; card details are encrypted and handled by {$v['proc']} in line with payment card industry (PCI DSS) security standards. This website uses an encrypted (SSL/TLS) connection." ) : '' )
 		. oneam_b_h( 'Order changes and cancellations' )
 		. oneam_ps(
 			array(
@@ -109,7 +109,7 @@ function oneam_policy_terms() {
 		. oneam_b_h( 'Refunds and payment disputes' )
 		. oneam_ps(
 			array(
-				"Approved refunds are issued to the original payment method — card refunds go back to the same card — usually within 5–10 business days, depending on your card issuer. Before disputing a charge with your card issuer, please contact us so we can resolve the issue quickly. See our {$v['returns']}.",
+				"Approved refunds are issued to the original payment method (an e-Transfer to the email on your account, or back to the same card for card payments), usually within 5–10 business days. Before disputing a payment, please contact us so we can resolve the issue quickly. See our {$v['returns']}.",
 			)
 		)
 		. oneam_b_h( 'Shipping and delivery' )
@@ -197,7 +197,7 @@ function oneam_policy_returns() {
 		)
 		. oneam_ps(
 			array(
-				'Approved claims are resolved by replacement, store credit or refund, at our discretion. Refunds are issued to the original payment method — card refunds go back to the same card, usually within 5–10 business days depending on your card issuer.',
+				'Approved claims are resolved by replacement, store credit or refund, at our discretion. Refunds are issued to the original payment method (e-Transfer, or back to the same card for card payments), usually within 5–10 business days.',
 			)
 		)
 		. oneam_b_h( 'Not eligible' )
@@ -293,8 +293,8 @@ function oneam_policy_privacy() {
 		. oneam_b_h( 'Sharing' )
 		. oneam_ps(
 			array(
-				"We share information only as needed with service providers who help us run our business — for example, our payment processor ({$v['proc']}), shipping carriers, website hosting and email services — and with government authorities where required by law.",
-				"Card payments are processed by {$v['proc']}. Card numbers are entered into {$v['proc']}’s secure payment form and are not stored on our website or servers.",
+				"We share information only as needed with service providers who help us run our business — for example, payment processors, shipping carriers, website hosting and email services — and with government authorities where required by law.",
+				'We do not store payment card numbers on our website or servers. When card payments are offered, card details are entered into our payment processor’s secure payment form.',
 			)
 		)
 		. oneam_b_h( 'Storage, security and retention' )
@@ -327,8 +327,8 @@ function oneam_setup_checkout_terms() {
 	$v    = oneam_policy_vars();
 	$text = esc_html( oneam_opt( 'oneam_terms_text' ) );
 	$text = str_replace(
-		array( 'Terms &amp; Conditions', 'Shipping Policy', 'Return Policy' ),
-		array( $v['terms'], $v['ship'], $v['returns'] ),
+		array( 'Terms &amp; Conditions', 'Vaping Product Compliance', 'Privacy Policy', 'Shipping Policy', 'Return Policy' ),
+		array( $v['terms'], '<a href="' . esc_url( home_url( '/terms/#vape-compliance' ) ) . '">Vaping Product Compliance</a>', $v['privacy'], $v['ship'], $v['returns'] ),
 		$text
 	);
 	$attrs   = serialize_block_attributes( array( 'checkbox' => true, 'text' => $text ) );

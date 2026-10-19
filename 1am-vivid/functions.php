@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_VERSION', '1.15.1' );
+define( 'ONEAM_VERSION', '1.16.0' );
 
 function oneam_asset( $path ) {
 	return get_template_directory_uri() . '/assets/' . ltrim( $path, '/' );
@@ -65,6 +65,9 @@ add_action(
 		wp_enqueue_script( 'oneam-popup', oneam_asset( 'js/popup.js' ), array(), ONEAM_VERSION, true );
 		if ( function_exists( 'is_product' ) && is_product() ) {
 			wp_enqueue_script( 'oneam-shop', oneam_asset( 'js/shop.js' ), array( 'jquery', 'oneam-popup' ), ONEAM_VERSION, true );
+		}
+		if ( function_exists( 'is_account_page' ) && is_account_page() && is_user_logged_in() ) {
+			wp_enqueue_script( 'oneam-account', oneam_asset( 'js/account.js' ), array(), ONEAM_VERSION, true );
 		}
 		wp_localize_script(
 			'oneam-popup',

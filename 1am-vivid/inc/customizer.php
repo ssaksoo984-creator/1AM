@@ -39,15 +39,17 @@ function oneam_defaults() {
 		'oneam_email'         => 'sales@1amvape.com',
 		'oneam_phone'         => '',
 		'oneam_address'       => '',
-		'oneam_payments'      => 'Visa · Mastercard · American Express · Interac e-Transfer',
-		'oneam_processor'     => 'Moneris',
+		'oneam_payments'      => 'Interac e-Transfer',
+		'oneam_processor'     => '',
+		'oneam_etransfer'     => '',
+		'oneam_shop_img_bg'   => '#ffffff',
 		'oneam_shop_regions'    => "Each carton carries the provincial excise stamp for its sales jurisdiction. Prices and stamps follow your shipping province, which you choose at checkout.\nProducts may only be resold in the province shown on their excise stamp. Unsure which stamp you need? Contact us before ordering.",
 		'oneam_shop_shipping'   => "Ships by Purolator Ground, UPS Ground or Canpar Ground. Estimated delivery is 1–5 business days after your order ships.\nAll orders are final sale, except as required by law. For damaged, defective or incorrect items, send your order number and photos and we will help.",
 		'oneam_shop_compliance' => "Sold only to verified, authorized adult-only vape retailers in Canada — never to consumers.\nRetail sale must follow federal, provincial and local rules, including minimum age (BC 19+, AB 18+, SK 18+), product, display and advertising restrictions.\nDo not alter or remove packaging, health warnings, regulatory markings or excise stamps.\nProduct reviews and testimonials are not published, in line with federal restrictions on promoting vaping products.",
 		'oneam_confirm_title'   => 'Excise Stamp & Regulatory Compliance Confirmation',
 		'oneam_confirm_text'    => 'I confirm that all vaping products in this order will be sold only in jurisdictions where their respective excise stamps are valid, and that my business will comply with all applicable federal, provincial, and territorial vaping regulations.',
 		'oneam_confirm_error'   => 'Please confirm the Excise Stamp & Regulatory Compliance statement before placing your order.',
-		'oneam_terms_text'      => 'By placing this order, you agree to our Terms & Conditions, including Vaping Product Compliance, our Shipping Policy and Return Policy.',
+		'oneam_terms_text'      => 'I have read and agree to the Terms & Conditions, Vaping Product Compliance, Privacy Policy, Shipping Policy and Return Policy.',
 		'oneam_min_age'       => 19,
 		'oneam_age_gate'      => true,
 	);
@@ -93,12 +95,14 @@ add_action(
 
 		$sections = array(
 			'oneam_checkout' => array( 'Checkout confirmation', array(
+				'oneam_etransfer'     => array( 'Interac e-Transfer email (customers send payment here)', 'text' ),
 				'oneam_confirm_title' => array( 'Required confirmation — title', 'text' ),
 				'oneam_confirm_text'  => array( 'Required confirmation — checkbox text', 'textarea' ),
 				'oneam_confirm_error' => array( 'Message if not ticked', 'text' ),
 				'oneam_terms_text'    => array( 'Terms agreement text (above Place order)', 'textarea' ),
 			) ),
 			'oneam_shop'    => array( 'Shop product page', array(
+				'oneam_shop_img_bg'     => array( 'Product image background', 'color' ),
 				'oneam_shop_regions'    => array( 'Sales regions & excise stamps (one paragraph per line)', 'textarea' ),
 				'oneam_shop_shipping'   => array( 'Shipping & returns (one paragraph per line)', 'textarea' ),
 				'oneam_shop_compliance' => array( 'Compliance & terms (one point per line)', 'textarea' ),
@@ -112,8 +116,8 @@ add_action(
 				'oneam_email'   => array( 'Contact / sales email (also receives new applications)', 'text' ),
 				'oneam_phone'   => array( 'Customer service phone (required by card networks)', 'text' ),
 				'oneam_address' => array( 'Business address (required by card networks)', 'textarea' ),
-				'oneam_payments'  => array( 'Accepted payment methods', 'text' ),
-				'oneam_processor' => array( 'Card processor (shown as "Secure payment by …")', 'text' ),
+				'oneam_payments'  => array( 'Accepted payment methods (e.g. Interac e-Transfer — add cards when Moneris is live)', 'text' ),
+				'oneam_processor' => array( 'Card processor, e.g. Moneris (leave empty until card payments are live)', 'text' ),
 			) ),
 			'oneam_intro'   => array( 'Home video', array(
 				'oneam_video_mp4'     => array( 'MP4 video (recommended)', 'upload' ),
