@@ -361,7 +361,8 @@ add_filter(
 	'render_block',
 	function ( $html, $block ) {
 		// 결제 블록 안쪽은 우커머스 스크립트가 다시 그리므로, 결제 · 장바구니 화면 전체 아래에 표시
-		return in_array( $block['blockName'] ?? '', array( 'woocommerce/checkout', 'woocommerce/cart' ), true ) ? $html . oneam_payment_badges() : $html;
+		// 카드 결제사(Moneris 등)를 설정했을 때만 표시 — e-Transfer만 쓸 때는 결제 방법 칸에 이미 안내가 있음
+		return oneam_opt( 'oneam_processor' ) && in_array( $block['blockName'] ?? '', array( 'woocommerce/checkout', 'woocommerce/cart' ), true ) ? $html . oneam_payment_badges() : $html;
 	},
 	10,
 	2
@@ -456,4 +457,38 @@ add_action(
 	},
 	5,
 	3
+);
+
+/* -------------------------------------------------------------------------
+ * 결제 화면 문구 · 주문 메모
+ *  - "Additional order information" → "Required confirmations" (소비세 스탬프 확인은 필수 항목)
+ *  - 주문 메모: 청구지 주소 아래, 체크 없이 바로 적는 칸
+ * ------------------------------------------------------------------------- */
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		if ( ! function_exists( 'is_checkout' ) || ! is_checkout() ) {
+			return;
+		}
+		$map = array(
+			'Additional order information' => 'Required confirmations',
+			'Add a note to your order'     => 'Order notes (optional)',
+			'Notes about your order, e.g. special notes for delivery.' => 'Anything we should know? e.g. delivery instructions, store hours.',
+		);
+		wp_add_inline_script(
+			'wp-i18n',
+			'(function(m){if(window.wp&&wp.hooks){wp.hooks.addFilter("i18n.gettext_woocommerce","oneam/checkout",function(t,x){return m[x]||t;});}})(' . wp_json_encode( $map ) . ');'
+			. 'document.addEventListener("DOMContentLoaded",function(){var n=0,t=setInterval(function(){var b=document.querySelector(".wc-block-checkout__add-note input[type=checkbox]");if(b){if(!b.checked){b.click();}clearInterval(t);}if(++n>60){clearInterval(t);}},250);});'
+		);
+	},
+	20
+);
+
+// 내 계정: "Downloads"(디지털 파일 상품용) 탭은 이 사이트에서 쓰지 않으므로 숨김
+add_filter(
+	'woocommerce_account_menu_items',
+	function ( $items ) {
+		unset( $items['downloads'] );
+		return $items;
+	}
 );

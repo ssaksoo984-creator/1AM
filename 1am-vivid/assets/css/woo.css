@@ -13,9 +13,12 @@
 /* 상점 목록: 세로형 제품 사진을 잘리지 않게 */
 .woocommerce ul.products li.product a img { width: auto; max-width: 100%; height: 300px; object-fit: contain; margin: 0 auto 14px; }
 /* 장바구니 · 결제 · 내 계정 은 page.php (상단 컬러 헤더 + 본문) 를 사용 */
+/* 장바구니 · 결제 · 내 계정: 상품 상세 페이지와 같은 폭 (내용 1200px) */
 .woocommerce-cart .page-body,
 .woocommerce-checkout .page-body,
-.woocommerce-account .page-body { max-width: 1180px; }
+.woocommerce-account .page-body { max-width: 1280px; padding-left: var(--gutter); padding-right: var(--gutter); }
+.woocommerce-cart .page-body .alignwide,
+.woocommerce-checkout .page-body .alignwide { width: 100%; margin-left: 0; transform: none; }
 .woocommerce-products-header__title,
 .woocommerce-page h1.entry-title,
 .woocommerce-page .page-title {
@@ -338,3 +341,13 @@
 .etransfer dd { margin: 4px 0 0; font-size: 17px; font-weight: 900; word-break: break-all; }
 .etransfer__note { margin: 0; font-size: 14px; opacity: .9; }
 .wc-block-components-product-name, .woocommerce-cart-form .product-name a { color: var(--c1) !important; text-decoration: none !important; font-weight: 800; }
+
+/* 결제: 주문 메모는 체크 없이 바로 쓰는 칸 · 필수 확인 항목 */
+.wc-block-checkout__add-note .wc-block-components-checkbox__input, .wc-block-checkout__add-note .wc-block-components-checkbox__mark { display: none !important; }
+.wc-block-checkout__add-note .wc-block-components-checkbox__label { margin-left: 0 !important; font-weight: 800; }
+.wc-block-checkout__add-note .wc-block-components-checkbox label { pointer-events: none; }
+.wp-block-woocommerce-checkout-order-note-block { margin-top: 8px; }
+.wc-block-checkout__additional-fields .wc-block-components-checkbox__label::after,
+.wc-block-checkout__terms .wc-block-components-checkbox__label::after { content: " *"; color: #b3261e; font-weight: 800; }
+.wp-block-woocommerce-checkout-additional-information-block .wc-block-components-checkbox__label::after { content: " *"; color: #b3261e; font-weight: 800; }
+.wc-block-checkout__terms a, .wc-block-components-checkout-return-to-cart-button { color: var(--c1) !important; text-decoration: none !important; font-weight: 700; }

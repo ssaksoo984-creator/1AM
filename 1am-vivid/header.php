@@ -27,6 +27,7 @@ $oneam_first   = $oneam_flavors[0];
 </div>
 <?php endif; ?>
 
+<?php if ( is_front_page() ) : // 로딩 화면: 홈에 처음 들어올 때 한 번만 (같은 창에서 다시 오면 안 나옴) ?>
 <div class="loader" id="loader" aria-hidden="true">
 	<div class="loader__bg"></div>
 	<div class="loader__inner">
@@ -34,6 +35,8 @@ $oneam_first   = $oneam_flavors[0];
 		<div class="loader__count" id="loader-num">00:00 AM</div>
 	</div>
 </div>
+<script>try{if(sessionStorage.getItem('oneam_loaded')){document.getElementById('loader').remove();}}catch(e){}</script>
+<?php endif; ?>
 
 <div class="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__label"></span></div>
 

@@ -333,6 +333,13 @@ function oneam_setup_checkout_terms() {
 	);
 	$attrs   = serialize_block_attributes( array( 'checkbox' => true, 'text' => $text ) );
 	$content = preg_replace( '/<!-- wp:woocommerce\/checkout-terms-block(\s+\{.*?\})?\s*(\/)?-->/s', '<!-- wp:woocommerce/checkout-terms-block ' . $attrs . ' $2-->', $post->post_content, 1 );
+	// 주문 메모 칸을 청구지 주소 바로 아래로 (필수 확인 체크 두 개가 결제 방법 아래에 함께 모이도록)
+	$note = '/<!-- wp:woocommerce\/checkout-order-note-block.*?<!-- \/wp:woocommerce\/checkout-order-note-block -->\s*/s';
+	$bill = '<!-- /wp:woocommerce/checkout-billing-address-block -->';
+	if ( $content && preg_match( $note, $content, $m ) && false !== strpos( $content, $bill ) && strpos( $content, $m[0] ) > strpos( $content, $bill ) ) {
+		$content = preg_replace( $note, '', $content, 1 );
+		$content = str_replace( $bill, $bill . "\n\n" . trim( $m[0] ), $content );
+	}
 	if ( $content && $content !== $post->post_content ) {
 		wp_update_post( wp_slash( array( 'ID' => $id, 'post_content' => $content ) ) );
 	}

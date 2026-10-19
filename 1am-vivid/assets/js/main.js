@@ -89,6 +89,7 @@
 		return new Promise(function (resolve) {
 			var el = $('#loader');
 			if (!el || reduce) { resolve(); return; }
+			try { sessionStorage.setItem('oneam_loaded', '1'); } catch (e) {}
 			var num = $('#loader-num');
 			var o = { m: 0 };
 			var tl = gsap.timeline({ onComplete: resolve });
@@ -320,7 +321,8 @@
 		window.addEventListener('resize', measure);
 		ST.addEventListener('refresh', measure);
 
-		var busy = false, held = false, quiet = null;
+		var busy = false, held = false, quiet = null, freeAt = 0, lastAbs = 0;
+		var HOLD = 300; // 섹션에 멈춘 뒤 다음 스크롤을 받기까지 (ms)
 		function first() { return points[0]; }
 		function last() { return points[points.length - 1]; }
 		function target(dir) {
@@ -331,17 +333,21 @@
 		}
 		function go(y) {
 			busy = true;
-			var done = function () { busy = false; };
-			if (lenis) lenis.scrollTo(y, { duration: .75, easing: function (t) { return 1 - Math.pow(1 - t, 3); }, lock: true, force: true, onComplete: done });
-			else { window.scrollTo({ top: y, behavior: 'smooth' }); setTimeout(done, 750); }
+			var done = function () { busy = false; freeAt = Date.now() + HOLD; };
+			freeAt = Infinity;
+			if (lenis) lenis.scrollTo(y, { duration: .45, easing: function (t) { return 1 - Math.pow(1 - t, 3); }, lock: true, force: true, onComplete: done });
+			else { window.scrollTo({ top: y, behavior: 'smooth' }); setTimeout(done, 450); }
 		}
 		window.addEventListener('wheel', function (e) {
 			if (body.classList.contains('is-locked') || body.classList.contains('nav-open')) return;
 			var dir = e.deltaY > 0 ? 1 : (e.deltaY < 0 ? -1 : 0);
 			if (!dir) return;
-			var y = window.scrollY;
+			var y = window.scrollY, abs = Math.abs(e.deltaY);
 			clearTimeout(quiet);
-			quiet = setTimeout(function () { held = false; }, 160);
+			quiet = setTimeout(function () { held = false; }, 120);
+			// 멈춘 지 0.3초가 지났고 새로 굴린 스크롤(트랙패드 관성으로 줄어드는 값이 아닌)이면 바로 다음 섹션으로
+			if (held && !busy && Date.now() > freeAt && abs > lastAbs * 1.3 + 2) held = false;
+			lastAbs = abs;
 			// 아래로: 마지막 지점 전까지 / 위로: 마지막 섹션(디바이스) 안에서부터
 			var inside = dir > 0 ? (y < last() - 4) : (y > first() + 4 && y <= last() + window.innerHeight * .9);
 			if (!(busy || held || inside)) return;
