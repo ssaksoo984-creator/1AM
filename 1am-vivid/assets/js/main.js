@@ -434,7 +434,26 @@
 		gsap.to($('.device__float', root) || imgs[0].parentNode, { y: -16, rotate: 3, duration: 2.6, ease: 'sine.inOut', yoyo: true, repeat: -1 });
 		if (imgs.length < 2) return;
 		var cur = 0, timer = null;
+		var fan = root.querySelector('.device__stack.is-fan');
+		// 3개가 나란히: 가운데 크게, 양옆은 작게 기울여서 — 2.2초마다 한 칸씩 돌아감
+		function layout(instant) {
+			var n = imgs.length;
+			imgs.forEach(function (img, i) {
+				var k = (i - cur + n) % n;
+				var p = k === 0 ? { xPercent: 0, rotate: 0, scale: 1, opacity: 1, zIndex: 3 }
+					: k === 1 ? { xPercent: 92, rotate: 14, scale: .78, opacity: .9, zIndex: 2 }
+					: k === n - 1 ? { xPercent: -92, rotate: -14, scale: .78, opacity: .9, zIndex: 2 }
+					: { xPercent: k < n / 2 ? 140 : -140, rotate: 0, scale: .5, opacity: 0, zIndex: 1 };
+				p.duration = instant ? 0 : .9;
+				p.ease = 'expo.inOut';
+				p.overwrite = 'auto';
+				gsap.to(img, p);
+			});
+			gsap.to(root, { '--c1': imgs[cur].dataset.c1, '--c2': imgs[cur].dataset.c2, duration: instant ? 0 : .9 });
+		}
+		if (fan) layout(true);
 		function next() {
+			if (fan) { cur = (cur + 1) % imgs.length; layout(false); return; }
 			var a = imgs[cur];
 			cur = (cur + 1) % imgs.length;
 			var b = imgs[cur];

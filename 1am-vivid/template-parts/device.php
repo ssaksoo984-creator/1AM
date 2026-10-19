@@ -2,7 +2,7 @@
 $flavors = oneam_get_flavors();
 $hero    = $flavors[0];
 // Elementor 에서 디바이스 이미지를 따로 올리면 그 이미지 하나만
-$stack  = array_slice( $flavors, 0, 5 );
+$stack  = array_slice( $flavors, 0, 7 );
 $custom = (array) oneam_ctx( 'device_image', array() );
 if ( $custom ) {
 	$stack = array();
@@ -34,7 +34,11 @@ if ( ! $specs ) {
 		<div class="device__stage">
 			<div class="device__ring" aria-hidden="true"></div>
 			<div class="device__float">
-			<div class="device__stack<?php echo $custom ? ' is-custom' : ''; ?>">
+			<?php
+			// 이미지가 3장 이상이면 3개가 나란히 보이며 돌아가고, 직접 올린 이미지가 1~2장이면 그 이미지만 크게
+			$oneam_fan = count( $stack ) >= 3;
+			?>
+			<div class="device__stack<?php echo $custom && ! $oneam_fan ? ' is-custom' : ''; ?><?php echo $oneam_fan ? ' is-fan' : ''; ?>">
 				<?php foreach ( $stack as $i => $f ) : ?>
 					<img src="<?php echo esc_url( $f['img'] ); ?>" alt="<?php echo 0 === $i ? esc_attr( '1AM Slim HYBRID' ) : ''; ?>" width="246" height="1400" loading="lazy" data-c1="<?php echo esc_attr( $f['c1'] ); ?>" data-c2="<?php echo esc_attr( $f['c2'] ); ?>">
 				<?php endforeach; ?>
@@ -49,6 +53,7 @@ if ( ! $specs ) {
 			<?php endforeach; ?>
 		</div>
 
+		<?php if ( 'yes' === oneam_ctx( 'show_specs', '' ) ) : ?>
 		<dl class="specs">
 			<?php foreach ( $specs as $sp ) : ?>
 				<div class="spec">
@@ -57,5 +62,6 @@ if ( ! $specs ) {
 				</div>
 			<?php endforeach; ?>
 		</dl>
+		<?php endif; ?>
 	</div>
 </section>

@@ -189,7 +189,8 @@ function oneam_elementor_widgets() {
 			'part'     => 'device',
 			'controls' => array(
 				'oneam_device_title' => array( 'label' => 'Title', 'type' => 'textarea', 'default' => oneam_opt( 'oneam_device_title' ), 'description' => 'One line per row. ' . $italic ),
-				'device_image'       => array( 'label' => 'Device images (one or more, optional)', 'type' => 'gallery', 'description' => 'Several images take turns. Empty = the first 5 flavours from WooCommerce.' ),
+				'device_image'       => array( 'label' => 'Device images (optional)', 'type' => 'gallery', 'description' => 'Upload 3 or more product images to rotate (3 shown at once). Empty = the flavours from WooCommerce. One wide image = shown alone.' ),
+				'show_specs'         => array( 'label' => 'Show the spec numbers under the device', 'type' => 'switch', 'default' => '' ),
 				'callouts'           => array(
 					'label'   => 'Callouts',
 					'type'    => 'repeater',
@@ -286,6 +287,8 @@ function oneam_elementor_widgets() {
 			'controls' => array(
 				'eyebrow' => array( 'label' => 'Small label', 'type' => 'text', 'default' => 'How to order' ),
 				'title'   => array( 'label' => 'Title', 'type' => 'textarea', 'default' => "Four steps\n*to your first* order", 'description' => 'One line per row. ' . $italic ),
+				'bg_image' => array( 'label' => 'Background image (optional)', 'type' => 'image', 'description' => 'Empty = plain background colour (Style tab).' ),
+				'overlay'  => array( 'label' => 'Image tint (colour + transparency)', 'type' => 'color', 'default' => 'rgba(13,11,18,0.6)', 'description' => 'Darkens the image so the white text stays readable. Move the transparency slider to make it lighter or darker.' ),
 				'items'   => array(
 					'label'   => 'Steps',
 					'type'    => 'repeater',
@@ -297,7 +300,7 @@ function oneam_elementor_widgets() {
 						array( 'title' => 'Apply', 'text' => 'Submit the retail account application with your business information and documents confirming an authorized adult-only vape store.' ),
 						array( 'title' => 'Get verified', 'text' => 'Our team reviews your application, usually within 1–2 business days, and emails you once your account is approved.' ),
 						array( 'title' => 'Order online', 'text' => 'Log in to see wholesale pricing. Choose products with the correct excise stamps for your province and confirm compliance at checkout.' ),
-						array( 'title' => 'Pay & ship', 'text' => 'Pay by Interac e-Transfer or card. Orders ship by Purolator, UPS or Canpar Ground, typically arriving in 1–5 business days.' ),
+						array( 'title' => 'Pay & ship', 'text' => 'Pay by ' . ( oneam_opt( 'oneam_processor' ) ? 'Interac e-Transfer or card' : 'Interac e-Transfer' ) . '. Orders ship by Purolator, UPS or Canpar Ground, typically arriving in 1–5 business days.' ),
 					),
 				),
 			),

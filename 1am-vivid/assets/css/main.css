@@ -1909,3 +1909,15 @@ html.fpop-open, html.fpop-open body { overflow: hidden; }
 .fpop .fpop__media .fpop__img { height: min(56svh, 460px); width: auto; max-width: none; }
 .fpop__nav { z-index: 2; }
 @media (max-width: 760px) { .fpop .fpop__media .fpop__img { height: 28svh; } }
+
+/* v1.17 — 디바이스: 3개 나란히 돌아가기 · 조금 크게 */
+.device__stack.is-fan, .elementor .device__stack.is-fan { height: min(54svh, 580px); }
+.device__stack.is-fan img { opacity: 0; will-change: transform; filter: drop-shadow(0 20px 30px rgba(0, 0, 0, .35)); }
+.device__stack.is-fan img:nth-child(-n+3) { opacity: 1; }
+.device__stack.is-fan img:nth-child(2) { transform: translateX(92%) rotate(14deg) scale(.78); }
+.device__stack.is-fan img:nth-child(3) { transform: translateX(-92%) rotate(-14deg) scale(.78); }
+.device__stack:not(.is-fan):not(.is-custom) { height: min(56svh, 560px); }
+.device__pin:not(:has(.specs)) { grid-template-rows: auto 1fr; }
+
+/* How to order 단계: 배경 이미지 + 색 덮기 (Elementor 위젯에서 설정) */
+.steps.has-img { background: linear-gradient(var(--steps-tint, rgba(13, 11, 18, .6)), var(--steps-tint, rgba(13, 11, 18, .6))), var(--steps-img) center / cover no-repeat; }
