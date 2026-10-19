@@ -418,14 +418,14 @@ add_action(
 				return;
 			}
 			printf(
-				'<div class="notice notice-info"><p><strong>1AM:</strong> Your homepage is built with Elementor. <a class="button button-primary" href="%1$s">Edit homepage in Elementor</a> <a class="button" href="%2$s" onclick="return confirm(\'Replace the homepage with the original 1AM sections? Your Elementor changes on the homepage will be lost.\');">Reset to 1AM layout</a></p></div>',
+				'<div class="notice notice-info"><p><strong>1AM ' . ONEAM_VERSION . ':</strong> Your homepage is built with Elementor. <a class="button button-primary" href="%1$s">Edit homepage in Elementor</a> <a class="button" href="%2$s" onclick="return confirm(\'Replace the homepage with the original 1AM sections? Your Elementor changes on the homepage will be lost.\');">Reset to 1AM layout</a></p></div>',
 				esc_url( admin_url( 'post.php?post=' . $home . '&action=elementor' ) ),
 				esc_url( $build )
 			);
 			return;
 		}
 		printf(
-			'<div class="notice notice-info"><p><strong>1AM:</strong> Edit the homepage visually in Elementor — the current sections (video, flavour line-up, products, device, call to action) are added as 1AM widgets you can move, delete and edit. <a class="button button-primary" href="%s">Build homepage in Elementor</a></p></div>',
+			'<div class="notice notice-info"><p><strong>1AM ' . ONEAM_VERSION . ':</strong> Edit the homepage visually in Elementor — the current sections (video, flavour line-up, products, device, call to action) are added as 1AM widgets you can move, delete and edit. <a class="button button-primary" href="%s">Build homepage in Elementor</a></p></div>',
 			esc_url( $build )
 		);
 	}

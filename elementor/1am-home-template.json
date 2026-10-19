@@ -1,0 +1,155 @@
+{
+    "content": [
+        {
+            "id": "6a65720",
+            "elType": "section",
+            "settings": {
+                "layout": "full_width",
+                "gap": "no",
+                "stretch_section": "section-stretched"
+            },
+            "elements": [
+                {
+                    "id": "9f71a4e",
+                    "elType": "column",
+                    "settings": {
+                        "_column_size": 100
+                    },
+                    "elements": [
+                        {
+                            "id": "f06f942",
+                            "elType": "widget",
+                            "widgetType": "oneam-film",
+                            "settings": {},
+                            "elements": []
+                        }
+                    ],
+                    "isInner": false
+                }
+            ],
+            "isInner": false
+        },
+        {
+            "id": "d916337",
+            "elType": "section",
+            "settings": {
+                "layout": "full_width",
+                "gap": "no",
+                "stretch_section": "section-stretched"
+            },
+            "elements": [
+                {
+                    "id": "f22297a",
+                    "elType": "column",
+                    "settings": {
+                        "_column_size": 100
+                    },
+                    "elements": [
+                        {
+                            "id": "9b1266f",
+                            "elType": "widget",
+                            "widgetType": "oneam-about",
+                            "settings": {},
+                            "elements": []
+                        }
+                    ],
+                    "isInner": false
+                }
+            ],
+            "isInner": false
+        },
+        {
+            "id": "d0590dd",
+            "elType": "section",
+            "settings": {
+                "layout": "full_width",
+                "gap": "no",
+                "stretch_section": "section-stretched"
+            },
+            "elements": [
+                {
+                    "id": "aa1949e",
+                    "elType": "column",
+                    "settings": {
+                        "_column_size": 100
+                    },
+                    "elements": [
+                        {
+                            "id": "7d04b2d",
+                            "elType": "widget",
+                            "widgetType": "oneam-lineup",
+                            "settings": {},
+                            "elements": []
+                        }
+                    ],
+                    "isInner": false
+                }
+            ],
+            "isInner": false
+        },
+        {
+            "id": "d6ac9d7",
+            "elType": "section",
+            "settings": {
+                "layout": "full_width",
+                "gap": "no",
+                "stretch_section": "section-stretched"
+            },
+            "elements": [
+                {
+                    "id": "fc3932c",
+                    "elType": "column",
+                    "settings": {
+                        "_column_size": 100
+                    },
+                    "elements": [
+                        {
+                            "id": "80e140d",
+                            "elType": "widget",
+                            "widgetType": "oneam-device",
+                            "settings": {},
+                            "elements": []
+                        }
+                    ],
+                    "isInner": false
+                }
+            ],
+            "isInner": false
+        },
+        {
+            "id": "7cf3df0",
+            "elType": "section",
+            "settings": {
+                "layout": "full_width",
+                "gap": "no",
+                "stretch_section": "section-stretched"
+            },
+            "elements": [
+                {
+                    "id": "0b083af",
+                    "elType": "column",
+                    "settings": {
+                        "_column_size": 100
+                    },
+                    "elements": [
+                        {
+                            "id": "cbcba15",
+                            "elType": "widget",
+                            "widgetType": "oneam-cta",
+                            "settings": {},
+                            "elements": []
+                        }
+                    ],
+                    "isInner": false
+                }
+            ],
+            "isInner": false
+        }
+    ],
+    "page_settings": {
+        "hide_title": "yes"
+    },
+    "version": "0.4",
+    "title": "1AM Home",
+    "type": "page"
+}
