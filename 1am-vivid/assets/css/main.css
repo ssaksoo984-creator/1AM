@@ -1787,3 +1787,42 @@ body.nav-open .nav-toggle i:last-child { transform: translateY(-3.5px) rotate(-4
 	html { scroll-snap-type: y proximity; }
 	.film, .row, .pitem, #device { scroll-snap-align: start; scroll-snap-stop: normal; }
 }
+
+/* 상품 정보 · 승인 회원 구매 박스 (상품 페이지 · Elementor 페이지 공통) */
+.pinfo__specs { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+.pinfo__buy { display: grid; gap: 12px; margin-top: 10px; padding: 20px 22px; border-radius: 22px; background: var(--white); min-width: min(100%, 420px); }
+.pinfo__price { margin: 0; font-size: 26px; font-weight: 900; }
+.pinfo__price small { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; opacity: .55; }
+.pinfo__buy form.cart { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0; }
+.pinfo__buy form.variations_form { display: grid; }
+.pinfo__buy table.variations { margin: 0; border: 0; }
+.pinfo__buy table.variations th, .pinfo__buy table.variations td { padding: 0 0 8px; border: 0; background: none; text-align: left; }
+.pinfo__buy select { height: 46px; padding: 0 14px; border-radius: 12px; border: 1.5px solid rgba(13, 11, 18, .15); background: var(--paper); font: inherit; }
+.pinfo__buy .quantity input { height: 46px; width: 76px; border-radius: 12px; border: 1.5px solid rgba(13, 11, 18, .15); text-align: center; font: inherit; }
+.pinfo__buy .single_variation_wrap .woocommerce-variation-add-to-cart { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+/* Elementor 글 섹션 (약관 · 반품 · 가입 안내) — 테마 본문 스타일 */
+.oneam-text > .elementor-container, .oneam-text.e-con { max-width: 860px; margin: 0 auto; padding: clamp(40px, 6vw, 80px) var(--gutter); }
+.oneam-text .elementor-widget-text-editor { font-size: 17px; line-height: 1.65; color: var(--ink); }
+.oneam-text h2 { margin: 1.6em 0 .6em; font-size: clamp(26px, 3vw, 40px); line-height: 1; font-weight: 900; font-variation-settings: "wdth" 76; text-transform: uppercase; }
+.oneam-text h3 { margin: 1.4em 0 .4em; font-size: clamp(18px, 1.6vw, 22px); font-weight: 900; text-transform: uppercase; }
+.pinfo__buy .button {
+	display: inline-flex;
+	align-items: center;
+	height: 50px;
+	padding: 0 28px;
+	border: 0;
+	border-radius: 999px;
+	font: inherit;
+	font-size: 14px;
+	font-weight: 800;
+	letter-spacing: .03em;
+	text-transform: uppercase;
+	color: var(--white);
+	cursor: pointer;
+	background: linear-gradient(120deg, var(--c1), var(--c2)) no-repeat 0 100% / 100% 0%, var(--ink);
+	transition: background-size .5s var(--ease);
+}
+.pinfo__buy .button:hover { background-size: 100% 100%, auto; }
+.pinfo__buy .button.disabled, .pinfo__buy .button:disabled { opacity: .45; cursor: not-allowed; }
+.pinfo__buy .reset_variations { margin-left: 10px; font-size: 13px; text-decoration: underline; }

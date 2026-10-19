@@ -4,7 +4,7 @@
  * 상품은 WooCommerce 에서 자동으로. Elementor 위젯에서 "Custom products" 를 채우면 그 내용으로 대신 표시.
  */
 $products = oneam_get_products();
-$custom   = oneam_ctx( 'items', array() );
+$custom   = oneam_ctx( 'products', array() );
 if ( $custom ) {
 	$products = array();
 	foreach ( $custom as $i => $r ) {

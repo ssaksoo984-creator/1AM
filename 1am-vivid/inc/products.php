@@ -68,6 +68,13 @@ function oneam_get_products() {
 			$out[]    = $d;
 		}
 	}
+	// 같은 이름(슬러그)의 페이지가 있으면 (Elementor 로 편집하는 상품 페이지) 그 페이지로 연결
+	foreach ( $out as $i => $p ) {
+		$page = 'soon' !== $p['status'] && function_exists( 'get_page_by_path' ) ? get_page_by_path( $p['slug'] ) : null;
+		if ( $page && 'publish' === $page->post_status ) {
+			$out[ $i ]['url'] = get_permalink( $page );
+		}
+	}
 	$cache = apply_filters( 'oneam_products', $out );
 	return $cache;
 }
@@ -358,6 +365,11 @@ add_action(
 		}
 		$slug = sanitize_title( $slug );
 		// WooCommerce 에 같은 상품이 발행돼 있으면 그 페이지가 정식 주소
+		$page = get_page_by_path( $slug );
+		if ( $page && 'publish' === $page->post_status ) {
+			wp_safe_redirect( get_permalink( $page ), 301 );
+			exit;
+		}
 		$found = post_type_exists( 'product' ) ? get_page_by_path( $slug, OBJECT, 'product' ) : null;
 		if ( $found && 'publish' === $found->post_status ) {
 			wp_safe_redirect( get_permalink( $found ), 301 );

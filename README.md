@@ -91,6 +91,15 @@ Elementor 가 설치돼 있으면 테마의 모든 섹션이 **Elementor 위젯*
 - 다른 페이지(About 등)도 **Edit with Elementor** 로 만들 수 있습니다. 위에 컬러 제목 영역이 붙고, 페이지 설정의 **Hide Title** 을 켜면 숨겨집니다.
 - 홈을 Elementor 로 만들지 않으면 테마 기본 홈 구성이 그대로 나옵니다.
 
+## 모든 페이지를 Elementor 로 (Pages 화면의 "Build all pages in Elementor")
+
+Home · About · **Slim HYBRID**(상품 페이지) · How to Order · FAQ · Terms · Return Policy · Wholesale Sign up 을 섹션과 글이 미리 채워진 Elementor 페이지로 만듭니다. 이미 Elementor 로 만든 페이지는 건드리지 않습니다. 빈 페이지를 Elementor 로 열어도 자동으로 채워집니다.
+
+- 1AM 위젯 섹션: 문구 · 이미지 · 색 · 글꼴 수정, 순서 변경, 삭제, 추가
+- 글 페이지(약관 · 반품 · 가입 안내): Elementor **Text Editor** 위젯에 글이 들어 있음
+- **Slim HYBRID 페이지** (`/slim-hybrid/`): 맛 슬라이더 → **Product info** 위젯(라벨 · 이름 · 설명 · 스펙, 승인 회원은 가격 · 맛 선택 · 장바구니) → 맛 목록 → Stock 1AM. 메뉴와 상품 카드가 이 페이지로 연결됩니다.
+- Product line-up 위젯의 **Products** 목록에는 지금 상품 3개가 미리 들어 있어 바로 고치거나 지울 수 있습니다.
+
 ## 편집기 = 사이트와 같은 모양
 
 - 페이지/글 편집기와 WooCommerce 상품 설명 편집기에서 글꼴·제목·이탤릭·버튼이 사이트와 똑같이 보입니다.

@@ -109,14 +109,3 @@
 /* 상품 상세: 예전 slim-hybrid 페이지처럼 꽉 찬 폭 (슬라이더 → 상품 정보 → 맛 목록 → Stock 1AM) */
 .single-product .shop-wrap { max-width: none; padding: 0; }
 .single-product .woocommerce-notices-wrapper:not(:empty) { max-width: 1280px; margin: 24px auto 0; padding: 0 var(--gutter); }
-.single-product .pinfo__specs { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
-.pinfo__buy { display: grid; gap: 12px; margin-top: 10px; padding: 20px 22px; border-radius: 22px; background: var(--white); min-width: min(100%, 420px); }
-.pinfo__price { margin: 0; font-size: 26px; font-weight: 900; }
-.pinfo__price small { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; opacity: .55; }
-.pinfo__buy form.cart { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0; }
-.pinfo__buy form.variations_form { display: grid; }
-.pinfo__buy table.variations { margin: 0; border: 0; }
-.pinfo__buy table.variations th, .pinfo__buy table.variations td { padding: 0 0 8px; border: 0; background: none; text-align: left; }
-.pinfo__buy select { height: 46px; padding: 0 14px; border-radius: 12px; border: 1.5px solid rgba(13, 11, 18, .15); background: var(--paper); font: inherit; }
-.pinfo__buy .quantity input { height: 46px; width: 76px; border-radius: 12px; border: 1.5px solid rgba(13, 11, 18, .15); text-align: center; font: inherit; }
-.pinfo__buy .single_variation_wrap .woocommerce-variation-add-to-cart { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }

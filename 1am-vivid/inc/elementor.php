@@ -63,6 +63,20 @@ function oneam_row_url( $r, $soon ) {
 	return $p ? $p['url'] : oneam_signup_url();
 }
 
+/** Product info 위젯 기본값 (Slim HYBRID) */
+function oneam_el_product_field( $key ) {
+	$p = oneam_product_by_slug( 'slim-hybrid' );
+	return $p && isset( $p[ $key ] ) ? (string) $p[ $key ] : '';
+}
+function oneam_el_product_specs() {
+	$p    = oneam_product_by_slug( 'slim-hybrid' );
+	$rows = array();
+	foreach ( $p ? (array) $p['specs'] : array() as $k => $v ) {
+		$rows[] = array( 'label' => $k, 'value' => (string) $v );
+	}
+	return $rows;
+}
+
 /** 지금 상품(WooCommerce)을 "Products" 목록 기본값으로 — 편집 화면에 기존 상품이 그대로 보이게 */
 function oneam_products_as_rows() {
 	$rows = array();
@@ -144,7 +158,7 @@ function oneam_elementor_widgets() {
 			'note'     => 'Full-screen product panels (01 / 02 / 03). Scrolling moves one panel at a time.',
 			'controls' => array(
 				'eyebrow' => array( 'label' => 'Small label', 'type' => 'text', 'default' => 'Product lineup' ),
-				'items'   => array(
+				'products' => array(
 					'label'       => 'Products',
 					'description' => 'Starts with your current WooCommerce products. Edit, reorder, delete or add cards here.',
 					'type'        => 'repeater',
@@ -432,6 +446,32 @@ function oneam_elementor_widgets() {
 				array( 'title_font', 'Title font', 'typography', '.orderinfo .section-title' ),
 			),
 		),
+		'pinfo'    => array(
+			'title'    => 'Product info',
+			'icon'     => 'eicon-product-info',
+			'part'     => 'pinfo',
+			'note'     => 'Name, label, description and specs of a product. Approved retailers also see the price and Add to cart (from the WooCommerce product with the same slug).',
+			'controls' => array(
+				'slug'  => array( 'label' => 'Product (slug)', 'type' => 'text', 'default' => 'slim-hybrid' ),
+				'label' => array( 'label' => 'Small label', 'type' => 'text', 'default' => oneam_el_product_field( 'tag' ) ),
+				'title' => array( 'label' => 'Name', 'type' => 'text', 'default' => oneam_el_product_field( 'name' ) ),
+				'text'  => array( 'label' => 'Description', 'type' => 'textarea', 'default' => oneam_el_product_field( 'desc' ) ),
+				'specs' => array(
+					'label'   => 'Specs',
+					'type'    => 'repeater',
+					'fields'  => array(
+						'label' => array( 'label' => 'Label', 'type' => 'text' ),
+						'value' => array( 'label' => 'Value', 'type' => 'text' ),
+					),
+					'default' => oneam_el_product_specs(),
+				),
+			),
+			'style'    => array(
+				array( 'c1', 'Colour 1', 'color', '.pinfo', '--c1' ),
+				array( 'c2', 'Colour 2', 'color', '.pinfo', '--c2' ),
+				array( 'title_font', 'Name font', 'typography', '.pinfo__title' ),
+			),
+		),
 		'signup'   => array(
 			'title'    => 'Wholesale application form',
 			'icon'     => 'eicon-form-horizontal',
@@ -487,6 +527,10 @@ function oneam_el_uses_containers() {
 }
 
 function oneam_el_section( $widget, $settings = array() ) {
+	// 'core:text-editor' 처럼 쓰면 Elementor 기본 위젯 (글 페이지용, 가운데 정렬된 본문 폭)
+	if ( 0 === strpos( $widget, 'core:' ) ) {
+		return oneam_el_text_section( substr( $widget, 5 ), $settings );
+	}
 	$w = array(
 		'id'         => oneam_el_id(),
 		'elType'     => 'widget',
@@ -527,6 +571,41 @@ function oneam_el_section( $widget, $settings = array() ) {
 						'elements'   => array(),
 					),
 				),
+				'isInner'  => false,
+			),
+		),
+		'isInner'  => false,
+	);
+}
+
+/** Elementor 기본 위젯을 본문 폭 섹션에 (약관 · 반품 · 가입 안내 등 글) */
+function oneam_el_text_section( $type, $settings ) {
+	$w = array(
+		'id'         => oneam_el_id(),
+		'elType'     => 'widget',
+		'widgetType' => $type,
+		'settings'   => (object) $settings,
+		'elements'   => array(),
+	);
+	if ( oneam_el_uses_containers() ) {
+		return array(
+			'id'       => oneam_el_id(),
+			'elType'   => 'container',
+			'settings' => array( 'content_width' => 'full', 'css_classes' => 'oneam-text entry__content' ),
+			'elements' => array( $w ),
+			'isInner'  => false,
+		);
+	}
+	return array(
+		'id'       => oneam_el_id(),
+		'elType'   => 'section',
+		'settings' => array( 'layout' => 'full_width', 'gap' => 'no', 'css_classes' => 'oneam-text entry__content' ),
+		'elements' => array(
+			array(
+				'id'       => oneam_el_id(),
+				'elType'   => 'column',
+				'settings' => array( '_column_size' => 100 ),
+				'elements' => array( $w ),
 				'isInner'  => false,
 			),
 		),
@@ -644,88 +723,4 @@ add_action(
 			esc_url( $build )
 		);
 	}
-);
-
-/* ---------------------------------------------------------------------------
- * 상품 라인업 목록 채우기
- * 예전 버전에서 만든 위젯은 "Products" 목록이 비어 있음 → 지금 상품으로 채워서 편집할 수 있게
- * ------------------------------------------------------------------------- */
-function oneam_lineup_rows_with_ids() {
-	return array_map(
-		function ( $r ) {
-			return array_merge( array( '_id' => substr( md5( wp_generate_password( 8, false ) ), 0, 7 ) ), $r );
-		},
-		oneam_products_as_rows()
-	);
-}
-
-/**
- * Elementor 데이터 안의 1AM 상품 라인업 위젯을 찾아 목록 채우기.
- * $replace_unmatched: 실제 상품과 이름이 하나도 안 맞는 목록(테스트 입력)도 교체
- */
-function oneam_fill_lineup_data( &$elements, $replace_unmatched ) {
-	$changed = false;
-	$names   = array_map( 'strtolower', wp_list_pluck( oneam_get_products(), 'name' ) );
-	foreach ( $elements as &$el ) {
-		if ( isset( $el['widgetType'] ) && 'oneam-lineup' === $el['widgetType'] ) {
-			$settings = isset( $el['settings'] ) ? (array) $el['settings'] : array();
-			$items    = isset( $settings['items'] ) ? (array) $settings['items'] : array();
-			$matched  = array_filter( $items, function ( $r ) use ( $names ) { return isset( $r['name'] ) && in_array( strtolower( trim( $r['name'] ) ), $names, true ); } );
-			if ( ! $items || ( $replace_unmatched && ! $matched ) ) {
-				$settings['items'] = oneam_lineup_rows_with_ids();
-				$el['settings']    = $settings;
-				$changed           = true;
-			}
-		}
-		if ( ! empty( $el['elements'] ) && oneam_fill_lineup_data( $el['elements'], $replace_unmatched ) ) {
-			$changed = true;
-		}
-	}
-	return $changed;
-}
-
-function oneam_fill_lineup_post( $post_id, $replace_unmatched ) {
-	$raw = get_post_meta( $post_id, '_elementor_data', true );
-	if ( ! is_string( $raw ) || false === strpos( $raw, 'oneam-lineup' ) ) {
-		return false;
-	}
-	$data = json_decode( $raw, true );
-	if ( ! is_array( $data ) || ! oneam_fill_lineup_data( $data, $replace_unmatched ) ) {
-		return false;
-	}
-	update_post_meta( $post_id, '_elementor_data', wp_slash( wp_json_encode( $data ) ) );
-	delete_post_meta( $post_id, '_elementor_css' );
-	return true;
-}
-
-/** 한 번만: 사이트의 모든 Elementor 페이지 정리 */
-add_action(
-	'admin_init',
-	function () {
-		if ( '1' === get_option( 'oneam_lineup_rows_v1' ) || ! current_user_can( 'edit_pages' ) ) {
-			return;
-		}
-		global $wpdb;
-		$ids = $wpdb->get_col( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_elementor_data' AND meta_value LIKE '%oneam-lineup%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		foreach ( $ids as $id ) {
-			oneam_fill_lineup_post( (int) $id, true );
-		}
-		update_option( 'oneam_lineup_rows_v1', '1' );
-	}
-);
-
-/** Elementor 로 열 때마다: 비어 있는 목록은 채워서 열기 */
-add_action(
-	'admin_action_elementor',
-	function () {
-		$id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification
-		if ( $id && current_user_can( 'edit_post', $id ) ) {
-			oneam_fill_lineup_post( $id, false );
-			$auto = wp_get_post_autosave( $id ); // Elementor 가 자동 저장본으로 열 때도
-			if ( $auto ) {
-				oneam_fill_lineup_post( $auto->ID, false );
-			}
-		}
-	},
-	2
 );

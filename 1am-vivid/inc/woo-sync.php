@@ -348,3 +348,22 @@ add_action(
 	},
 	20
 );
+
+/** 맛 선택 시 우커머스가 보여주는 설명도 예전 기본 문구면 새 맛 특징으로 */
+add_filter(
+	'woocommerce_available_variation',
+	function ( $data, $product, $variation ) {
+		$desc = trim( wp_strip_all_tags( $variation->get_description() ) );
+		if ( '' === $desc || in_array( $desc, oneam_old_flavor_texts(), true ) ) {
+			$attrs = $variation->get_attributes();
+			$name  = $attrs ? (string) reset( $attrs ) : '';
+			$def   = oneam_default_flavor_by_slug( sanitize_title( $name ) );
+			if ( $def ) {
+				$data['variation_description'] = wpautop( $def[5] );
+			}
+		}
+		return $data;
+	},
+	10,
+	3
+);
