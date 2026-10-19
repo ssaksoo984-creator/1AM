@@ -289,7 +289,12 @@
 		if (!cards.length) return;
 		cards.forEach(function (card) {
 			var img = $('.pitem__img, .ghost', card);
-			if (img) gsap.from(img, { y: 120, opacity: 0, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: card, start: 'top 80%', once: true } });
+			if (img) gsap.from(img, { y: 160, rotate: card.classList.contains('is-flip') ? 30 : -30, scale: .8, opacity: 0, duration: 1.4, ease: 'elastic.out(1, .7)', scrollTrigger: { trigger: card, start: 'top 80%', once: true } });
+			// 계속 둥둥 떠 있는 움직임 (제품 · 배경 원)
+			var vis = $('.pitem__visual', card);
+			if (vis) gsap.to(vis, { y: -18, rotate: card.classList.contains('is-flip') ? -2.5 : 2.5, duration: 2.4 + Math.random() * .6, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+			var blob = $('.pitem__blob', card);
+			if (blob) gsap.to(blob, { scale: 1.08, rotate: 20, duration: 3.2, ease: 'sine.inOut', yoyo: true, repeat: -1 });
 			gsap.from($$('.pitem__text > *', card), { y: 30, opacity: 0, duration: .8, stagger: .06, ease: 'expo.out', scrollTrigger: { trigger: card, start: 'top 75%', once: true } });
 		});
 	}
@@ -321,8 +326,9 @@
 		window.addEventListener('resize', measure);
 		ST.addEventListener('refresh', measure);
 
-		var busy = false, held = false, quiet = null, freeAt = 0, lastAbs = 0;
+		var busy = false, held = false, freeAt = 0, lastAbs = 0, lastT = 0;
 		var HOLD = 300; // 섹션에 멈춘 뒤 다음 스크롤을 받기까지 (ms)
+		var GAP = 220;  // 이만큼 스크롤이 멈췄다가 다시 굴리면 '새 스크롤'
 		function first() { return points[0]; }
 		function last() { return points[points.length - 1]; }
 		function target(dir) {
@@ -333,8 +339,8 @@
 		}
 		function go(y) {
 			busy = true;
-			var done = function () { busy = false; freeAt = Date.now() + HOLD; };
 			freeAt = Infinity;
+			var done = function () { busy = false; freeAt = Date.now() + HOLD; };
 			if (lenis) lenis.scrollTo(y, { duration: .45, easing: function (t) { return 1 - Math.pow(1 - t, 3); }, lock: true, force: true, onComplete: done });
 			else { window.scrollTo({ top: y, behavior: 'smooth' }); setTimeout(done, 450); }
 		}
@@ -342,18 +348,19 @@
 			if (body.classList.contains('is-locked') || body.classList.contains('nav-open')) return;
 			var dir = e.deltaY > 0 ? 1 : (e.deltaY < 0 ? -1 : 0);
 			if (!dir) return;
-			var y = window.scrollY, abs = Math.abs(e.deltaY);
-			clearTimeout(quiet);
-			quiet = setTimeout(function () { held = false; }, 120);
-			// 멈춘 지 0.3초가 지났고 새로 굴린 스크롤(트랙패드 관성으로 줄어드는 값이 아닌)이면 바로 다음 섹션으로
-			if (held && !busy && Date.now() > freeAt && abs > lastAbs * 1.3 + 2) held = false;
+			var y = window.scrollY, abs = Math.abs(e.deltaY), now = Date.now();
+			var gap = now - lastT;
+			lastT = now;
+			// 다음 칸은 (1) 이동이 끝나고 0.3초가 지난 뒤에만, 그리고 (2) 손을 멈췄다 다시 굴렸거나 새로 세게 굴렸을 때만
+			// → 마우스 휠을 한 번 '드르륵' 굴리거나 트랙패드 관성이 남아 있어도 한 칸만 이동
+			if (held && !busy && now >= freeAt && (gap > GAP || abs > lastAbs * 1.3 + 2)) held = false;
 			lastAbs = abs;
 			// 아래로: 마지막 지점 전까지 / 위로: 마지막 섹션(디바이스) 안에서부터
 			var inside = dir > 0 ? (y < last() - 4) : (y > first() + 4 && y <= last() + window.innerHeight * .9);
 			if (!(busy || held || inside)) return;
 			e.preventDefault();
 			e.stopImmediatePropagation();
-			if (busy || held) return;
+			if (busy || held || now < freeAt) return;
 			var to = target(dir);
 			if (to === null) return;
 			held = true;
