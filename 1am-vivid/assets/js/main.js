@@ -370,7 +370,7 @@
 		ST.addEventListener('refresh', measure);
 
 		var busy = false, held = false, freeAt = 0, lastAbs = 0, lastT = 0;
-		var HOLD = 300; // 섹션에 멈춘 뒤 다음 스크롤을 받기까지 (ms)
+		var HOLD = 500; // 섹션에 멈춘 뒤 다음 스크롤을 받기까지 (ms)
 		var GAP = 220;  // 이만큼 스크롤이 멈췄다가 다시 굴리면 '새 스크롤'
 		function first() { return points[0]; }
 		function last() { return points[points.length - 1]; }
