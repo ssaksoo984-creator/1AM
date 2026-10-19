@@ -45,8 +45,16 @@
 	<div class="site-footer__bottom">
 		<p class="site-footer__warning"><?php echo esc_html( oneam_opt( 'oneam_warning' ) ); ?></p>
 		<p>
-			Distributed by <?php echo esc_html( oneam_opt( 'oneam_company' ) ); ?> ·
-			<a href="mailto:<?php echo esc_attr( oneam_opt( 'oneam_email' ) ); ?>"><?php echo esc_html( oneam_opt( 'oneam_email' ) ); ?></a><br>
+			Distributed by <?php echo esc_html( oneam_opt( 'oneam_company' ) ); ?>
+			<?php if ( oneam_opt( 'oneam_address' ) ) : ?>
+				· <?php echo esc_html( preg_replace( '/\s*\r?\n\s*/', ', ', trim( oneam_opt( 'oneam_address' ) ) ) ); ?>
+			<?php endif; ?>
+			· <a href="mailto:<?php echo esc_attr( oneam_opt( 'oneam_email' ) ); ?>"><?php echo esc_html( oneam_opt( 'oneam_email' ) ); ?></a>
+			<?php if ( oneam_opt( 'oneam_phone' ) ) : ?>
+				· <a href="tel:<?php echo esc_attr( preg_replace( '/[^\d+]/', '', oneam_opt( 'oneam_phone' ) ) ); ?>"><?php echo esc_html( oneam_opt( 'oneam_phone' ) ); ?></a>
+			<?php endif; ?>
+			<br>
+			<?php echo esc_html( oneam_opt( 'oneam_payments' ) ); ?> · Prices in CAD<br>
 			&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> 1AM. All rights reserved.
 		</p>
 	</div>

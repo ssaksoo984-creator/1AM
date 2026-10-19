@@ -226,3 +226,10 @@
 	.spdp .woocommerce-product-gallery__image { aspect-ratio: 1 / .9; }
 	.spdp__about { margin-left: 0; width: 100%; }
 }
+
+/* 결제 수단 · 보안 결제 */
+.paybadges { display: grid; gap: 8px; margin: 14px 0 0; padding: 14px 16px; border-radius: 16px; background: var(--white); }
+.paybadges__title { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 13px; font-weight: 800; }
+.paybadges__title .icon { width: 18px; height: 18px; }
+.paybadges ul { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.paybadges li { padding: 5px 10px; border-radius: 8px; background: var(--paper); font-size: 12px; font-weight: 800; letter-spacing: .02em; }

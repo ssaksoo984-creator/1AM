@@ -167,6 +167,13 @@ Home · About · **Slim HYBRID**(상품 페이지) · How to Order · FAQ · Ter
 - 약관 동의 체크박스도 필수 + Terms · Shipping · Return Policy 링크 ("Set up 1AM pages" 실행 시 설정).
 - 정책 페이지: Terms & Conditions(일반 약관 + Vaping Product Compliance) · Return Policy · Shipping Policy · Privacy Policy(PIPEDA). Pages 화면 **Replace policy pages with the full 1AM text** 로 전체 글 적용. 모두 편집기 · Elementor 에서 수정 가능.
 
+## 카드 결제 (Moneris)
+
+- 사용자 정의하기 > 1AM Settings > General: **사업자 주소 · 고객센터 전화**(카드사 필수), **결제 수단**(기본 Visa · Mastercard · American Express · Interac e-Transfer), **카드 결제사**(기본 Moneris). 푸터 · 약관 · 개인정보 · 결제 화면에 함께 표시.
+- 약관: 결제(CAD, Moneris 보안 결제, 카드번호 미보관, PCI DSS, SSL), 주문 변경 · 취소, 환불(원래 카드로 5–10영업일), 결제 분쟁 전 연락 / 반품 · 배송 · 개인정보에 회사 연락처.
+- 결제 · 장바구니 화면 아래와 상품 페이지에 "Secure payment by Moneris · CAD" + 카드 종류.
+- Moneris 연결: Moneris 에서 받은 WooCommerce 플러그인 설치 → Store ID · API Token 입력 → 테스트 모드로 주문 확인 → 실서비스. 플러그인이 블록 결제 화면을 지원하지 않으면 결제 페이지를 클래식(`[woocommerce_checkout]`)으로 바꾸면 됩니다 — 필수 확인 체크박스는 두 화면 모두 동작.
+
 ## 맛 분류
 
 Fruit Ice / Mint / Classic Ice 3가지. 맛 설명은 특징 4가지 (예: Rich red grape · Juicy & sweet · Icy cooling · Classic refreshment). WooCommerce 에 예전 기본 설명이 그대로 있으면 자동으로 새 설명이 보입니다.

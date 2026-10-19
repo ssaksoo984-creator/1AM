@@ -140,7 +140,8 @@ $oneam_lines = function ( $key ) {
 			<ul class="spdp__facts">
 				<li><?php echo oneam_icon( 'truck' ); // phpcs:ignore ?> Ships in 1–5 business days · Purolator, UPS, Canpar</li>
 				<li><?php echo oneam_icon( 'check' ); // phpcs:ignore ?> Provincial excise stamps for <?php echo esc_html( $oneam_pp ? implode( ', ', array_keys( $oneam_pp ) ) : 'your province' ); ?></li>
-				<li><?php echo oneam_icon( 'card' ); // phpcs:ignore ?> Prices before GST · All sales final</li>
+				<li><?php echo oneam_icon( 'card' ); // phpcs:ignore ?> <?php echo esc_html( oneam_opt( 'oneam_payments' ) ); ?> · Prices in CAD before GST</li>
+				<li><?php echo oneam_icon( 'check' ); // phpcs:ignore ?> Secure payment<?php echo oneam_opt( 'oneam_processor' ) ? ' by ' . esc_html( oneam_opt( 'oneam_processor' ) ) : ''; ?> · All sales final</li>
 			</ul>
 
 			<p class="spdp__warning"><?php echo esc_html( oneam_opt( 'oneam_topbar' ) ); ?></p>

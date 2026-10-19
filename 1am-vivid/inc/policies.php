@@ -11,6 +11,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/** 회사 연락처 (카드사 요구: 상호 · 주소 · 이메일 · 전화) */
+function oneam_policy_contact() {
+	$lines = array( '<strong>' . esc_html( oneam_opt( 'oneam_company' ) ) . '</strong>' );
+	if ( oneam_opt( 'oneam_address' ) ) {
+		$lines[] = nl2br( esc_html( trim( oneam_opt( 'oneam_address' ) ) ) );
+	}
+	$email   = esc_html( oneam_opt( 'oneam_email' ) );
+	$lines[] = 'Email: <a href="mailto:' . $email . '">' . $email . '</a>';
+	if ( oneam_opt( 'oneam_phone' ) ) {
+		$lines[] = 'Phone: ' . esc_html( oneam_opt( 'oneam_phone' ) );
+	}
+	return implode( '<br>', $lines );
+}
+
 function oneam_policy_vars() {
 	$email = esc_html( oneam_opt( 'oneam_email' ) );
 	return array(
@@ -21,6 +35,9 @@ function oneam_policy_vars() {
 		'ship'    => '<a href="' . esc_url( home_url( '/shipping-policy/' ) ) . '">Shipping Policy</a>',
 		'privacy' => '<a href="' . esc_url( home_url( '/privacy-policy/' ) ) . '">Privacy Policy</a>',
 		'updated' => esc_html( wp_date( 'F j, Y' ) ),
+		'proc'    => esc_html( oneam_opt( 'oneam_processor' ) ?: 'our payment processor' ),
+		'pay'     => esc_html( oneam_opt( 'oneam_payments' ) ),
+		'contact' => oneam_policy_contact(),
 	);
 }
 
@@ -77,8 +94,22 @@ function oneam_policy_terms() {
 		. oneam_b_h( 'Payment' )
 		. oneam_ps(
 			array(
-				'We accept the payment methods shown at checkout. Orders paid by Interac e-Transfer or bank transfer are processed once payment is received; unpaid orders may be cancelled after 3 business days.',
+				"We accept {$v['pay']}. All transactions are in Canadian dollars (CAD).",
+				"Card payments are processed securely by {$v['proc']}. Your card is charged when you place your order. We never see or store your full card number; card details are encrypted and handled by {$v['proc']} in line with payment card industry (PCI DSS) security standards. This website uses an encrypted (SSL/TLS) connection.",
+				'Orders paid by Interac e-Transfer or bank transfer are processed once payment is received. Unpaid orders may be cancelled after 3 business days.',
 				'Title to products passes to you when payment is received in full.',
+			)
+		)
+		. oneam_b_h( 'Order changes and cancellations' )
+		. oneam_ps(
+			array(
+				"To change or cancel an order, contact us as soon as possible at {$v['mail']}. Orders can be cancelled only before they are processed for shipping. If a paid order is cancelled, the amount is refunded to the original payment method.",
+			)
+		)
+		. oneam_b_h( 'Refunds and payment disputes' )
+		. oneam_ps(
+			array(
+				"Approved refunds are issued to the original payment method — card refunds go back to the same card — usually within 5–10 business days, depending on your card issuer. Before disputing a charge with your card issuer, please contact us so we can resolve the issue quickly. See our {$v['returns']}.",
 			)
 		)
 		. oneam_b_h( 'Shipping and delivery' )
@@ -123,9 +154,10 @@ function oneam_policy_terms() {
 			array(
 				'We may update these terms at any time. The version posted on this website when you place an order applies to that order.',
 				'These terms are governed by the laws of the Province of British Columbia and the federal laws of Canada that apply there.',
-				"Questions? Contact {$v['co']} at {$v['mail']}.",
+				'Questions? Contact us:',
 			)
-		);
+		)
+		. oneam_b_p( $v['contact'] );
 }
 
 /* ---------------------------------------------------------------------------
@@ -165,7 +197,7 @@ function oneam_policy_returns() {
 		)
 		. oneam_ps(
 			array(
-				'Approved claims are resolved by replacement, store credit or refund to the original payment method, at our discretion.',
+				'Approved claims are resolved by replacement, store credit or refund, at our discretion. Refunds are issued to the original payment method — card refunds go back to the same card, usually within 5–10 business days depending on your card issuer.',
 			)
 		)
 		. oneam_b_h( 'Not eligible' )
@@ -182,7 +214,9 @@ function oneam_policy_returns() {
 			array(
 				'If a product is subject to a recall or other safety-related corrective action, we will contact affected retailers with instructions. Stop selling the affected products immediately and follow those instructions.',
 			)
-		);
+		)
+		. oneam_b_h( 'Contact' )
+		. oneam_b_p( $v['contact'] );
 }
 
 /* ---------------------------------------------------------------------------
@@ -222,7 +256,9 @@ function oneam_policy_shipping() {
 				"You will receive tracking details by email once your order ships. Risk of loss passes to you when the order is delivered. Please inspect deliveries on arrival and report damage within 3 business days — see our {$v['returns']}.",
 				"If a parcel is delayed or lost in transit, contact us at {$v['mail']} and we will work with the carrier to resolve it.",
 			)
-		);
+		)
+		. oneam_b_h( 'Contact' )
+		. oneam_b_p( $v['contact'] );
 }
 
 /* ---------------------------------------------------------------------------
@@ -257,7 +293,8 @@ function oneam_policy_privacy() {
 		. oneam_b_h( 'Sharing' )
 		. oneam_ps(
 			array(
-				'We share information only as needed with service providers who help us run our business — for example, payment processors, shipping carriers, website hosting and email services — and with government authorities where required by law.',
+				"We share information only as needed with service providers who help us run our business — for example, our payment processor ({$v['proc']}), shipping carriers, website hosting and email services — and with government authorities where required by law.",
+				"Card payments are processed by {$v['proc']}. Card numbers are entered into {$v['proc']}’s secure payment form and are not stored on our website or servers.",
 			)
 		)
 		. oneam_b_h( 'Storage, security and retention' )
@@ -271,7 +308,8 @@ function oneam_policy_privacy() {
 			array(
 				"You may request access to or correction of your personal information, or withdraw consent where applicable (which may limit our ability to serve your account). Contact our privacy contact at {$v['mail']}.",
 			)
-		);
+		)
+		. oneam_b_p( $v['contact'] );
 }
 
 /* ---------------------------------------------------------------------------

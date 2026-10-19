@@ -344,3 +344,27 @@ function oneam_regions_html( $regions, $product = null ) {
 	}
 	return $out . '</ul>';
 }
+
+/* ---------------------------------------------------------------------------
+ * 결제 수단 표시 (카드사 · Moneris 요구: 사용 가능한 카드 · 통화 · 보안 결제 안내)
+ * ------------------------------------------------------------------------- */
+function oneam_payment_badges() {
+	$methods = array_filter( array_map( 'trim', explode( '·', (string) oneam_opt( 'oneam_payments' ) ) ) );
+	$out     = '<div class="paybadges"><p class="paybadges__title">' . oneam_icon( 'check' ) . ' Secure payment' . ( oneam_opt( 'oneam_processor' ) ? ' by ' . esc_html( oneam_opt( 'oneam_processor' ) ) : '' ) . ' · CAD</p><ul>';
+	foreach ( $methods as $m ) {
+		$out .= '<li>' . esc_html( $m ) . '</li>';
+	}
+	return $out . '</ul></div>';
+}
+// 블록 결제 · 장바구니 화면
+add_filter(
+	'render_block',
+	function ( $html, $block ) {
+		// 결제 블록 안쪽은 우커머스 스크립트가 다시 그리므로, 결제 · 장바구니 화면 전체 아래에 표시
+		return in_array( $block['blockName'] ?? '', array( 'woocommerce/checkout', 'woocommerce/cart' ), true ) ? $html . oneam_payment_badges() : $html;
+	},
+	10,
+	2
+);
+// 클래식 결제 화면
+add_action( 'woocommerce_review_order_after_payment', function () { echo oneam_payment_badges(); } ); // phpcs:ignore
