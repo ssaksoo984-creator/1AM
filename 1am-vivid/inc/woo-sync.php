@@ -286,22 +286,8 @@ add_action(
 		if ( ! function_exists( 'is_product' ) || ! is_product() ) {
 			return;
 		}
-		// 비회원·승인 대기: 장바구니 대신 가입/로그인 안내
-		if ( 'approved' !== oneam_member_state() ) {
-			remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30 );
-			add_action(
-				'woocommerce_single_product_summary',
-				function () {
-					echo '<div class="pdp-gate"><p>Wholesale pricing is visible to approved retailers.</p>';
-					oneam_member_cta();
-					if ( 'guest' === oneam_member_state() ) {
-						printf( ' <a class="link-arrow" href="%s">Log in <span>&rarr;</span></a>', esc_url( oneam_login_url() ) );
-					}
-					echo '</div>';
-				},
-				30
-			);
-		}
+		// 상세 정보는 woocommerce/content-single-product.php 에서 직접 출력 (가격·장바구니는 승인 회원만)
+		remove_action( 'woocommerce_before_main_content', 'woocommerce_breadcrumb', 20 );
 	}
 );
 

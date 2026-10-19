@@ -109,7 +109,7 @@
 	var lastY = 0;
 	function onScrollHeader(y) {
 		if (!header || body.classList.contains('nav-open')) return;
-		header.classList.toggle('is-hidden', y > lastY && y > 200);
+		header.classList.toggle('is-scrolled', y > 10); // 메뉴는 항상 위에 고정
 		lastY = y;
 	}
 	if (lenis) lenis.on('scroll', function (l) { onScrollHeader(l.scroll); });
@@ -331,8 +331,8 @@
 		function go(y) {
 			busy = true;
 			var done = function () { busy = false; };
-			if (lenis) lenis.scrollTo(y, { duration: 1, easing: function (t) { return 1 - Math.pow(1 - t, 3); }, lock: true, force: true, onComplete: done });
-			else { window.scrollTo({ top: y, behavior: 'smooth' }); setTimeout(done, 1000); }
+			if (lenis) lenis.scrollTo(y, { duration: .75, easing: function (t) { return 1 - Math.pow(1 - t, 3); }, lock: true, force: true, onComplete: done });
+			else { window.scrollTo({ top: y, behavior: 'smooth' }); setTimeout(done, 750); }
 		}
 		window.addEventListener('wheel', function (e) {
 			if (body.classList.contains('is-locked') || body.classList.contains('nav-open')) return;
@@ -340,7 +340,7 @@
 			if (!dir) return;
 			var y = window.scrollY;
 			clearTimeout(quiet);
-			quiet = setTimeout(function () { held = false; }, 200);
+			quiet = setTimeout(function () { held = false; }, 160);
 			// 아래로: 마지막 지점 전까지 / 위로: 마지막 섹션(디바이스) 안에서부터
 			var inside = dir > 0 ? (y < last() - 4) : (y > first() + 4 && y <= last() + window.innerHeight * .9);
 			if (!(busy || held || inside)) return;
@@ -538,13 +538,13 @@
 		gsap.set(clones, { opacity: 0 });
 		gsap.set(blooms, { scale: 0, opacity: 0 });
 		gsap.set($$('.about__intro > *', row), { y: 40, opacity: 0 });
-		gsap.timeline({ paused: true, scrollTrigger: { trigger: row, start: 'top 45%', once: true, onEnter: function (self) { self.animation.play(); } } })
-			.to(track, { y: 0, opacity: 1, duration: 1, ease: 'power3.out' }, 0)
-			.fromTo(st, { gap: function () { return tight(); } }, { gap: function () { return loose(); }, duration: 1.1, ease: 'power3.inOut' }, .85)
-			.to(blooms, { scale: 1, opacity: .95, duration: 1, ease: 'back.out(2.4)', stagger: { each: .07, from: 'random' } }, 1)
-			.to(clones, { opacity: 1, duration: .5 }, 1.6)
-			.to($$('.about__intro > *', row), { y: 0, opacity: 1, duration: .7, stagger: .08, ease: 'power2.out' }, 1.4)
-			.add(function () { st.run = true; gsap.to(st, { speed: 42, duration: 1.2 }); }, 1.9);
+		gsap.timeline({ paused: true, scrollTrigger: { trigger: row, start: 'top 70%', once: true, onEnter: function (self) { self.animation.play(); } } })
+			.to(track, { y: 0, opacity: 1, duration: .7, ease: 'power3.out' }, 0)
+			.fromTo(st, { gap: function () { return tight(); } }, { gap: function () { return loose(); }, duration: .8, ease: 'power3.inOut' }, .5)
+			.to(blooms, { scale: 1, opacity: .95, duration: .8, ease: 'back.out(2.4)', stagger: { each: .04, from: 'random' } }, .6)
+			.to(clones, { opacity: 1, duration: .4 }, 1)
+			.to($$('.about__intro > *', row), { y: 0, opacity: 1, duration: .6, stagger: .06, ease: 'power2.out' }, .8)
+			.add(function () { st.run = true; gsap.to(st, { speed: 42, duration: 1 }); }, 1.2);
 
 		// 호버하면 멈춤 (맛 이름은 CSS 로 표시)
 		viewport.addEventListener('pointerenter', function () { gsap.to(st, { speed: 0, duration: .5, overwrite: 'auto' }); });

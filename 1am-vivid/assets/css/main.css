@@ -1777,3 +1777,13 @@ body.nav-open .nav-toggle i:last-child { transform: translateY(-3.5px) rotate(-4
 @media (max-width: 1100px) { .orderinfo__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .steps__list { grid-template-columns: repeat(min(var(--n, 3), 2), minmax(0, 1fr)); } }
 @media (max-width: 800px) { .steps__list { grid-template-columns: 1fr; } }
 @media (max-width: 560px) { .orderinfo__grid { grid-template-columns: 1fr; } }
+
+/* 메뉴는 항상 위에 고정 (스크롤해도 숨지 않음) */
+.site-header { transition: box-shadow .3s, background .3s; }
+.site-header.is-scrolled { box-shadow: 0 6px 24px rgba(20, 12, 24, .06); }
+
+/* 모바일 · 태블릿: 손가락 스크롤에도 섹션마다 부드럽게 멈춤 (브라우저 기본 스냅) */
+@media (hover: none) and (pointer: coarse) {
+	html { scroll-snap-type: y proximity; }
+	.film, .row, .pitem, #device { scroll-snap-align: start; scroll-snap-stop: normal; }
+}

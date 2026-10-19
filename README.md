@@ -37,7 +37,7 @@ tools/              ← 미리보기 생성 스크립트
 
 **영상 넣기**: `1am-vivid/assets/video/brand.mp4` (+ `brand.jpg`) 에 넣으면 자동 사용. 운영 시에는 사용자 정의하기 > 1AM Settings > Home video 에서 업로드.
 
-**로그인하면 헤더**에 내 계정 · 장바구니(개수) · 로그아웃 아이콘.
+**헤더는 항상 위에 고정**. **로그인하면 헤더**에 내 계정 · 장바구니(개수) · 로그아웃 아이콘.
 
 **회원 상태별 버튼**: 비회원 → `Apply for wholesale` / 승인 대기 → `Application under review` / 승인 완료 → `Shop wholesale`.
 승인 판단: 사용자 메타 `oneam_wholesale_status = approved` 또는 `wholesale_customer` 역할. 가입 승인 플러그인을 쓰면 `oneam_member_state` 필터로 연결합니다.
@@ -59,7 +59,7 @@ tools/              ← 미리보기 생성 스크립트
 | 옵션이 아닌 속성 (예: E-liquid: 2ml) | 라인업·상품 페이지의 스펙 |
 | 옵션 상품의 **옵션(맛)** — 이름·사진·설명 + **1AM colour** | 메인 15개 라인업 애니메이션, 상품 페이지 맛 슬라이더·맛 목록 |
 
-- **상품 페이지는 공개**: 맛 슬라이더 → 상품 정보 → 맛 목록 → 가입 유도. 가격·장바구니 버튼은 승인 회원에게만 보이고, 비회원에게는 가입/로그인 버튼이 나옵니다.
+- **상품 페이지는 공개** (예전 slim-hybrid.html 과 같은 구성): 맛 슬라이더 → 상품 정보·스펙 → 맛 목록(Fruit Ice / Mint / Classic Ice 필터) → Stock 1AM. `woocommerce/content-single-product.php` 가 우커머스 기본 상세 화면을 대신합니다. 가격·장바구니 버튼은 승인 회원에게만 보이고, 비회원에게는 가입/로그인 버튼이 나옵니다.
 - **상점 목록·장바구니·결제는 비공개** (승인 회원만).
 - 출시 예정 상품은 Published + Catalog visibility "Hidden" + Coming soon 체크 → 라인업에만 나오고 상점 목록엔 안 나옵니다.
 - WooCommerce 에 상품이 하나도 없으면 테마 기본 데이터(맛 15개, 상품 3종)가 대신 보입니다.
