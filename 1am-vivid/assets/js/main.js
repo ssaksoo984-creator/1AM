@@ -290,56 +290,65 @@
 			if (img) gsap.from(img, { y: 120, opacity: 0, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: card, start: 'top 80%', once: true } });
 			gsap.from($$('.pitem__text > *', card), { y: 30, opacity: 0, duration: .8, stagger: .06, ease: 'expo.out', scrollTrigger: { trigger: card, start: 'top 75%', once: true } });
 		});
-		snapCards(cards);
 	}
 
-	// 카드 구간에서는 스크롤 한 번(트랙패드 관성 포함) = 카드 한 장, 그리고 멈춤
-	function snapCards(cards) {
-		if (cards.length < 2 || !finePointer) return; // 터치 기기는 기본 스크롤
+	// 섹션 스냅: 섹션이 화면을 채우면 멈추고(그동안 애니메이션 재생), 스크롤 한 번(트랙패드 관성 포함) = 한 칸
+	// 영상 → 맛 라인업 → 상품 제목 → 상품 카드들 → 디바이스 까지. 그 아래는 보통 스크롤.
+	function snapSections() {
+		if (!finePointer || reduce) return; // 터치 기기는 기본 스크롤
 		var points = [];
+		function docTop(el) { return el.getBoundingClientRect().top + window.scrollY; }
 		function measure() {
-			var wrap = cards[0].parentNode;
-			var gap = parseFloat(getComputedStyle(wrap).rowGap) || 0;
-			var y = wrap.getBoundingClientRect().top + window.scrollY;
-			points = cards.map(function (c) {
-				var at = y - (parseFloat(getComputedStyle(c).top) || 0);
-				y += c.offsetHeight + gap;
-				return Math.round(at);
-			});
+			var pts = [];
+			pts.push(0); // 맨 위 (경고 바 포함)
+			$$('.film, .row, .plist, #device').forEach(function (el) { var t = Math.round(docTop(el)); if (t > 120) pts.push(t); });
+			var cards = $$('.pitem');
+			if (cards.length) {
+				var wrap = cards[0].parentNode;
+				var gap = parseFloat(getComputedStyle(wrap).rowGap) || 0;
+				var y = docTop(wrap);
+				cards.forEach(function (c) {
+					pts.push(Math.round(y - (parseFloat(getComputedStyle(c).top) || 0)));
+					y += c.offsetHeight + gap;
+				});
+			}
+			points = pts.sort(function (a, b) { return a - b; }).filter(function (v, i, arr) { return !i || v - arr[i - 1] > 40; });
 		}
 		measure();
+		if (points.length < 2) return;
 		window.addEventListener('resize', measure);
 		ST.addEventListener('refresh', measure);
 
 		var busy = false, held = false, quiet = null;
-		var first = function () { return points[0]; };
-		var last = function () { return points[points.length - 1]; };
+		function first() { return points[0]; }
+		function last() { return points[points.length - 1]; }
 		function target(dir) {
-			var y = window.scrollY;
-			if (dir > 0) { for (var i = 0; i < points.length; i++) if (points[i] > y + 4) return points[i]; }
-			else { for (var j = points.length - 1; j >= 0; j--) if (points[j] < y - 4) return points[j]; }
+			var y = window.scrollY, i;
+			if (dir > 0) { for (i = 0; i < points.length; i++) if (points[i] > y + 4) return points[i]; }
+			else { for (i = points.length - 1; i >= 0; i--) if (points[i] < y - 4) return points[i]; }
 			return null;
 		}
 		function go(y) {
 			busy = true;
 			var done = function () { busy = false; };
-			if (lenis) lenis.scrollTo(y, { duration: .9, easing: function (t) { return 1 - Math.pow(1 - t, 3); }, lock: true, force: true, onComplete: done });
-			else { window.scrollTo({ top: y, behavior: 'smooth' }); setTimeout(done, 900); }
+			if (lenis) lenis.scrollTo(y, { duration: 1, easing: function (t) { return 1 - Math.pow(1 - t, 3); }, lock: true, force: true, onComplete: done });
+			else { window.scrollTo({ top: y, behavior: 'smooth' }); setTimeout(done, 1000); }
 		}
 		window.addEventListener('wheel', function (e) {
+			if (body.classList.contains('is-locked') || body.classList.contains('nav-open')) return;
 			var dir = e.deltaY > 0 ? 1 : (e.deltaY < 0 ? -1 : 0);
 			if (!dir) return;
 			var y = window.scrollY;
-			// 같은 제스처(관성 포함)가 끝날 때까지 추가 스크롤 무시
 			clearTimeout(quiet);
 			quiet = setTimeout(function () { held = false; }, 200);
-			var inside = dir > 0 ? (y >= first() - 4 && y < last() - 4) : (y > first() + 4 && y <= last() + 4);
+			// 아래로: 마지막 지점 전까지 / 위로: 마지막 섹션(디바이스) 안에서부터
+			var inside = dir > 0 ? (y < last() - 4) : (y > first() + 4 && y <= last() + window.innerHeight * .9);
 			if (!(busy || held || inside)) return;
 			e.preventDefault();
 			e.stopImmediatePropagation();
 			if (busy || held) return;
 			var to = target(dir);
-			if (to === null || to < first() - 4 || to > last() + 4) return;
+			if (to === null) return;
 			held = true;
 			go(to);
 		}, { passive: false, capture: true });
@@ -403,7 +412,7 @@
 		var root = $('#device');
 		if (!root) return;
 		var imgs = $$('.device__stack img', root);
-		gsap.timeline({ scrollTrigger: { trigger: root, start: 'top 65%', once: true } })
+		gsap.timeline({ scrollTrigger: { trigger: root, start: 'top 40%', once: true } })
 			.from($$('.device__title .line > span', root), { yPercent: 110, stagger: .1, duration: .9, ease: 'expo.out' }, 0)
 			.from($('.device__stack', root), { scale: .6, rotate: -25, y: 120, opacity: 0, duration: 1.2, ease: 'expo.out' }, .1)
 			.from($$('.callout', root), { opacity: 0, x: function (i) { return i % 2 ? 50 : -50; }, stagger: .12, duration: .8, ease: 'expo.out' }, .4);
@@ -522,36 +531,20 @@
 			layout();
 		});
 
-		// 1) 영상에서 스크롤하면 일자로 선 채로 위에서 내려옴
-		gsap.fromTo(track, { y: function () { return -window.innerHeight * .85; } }, {
-			y: 0, ease: 'none',
-			scrollTrigger: { trigger: row, start: 'top bottom', end: 'top top', scrub: true, invalidateOnRefresh: true }
-		});
-
-		// 3) 파스텔 원이 퐁퐁 꽃처럼 피어남
+		// 화면에 들어와 멈추면 한 번 재생: 일자로 선 채 내려옴 → 쫙 펼쳐짐 → 파스텔 원 → 소개 글 → 왼쪽으로 흐름
+		// (스크롤 위치에 묶지 않아서 위로 올라가도 되감기지 않음)
 		var blooms = $$('.bloom', row);
-		var bloomTl = gsap.timeline({ paused: true })
-			.fromTo(blooms, { scale: 0, opacity: 0 }, { scale: 1, opacity: .95, duration: 1, ease: 'back.out(2.4)', stagger: { each: .09, from: 'random' } });
-
-		// 2) 멈춘 상태에서 쫙 펼쳐지고 → 소개 글 등장 → 이후 계속 왼쪽으로 흐름
-		var tl = gsap.timeline({
-			scrollTrigger: {
-				trigger: row, start: 'top top', end: '+=110%', pin: true, scrub: .5, invalidateOnRefresh: true,
-				onUpdate: function (s) {
-					// 파스텔 원: 펼쳐지기 시작하면 피어남
-					if (s.progress > .12 && !st.bloomed) { st.bloomed = true; bloomTl.play(); }
-					else if (s.progress < .05 && st.bloomed) { st.bloomed = false; bloomTl.reverse(); }
-					var go = s.progress > .55;
-					if (go !== st.run) {
-						st.run = go;
-						gsap.to(st, { speed: go ? 42 : 0, duration: 1.2, overwrite: 'auto' });
-					}
-				}
-			}
-		});
-		tl.fromTo(st, { gap: function () { return tight(); } }, { gap: function () { return loose(); }, duration: 1, ease: 'power3.inOut', immediateRender: false }, 0)
-			.fromTo(clones, { opacity: 0 }, { opacity: 1, duration: .3 }, .8)
-			.fromTo('.about__intro > *', { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: .5, stagger: .08, ease: 'power2.out' }, .7);
+		gsap.set(track, { y: function () { return -window.innerHeight * .7; }, opacity: 0 });
+		gsap.set(clones, { opacity: 0 });
+		gsap.set(blooms, { scale: 0, opacity: 0 });
+		gsap.set($$('.about__intro > *', row), { y: 40, opacity: 0 });
+		gsap.timeline({ paused: true, scrollTrigger: { trigger: row, start: 'top 45%', once: true, onEnter: function (self) { self.animation.play(); } } })
+			.to(track, { y: 0, opacity: 1, duration: 1, ease: 'power3.out' }, 0)
+			.fromTo(st, { gap: function () { return tight(); } }, { gap: function () { return loose(); }, duration: 1.1, ease: 'power3.inOut' }, .85)
+			.to(blooms, { scale: 1, opacity: .95, duration: 1, ease: 'back.out(2.4)', stagger: { each: .07, from: 'random' } }, 1)
+			.to(clones, { opacity: 1, duration: .5 }, 1.6)
+			.to($$('.about__intro > *', row), { y: 0, opacity: 1, duration: .7, stagger: .08, ease: 'power2.out' }, 1.4)
+			.add(function () { st.run = true; gsap.to(st, { speed: 42, duration: 1.2 }); }, 1.9);
 
 		// 호버하면 멈춤 (맛 이름은 CSS 로 표시)
 		viewport.addEventListener('pointerenter', function () { gsap.to(st, { speed: 0, duration: .5, overwrite: 'auto' }); });
@@ -591,6 +584,7 @@
 		film();
 		about();
 		lineup();
+		snapSections();
 		flavors();
 		device();
 		blocks();
