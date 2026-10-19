@@ -23,7 +23,7 @@ tools/              ← 미리보기 생성 스크립트
 | – | 상단 고정 경고문 + 흰색 블러 헤더 | Products(드롭다운) · About · How to Order · FAQ · Log in · Apply for wholesale |
 | 1 | 영상 (첫 화면) | 전체 화면 영상 + 은은한 어두운 톤 + 하단 한 줄 흰 글씨 + 소리 버튼 + 도매 신청 버튼 |
 | 2 | 라인업 + About | 화면에 멈추면 한 번 재생: 일자로 내려와 → 쫙 펼쳐지고 → 파스텔 원 → 소개 문구 → 왼쪽으로 계속 흐름(호버하면 멈추고 맛 이름). 위로 올라가도 되감기지 않음 |
-| 3 | 상품 3종 (세로 카드) | 스크롤 한 번 = 카드 한 장씩 쌓이고 멈춤 (트랙패드 관성도 한 번으로 처리) |
+| 3 | 상품 3종 (풀스크린 01/02/03) | 화면 높이에 맞춘 패널. 스크롤 한 번 = 한 장씩 위로 덮으며 멈춤 |
 | 4 | Slim outside. Loud inside. | 디바이스 + 스펙 (화면에 보이는 동안 맛이 저절로 바뀜, 스크롤 고정 없음) |
 | 5 | Stock 1AM. | 도매 가입 유도 — "1AM" 은 로고로 표시 |
 
@@ -33,7 +33,7 @@ tools/              ← 미리보기 생성 스크립트
 - **How to Order**: 3단계 절차 → 본문 → FAQ 미리보기 → 가입 유도
 - **FAQ**: 세부 정보(Details) 블록 아코디언
 
-**섹션 스냅 (데스크톱)**: 영상 → 라인업 → 상품 제목 → 상품 카드 1·2·3 → 디바이스 까지는 스크롤 한 번(트랙패드 관성 포함)에 한 칸씩 이동하고 멈춤. 그 아래는 보통 스크롤. 모바일은 기본 스크롤.
+**섹션 스냅 (데스크톱)**: 영상 → 라인업 → 상품 01·02·03 → 디바이스 까지는 스크롤 한 번(트랙패드 관성 포함)에 한 칸씩 이동하고 멈춤. 그 아래는 보통 스크롤. 모바일은 기본 스크롤.
 
 **영상 넣기**: `1am-vivid/assets/video/brand.mp4` (+ `brand.jpg`) 에 넣으면 자동 사용. 운영 시에는 사용자 정의하기 > 1AM Settings > Home video 에서 업로드.
 
@@ -102,7 +102,7 @@ Elementor 가 설치돼 있으면 테마의 모든 섹션이 **Elementor 위젯*
 | 페이지 | 슬러그 | 템플릿 |
 |---|---|---|
 | About | `about-us` | 자동으로 1AM About 레이아웃 (소개+숫자 → What we make → Why stock 1AM 4가지 → 신청 카드 · 이메일 카드). Elementor 위젯으로도 있음 |
-| How to Order | `how-to-order` | How to Order (구매 절차) |
+| How to Order | `how-to-order` | 자동으로 1AM 레이아웃: 4단계(Apply → Get verified → Order online → Pay & ship) → 정보 카드 4개(주문 전 확인 · 결제 · 배송 · 문의) → FAQ → 가입 유도 |
 | FAQ | `faq` | 기본 — 질문마다 **세부 정보(Details)** 블록 사용 |
 | Wholesale Sign up | `wholesale-signup` | 기본 — 소개 문구만 쓰면 아래에 가입 폼이 자동으로 붙음 |
 | Terms / Privacy / Shipping & Returns | `terms` · `privacy-policy` · `shipping-returns` | 기본 |

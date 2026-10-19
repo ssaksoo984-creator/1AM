@@ -128,10 +128,9 @@ function oneam_elementor_widgets() {
 			'title'    => 'Product line-up',
 			'icon'     => 'eicon-posts-carousel',
 			'part'     => 'lineup',
-			'note'     => 'Stacked product cards. Scrolling moves one card at a time.',
+			'note'     => 'Full-screen product panels (01 / 02 / 03). Scrolling moves one panel at a time.',
 			'controls' => array(
 				'eyebrow' => array( 'label' => 'Small label', 'type' => 'text', 'default' => 'Product lineup' ),
-				'title'   => array( 'label' => 'Title', 'type' => 'textarea', 'default' => "Three lines,\n*one standard.*", 'description' => 'One line per row. ' . $italic ),
 				'items'   => array(
 					'label'       => 'Products',
 					'description' => 'Starts with your current WooCommerce products. Edit, reorder, delete or add cards here.',
@@ -152,9 +151,7 @@ function oneam_elementor_widgets() {
 			),
 			'style'    => array(
 				array( 'bg', 'Background colour', 'color', '.plist', 'background-color' ),
-				array( 'title_color', 'Title colour', 'color', '.plist__head .section-title', 'color' ),
-				array( 'title_font', 'Title font', 'typography', '.plist__head .section-title' ),
-				array( 'name_font', 'Product name font', 'typography', '.pitem__name' ),
+												array( 'name_font', 'Product name font', 'typography', '.pitem__name' ),
 				array( 'card_color', 'Card text colour', 'color', '.pitem', 'color' ),
 				array( 'radius', 'Card corner radius', 'slider_px', '.pitem', 'border-radius' ),
 			),
@@ -261,7 +258,7 @@ function oneam_elementor_widgets() {
 			'part'     => 'steps',
 			'controls' => array(
 				'eyebrow' => array( 'label' => 'Small label', 'type' => 'text', 'default' => 'How to order' ),
-				'title'   => array( 'label' => 'Title', 'type' => 'textarea', 'default' => "Three steps\n*to your first* order", 'description' => 'One line per row. ' . $italic ),
+				'title'   => array( 'label' => 'Title', 'type' => 'textarea', 'default' => "Four steps\n*to your first* order", 'description' => 'One line per row. ' . $italic ),
 				'items'   => array(
 					'label'   => 'Steps',
 					'type'    => 'repeater',
@@ -270,9 +267,10 @@ function oneam_elementor_widgets() {
 						'text'  => array( 'label' => 'Text', 'type' => 'textarea' ),
 					),
 					'default' => array(
-						array( 'title' => 'Apply', 'text' => 'Submit the wholesale application with your business documents (business registration and retail licence).' ),
-						array( 'title' => 'Get approved', 'text' => 'Our team reviews your documents and emails you once your account is approved.' ),
-						array( 'title' => 'Order', 'text' => 'Log in to the private shop, see wholesale pricing and place your order.' ),
+						array( 'title' => 'Apply', 'text' => 'Submit the retail account application with your business information and documents confirming an authorized adult-only vape store.' ),
+						array( 'title' => 'Get verified', 'text' => 'Our team reviews your application, usually within 1–2 business days, and emails you once your account is approved.' ),
+						array( 'title' => 'Order online', 'text' => 'Log in to see wholesale pricing. Choose products with the correct excise stamps for your province and confirm compliance at checkout.' ),
+						array( 'title' => 'Pay & ship', 'text' => 'Pay by Interac e-Transfer or card. Orders ship by Purolator, UPS or Canpar Ground, typically arriving in 1–5 business days.' ),
 					),
 				),
 			),
@@ -395,6 +393,30 @@ function oneam_elementor_widgets() {
 				array( 'c2', 'Apply card colour 2', 'color', '.work', '--c2' ),
 				array( 'mail_bg', 'Email card colour', 'color', '.work__card--mail', 'background-color' ),
 				array( 'title_font', 'Title font', 'typography', '.work__head .section-title' ),
+			),
+		),
+		'orderinfo' => array(
+			'title'    => 'Ordering info cards',
+			'icon'     => 'eicon-info-box',
+			'part'     => 'orderinfo',
+			'controls' => array(
+				'eyebrow' => array( 'label' => 'Small label', 'type' => 'text', 'default' => 'Good to know' ),
+				'title'   => array( 'label' => 'Title', 'type' => 'textarea', 'default' => "Before you\n*place an order.*", 'description' => 'One line per row. ' . $italic ),
+				'items'   => array(
+					'label'   => 'Cards',
+					'type'    => 'repeater',
+					'fields'  => array(
+						'icon'  => array( 'label' => 'Icon (check, card, truck, mail)', 'type' => 'text' ),
+						'title' => array( 'label' => 'Title', 'type' => 'text' ),
+						'lines' => array( 'label' => 'Points (one per line)', 'type' => 'textarea' ),
+					),
+					'default' => oneam_orderinfo_defaults(),
+				),
+			),
+			'style'    => array(
+				array( 'bg', 'Background colour', 'color', '.orderinfo', 'background-color' ),
+				array( 'card_bg', 'Card colour', 'color', '.orderinfo__card', 'background-color' ),
+				array( 'title_font', 'Title font', 'typography', '.orderinfo .section-title' ),
 			),
 		),
 		'signup'   => array(

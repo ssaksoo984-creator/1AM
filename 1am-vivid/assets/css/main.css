@@ -1682,3 +1682,98 @@ body.nav-open .nav-toggle i:last-child { transform: translateY(-3.5px) rotate(-4
 	.make__visual { height: 36vh; }
 	.work__card { min-height: 0; }
 }
+
+/* ==========================================================================
+   v1.11 — 화면 높이에 맞춤 (노트북처럼 낮은 화면에서도 잘리지 않게)
+   ========================================================================== */
+/* 상품: 화면을 꽉 채우는 01 / 02 / 03 패널, 다음 패널이 위로 덮으며 쌓임 */
+.plist { padding: 0; }
+.plist__items { gap: 0; }
+.pitem {
+	top: 0;
+	height: 100vh;
+	height: 100svh;
+	min-height: 0;
+	border-radius: 0;
+	box-shadow: 0 -16px 40px rgba(20, 12, 24, .12);
+	padding: calc(var(--warn-h) + var(--head-h) + clamp(16px, 4svh, 48px)) var(--gutter) clamp(20px, 5svh, 56px);
+	align-items: center;
+}
+.pitem__label { position: absolute; left: var(--gutter); top: calc(var(--warn-h) + var(--head-h) + 14px); margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; opacity: .85; z-index: 2; }
+.pitem__visual { height: 100%; min-height: 0; }
+.pitem .pitem__img, .pitem .ghost, .elementor .pitem .pitem__img { height: min(62svh, 560px); }
+.pitem__num { top: 0; font-size: clamp(100px, min(18vw, 28svh), 280px); }
+.pitem__name { font-size: clamp(36px, min(6vw, 10svh), 96px); }
+.pitem__tag { font-size: clamp(20px, min(2.4vw, 4svh), 34px); }
+.pitem__desc { margin-top: clamp(10px, 2svh, 18px); }
+.pitem__specs { margin-top: clamp(12px, 2.4svh, 22px); }
+.pitem .btn { margin-top: clamp(14px, 3svh, 28px); }
+@media (max-width: 800px) {
+	.pitem { top: 0; grid-template-rows: minmax(0, 1fr) auto; gap: 12px; }
+	.pitem .pitem__img, .pitem .ghost, .elementor .pitem .pitem__img { height: 30svh; }
+	.pitem__desc, .pitem__specs { display: none; }
+}
+
+/* 디바이스: 정확히 한 화면 */
+.device__pin {
+	height: 100vh;
+	height: 100svh;
+	min-height: 0;
+	row-gap: clamp(8px, 2svh, 24px);
+	padding: calc(var(--warn-h) + var(--head-h) + clamp(12px, 3svh, 32px)) var(--gutter) clamp(16px, 3svh, 36px);
+}
+.device__title { font-size: clamp(28px, min(5vw, 8svh), 86px); }
+.device__stage { min-height: 0; }
+.device__ring { width: min(50svh, 80vw); }
+.device__stack { height: min(42svh, 440px); }
+.device__stack.is-custom { height: min(42svh, 440px); }
+.spec dd { font-size: clamp(28px, min(4.6vw, 7svh), 72px); }
+.specs { padding-top: clamp(10px, 1.6svh, 20px); }
+
+/* ==========================================================================
+   How to Order — 단계 수에 맞춘 칸 · 정보 카드
+   ========================================================================== */
+.steps__list { grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); }
+.order-intro { padding-bottom: 0; }
+.order-intro p { font-size: clamp(19px, 1.6vw, 24px); }
+
+.orderinfo { padding: clamp(90px, 11vw, 160px) var(--gutter); }
+.orderinfo__head { display: grid; gap: 14px; margin-bottom: clamp(32px, 5vw, 56px); }
+.orderinfo__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.orderinfo__card {
+	position: relative;
+	display: grid;
+	align-content: start;
+	gap: 14px;
+	padding: 28px 26px 30px;
+	border-radius: var(--radius);
+	background: var(--white);
+	overflow: hidden;
+	isolation: isolate;
+	transition: transform .6s var(--ease), color .4s;
+}
+.orderinfo__card::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background: linear-gradient(135deg, var(--c1), var(--c2));
+	clip-path: circle(0% at 34px 34px);
+	transition: clip-path .8s var(--ease);
+}
+.orderinfo__card:hover { transform: translateY(-6px); color: var(--white); }
+.orderinfo__card:hover::before { clip-path: circle(150% at 34px 34px); }
+.orderinfo__card:nth-child(4n+2) { --c1: #ff2e4d; --c2: #ffb321; }
+.orderinfo__card:nth-child(4n+3) { --c1: #00c2a8; --c2: #1e5bff; }
+.orderinfo__card:nth-child(4n+4) { --c1: #ffd60a; --c2: #ff8a4d; }
+.orderinfo__icon { display: grid; place-items: center; width: 56px; height: 56px; margin-bottom: 10px; border-radius: 18px; color: var(--white); background: linear-gradient(135deg, var(--c1), var(--c2)); transition: background .4s; }
+.orderinfo__card:hover .orderinfo__icon { background: rgba(255, 255, 255, .22); }
+.orderinfo__icon .icon { width: 28px; height: 28px; }
+.orderinfo__card h3 { margin: 0; font-size: clamp(22px, 1.9vw, 28px); line-height: 1; font-weight: 900; font-variation-settings: "wdth" 80; text-transform: uppercase; }
+.orderinfo__card ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.orderinfo__card li { position: relative; padding-left: 18px; font-size: 15px; line-height: 1.45; opacity: .85; overflow-wrap: anywhere; }
+.orderinfo__card li::before { content: ""; position: absolute; left: 0; top: .6em; width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: .5; }
+.orderinfo__card a { text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 1100px) { .orderinfo__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .steps__list { grid-template-columns: repeat(min(var(--n, 3), 2), minmax(0, 1fr)); } }
+@media (max-width: 800px) { .steps__list { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .orderinfo__grid { grid-template-columns: 1fr; } }

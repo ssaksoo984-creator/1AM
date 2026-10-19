@@ -120,6 +120,11 @@ function oneam_setup_pages() {
 			'template' => '',
 			'content'  => oneam_b_p( 'Answers for retailers. Can’t find what you need? Email us at ' . $mail . '.' ) . $faq,
 		),
+		'how-to-order'  => array(
+			'title'    => 'How to Order',
+			'template' => 'template-how-to-order.php',
+			'content'  => oneam_b_p( 'New to 1AM? Here is how to open a retail account and place your first wholesale order.' ),
+		),
 		'return-policy' => array(
 			'title'    => 'Return Policy',
 			'template' => '',
@@ -241,4 +246,48 @@ add_filter(
 		}
 		return $template;
 	}
+);
+
+/** How to Order 정보 카드 기본 내용 */
+function oneam_orderinfo_defaults() {
+	$email = oneam_opt( 'oneam_email' );
+	return array(
+		array(
+			'icon'  => 'check',
+			'title' => 'Before you order',
+			'lines' => "Choose products with the correct excise stamps for your retail sales jurisdiction.\nCheck product availability for your province or territory.\nMinimum order quantities may vary by product.\nConfirm Vaping Product Compliance at checkout.",
+		),
+		array(
+			'icon'  => 'card',
+			'title' => 'Payment',
+			'lines' => "Interac e-Transfer\nVisa, Mastercard and American Express\nWholesale pricing is shown after you log in.",
+		),
+		array(
+			'icon'  => 'truck',
+			'title' => 'Shipping',
+			'lines' => "Purolator Ground, UPS Ground or Canpar Ground\nEstimated delivery: 1–5 business days after shipping\nAll orders are final sale — see our Return Policy.",
+		),
+		array(
+			'icon'  => 'mail',
+			'title' => 'Need help?',
+			'lines' => "Unsure which excise stamp you need? Ask us before ordering.\nDamaged or incorrect items: send your order number and photos.\n{$email}",
+		),
+	);
+}
+
+/** How to Order 페이지도 템플릿을 고르지 않아도 1AM 레이아웃으로 */
+add_filter(
+	'template_include',
+	function ( $template ) {
+		if ( ! is_page() || oneam_is_builder_page() || oneam_is_builder_preview() || get_page_template_slug() ) {
+			return $template;
+		}
+		$order = trim( (string) wp_parse_url( oneam_opt( 'oneam_order_url' ), PHP_URL_PATH ), '/' );
+		if ( $order && get_post_field( 'post_name', get_queried_object_id() ) === basename( $order ) ) {
+			$t = locate_template( 'template-how-to-order.php' );
+			return $t ? $t : $template;
+		}
+		return $template;
+	},
+	11
 );

@@ -43,10 +43,37 @@
 	padding: 14px 26px !important;
 	transition: background .3s;
 }
+/* 밑줄 없이, 마우스를 올리면 아래에서 그라데이션이 차오름 */
+.woocommerce a.button,
+.woocommerce button.button,
+.woocommerce input.button,
+.woocommerce #respond input#submit,
+.woocommerce a.button.alt,
+.woocommerce button.button.alt,
+.woocommerce-page .wc-block-components-button:not(.is-link),
+.entry__content a.wc-block-components-button,
+.entry__content a.button,
+.entry__content a.checkout-button {
+	text-decoration: none !important;
+	background: linear-gradient(120deg, var(--c1), var(--c2)) no-repeat 0 100% / 100% 0%, var(--ink) !important;
+	transition: background-size .5s var(--ease), transform .3s var(--ease) !important;
+}
 .woocommerce a.button:hover,
 .woocommerce button.button:hover,
+.woocommerce input.button:hover,
+.woocommerce #respond input#submit:hover,
 .woocommerce a.button.alt:hover,
-.woocommerce button.button.alt:hover { background: linear-gradient(120deg, var(--c1), var(--c2)) !important; }
+.woocommerce button.button.alt:hover,
+.woocommerce-page .wc-block-components-button:not(.is-link):hover,
+.entry__content a.wc-block-components-button:hover,
+.entry__content a.button:hover,
+.entry__content a.checkout-button:hover,
+.woocommerce a.button:focus-visible,
+.woocommerce-page .wc-block-components-button:not(.is-link):focus-visible {
+	background-size: 100% 100%, auto !important;
+	color: var(--white) !important;
+}
+.woocommerce-page .wc-block-components-button:not(.is-link) .wc-block-components-button__text { text-decoration: none !important; }
 .woocommerce ul.products li.product {
 	background: var(--white);
 	border-radius: var(--radius);

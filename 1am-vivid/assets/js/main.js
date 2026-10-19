@@ -301,7 +301,7 @@
 		function measure() {
 			var pts = [];
 			pts.push(0); // 맨 위 (경고 바 포함)
-			$$('.film, .row, .plist, #device').forEach(function (el) { var t = Math.round(docTop(el)); if (t > 120) pts.push(t); });
+			$$('.film, .row, #device').forEach(function (el) { var t = Math.round(docTop(el)); if (t > 120) pts.push(t); });
 			var cards = $$('.pitem');
 			if (cards.length) {
 				var wrap = cards[0].parentNode;
