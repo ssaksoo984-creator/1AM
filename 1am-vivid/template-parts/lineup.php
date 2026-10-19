@@ -24,7 +24,7 @@ if ( $custom ) {
 			'img'    => isset( $r['image'] ) ? oneam_media_url( $r['image'] ) : '',
 			'c1'     => ! empty( $r['c1'] ) ? $r['c1'] : '#8A3FFC',
 			'c2'     => ! empty( $r['c2'] ) ? $r['c2'] : '#16C75A',
-			'url'    => isset( $r['link'] ) && oneam_media_url( $r['link'] ) ? oneam_media_url( $r['link'] ) : oneam_signup_url(),
+			'url'    => oneam_row_url( $r, $soon ),
 			'status' => $soon ? 'soon' : 'available',
 			'specs'  => $specs,
 		);

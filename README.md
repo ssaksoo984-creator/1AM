@@ -62,7 +62,7 @@ tools/              ← 미리보기 생성 스크립트
 - **상품 페이지는 공개** (예전 slim-hybrid.html 과 같은 구성): 맛 슬라이더 → 상품 정보·스펙 → 맛 목록(Fruit Ice / Mint / Classic Ice 필터) → Stock 1AM. `woocommerce/content-single-product.php` 가 우커머스 기본 상세 화면을 대신합니다. 가격·장바구니 버튼은 승인 회원에게만 보이고, 비회원에게는 가입/로그인 버튼이 나옵니다.
 - **상점 목록·장바구니·결제는 비공개** (승인 회원만).
 - 출시 예정 상품은 Published + Catalog visibility "Hidden" + Coming soon 체크 → 라인업에만 나오고 상점 목록엔 안 나옵니다.
-- WooCommerce 에 상품이 하나도 없으면 테마 기본 데이터(맛 15개, 상품 3종)가 대신 보입니다.
+- WooCommerce 에 상품이 하나도 없으면 테마 기본 데이터(맛 15개, 상품 3종)가 대신 보이고, 상세 페이지는 테마가 `/products/slim-hybrid/` 로 제공합니다. 우커머스에 같은 이름(슬러그)의 상품을 발행하면 자동으로 그 상품 페이지로 연결됩니다.
 - `woocommerce/1am-products-import.csv` 를 **상품 → 가져오기** 로 올리면 위 설정이 다 된 상태로 3개 상품 + 맛 15개가 들어옵니다.
 - 사이트 공개 전에는 WooCommerce → Settings → **Site visibility → Live** 로 바꿔야 상품 페이지가 방문자에게 보입니다 ("Coming soon" 상태에서는 관리자만 보임).
 

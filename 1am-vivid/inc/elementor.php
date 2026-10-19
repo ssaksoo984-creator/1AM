@@ -50,6 +50,19 @@ function oneam_media_url( $v ) {
 	return $url;
 }
 
+/** 상품 카드 링크: 비었거나 예전 "#products" 링크면 그 상품의 상세 페이지로 */
+function oneam_row_url( $r, $soon ) {
+	$url = isset( $r['link'] ) ? oneam_media_url( $r['link'] ) : '';
+	if ( $url && false === strpos( $url, '#products' ) ) {
+		return $url;
+	}
+	if ( $soon ) {
+		return oneam_signup_url();
+	}
+	$p = oneam_product_by_slug( sanitize_title( isset( $r['name'] ) ? $r['name'] : '' ) );
+	return $p ? $p['url'] : oneam_signup_url();
+}
+
 /** 지금 상품(WooCommerce)을 "Products" 목록 기본값으로 — 편집 화면에 기존 상품이 그대로 보이게 */
 function oneam_products_as_rows() {
 	$rows = array();

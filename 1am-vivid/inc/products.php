@@ -63,7 +63,8 @@ function oneam_get_products() {
 	$out = function_exists( 'oneam_products_from_woo' ) ? oneam_products_from_woo() : array();
 	if ( empty( $out ) ) {
 		foreach ( oneam_default_products() as $d ) {
-			$d['url'] = home_url( '/#products' );
+			// 테마가 제공하는 상세 페이지 (/products/slim-hybrid/). 출시 예정은 가입 페이지로.
+			$d['url'] = 'soon' === $d['status'] ? oneam_signup_url() : oneam_product_page_url( $d['slug'] );
 			$out[]    = $d;
 		}
 	}
@@ -306,4 +307,81 @@ add_filter(
 		$fragments['span.site-nav__count'] = '<span class="site-nav__count' . ( $n ? '' : ' is-empty' ) . '">' . (int) $n . '</span>';
 		return $fragments;
 	}
+);
+
+/* ---------------------------------------------------------------------------
+ * 테마 상품 상세 주소: /products/{slug}/
+ * (WooCommerce 상품이 없어도 상세 페이지가 열림. 있으면 그 상품 페이지로 이동)
+ * ------------------------------------------------------------------------- */
+function oneam_product_page_url( $slug ) {
+	return get_option( 'permalink_structure' ) ? home_url( '/products/' . $slug . '/' ) : add_query_arg( 'oneam_product', $slug, home_url( '/' ) );
+}
+
+function oneam_product_by_slug( $slug ) {
+	foreach ( oneam_get_products() as $p ) {
+		if ( $p['slug'] === $slug ) {
+			return $p;
+		}
+	}
+	foreach ( oneam_default_products() as $p ) {
+		if ( $p['slug'] === $slug ) {
+			$p['url'] = oneam_product_page_url( $slug );
+			return $p;
+		}
+	}
+	return null;
+}
+
+add_action(
+	'init',
+	function () {
+		add_rewrite_rule( '^products/([^/]+)/?$', 'index.php?oneam_product=$matches[1]', 'top' );
+		if ( '2' !== get_option( 'oneam_rewrite_version' ) ) {
+			flush_rewrite_rules( false );
+			update_option( 'oneam_rewrite_version', '2' );
+		}
+	}
+);
+add_filter(
+	'query_vars',
+	function ( $vars ) {
+		$vars[] = 'oneam_product';
+		return $vars;
+	}
+);
+add_action(
+	'template_redirect',
+	function () {
+		$slug = get_query_var( 'oneam_product' );
+		if ( ! $slug ) {
+			return;
+		}
+		$slug = sanitize_title( $slug );
+		// WooCommerce 에 같은 상품이 발행돼 있으면 그 페이지가 정식 주소
+		$found = post_type_exists( 'product' ) ? get_page_by_path( $slug, OBJECT, 'product' ) : null;
+		if ( $found && 'publish' === $found->post_status ) {
+			wp_safe_redirect( get_permalink( $found ), 301 );
+			exit;
+		}
+		if ( ! oneam_product_by_slug( $slug ) ) {
+			global $wp_query;
+			$wp_query->set_404(); // 모르는 상품
+			status_header( 404 );
+			return;
+		}
+		global $wp_query;
+		$wp_query->is_404  = false;
+		$wp_query->is_home = false;
+		status_header( 200 );
+		add_filter(
+			'document_title_parts',
+			function ( $t ) use ( $slug ) {
+				$p          = oneam_product_by_slug( $slug );
+				$t['title'] = $p['name'];
+				return $t;
+			}
+		);
+		add_filter( 'template_include', function () { return locate_template( 'template-product.php' ); }, 99 );
+	},
+	1
 );
