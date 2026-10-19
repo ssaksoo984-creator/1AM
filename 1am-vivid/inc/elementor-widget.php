@@ -184,4 +184,7 @@ class OneAM_El_Steps extends OneAM_El_Widget { protected static $key = 'steps'; 
 class OneAM_El_Faq extends OneAM_El_Widget { protected static $key = 'faq'; }
 class OneAM_El_Flavors extends OneAM_El_Widget { protected static $key = 'flavors'; }
 class OneAM_El_Hero extends OneAM_El_Widget { protected static $key = 'hero'; }
+class OneAM_El_Story extends OneAM_El_Widget { protected static $key = 'story'; }
+class OneAM_El_Make extends OneAM_El_Widget { protected static $key = 'make'; }
+class OneAM_El_Work extends OneAM_El_Widget { protected static $key = 'work'; }
 class OneAM_El_Signup extends OneAM_El_Widget { protected static $key = 'signup'; }

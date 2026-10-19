@@ -58,8 +58,8 @@ $oneam_first   = $oneam_flavors[0];
 			<?php $oneam_state = oneam_member_state(); ?>
 			<?php if ( 'guest' === $oneam_state ) : ?>
 				<a class="site-nav__login" href="<?php echo esc_url( oneam_login_url() ); ?>">Log in</a>
-			<?php elseif ( 'pending' === $oneam_state ) : ?>
-				<a class="site-nav__login" href="<?php echo esc_url( oneam_login_url() ); ?>">My account</a>
+			<?php else : ?>
+				<?php oneam_header_icons( $oneam_state ); ?>
 			<?php endif; ?>
 			<?php oneam_member_cta( 'btn--sm' ); ?>
 		</div>

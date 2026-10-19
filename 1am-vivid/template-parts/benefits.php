@@ -5,10 +5,10 @@
 $items = oneam_ctx( 'items', array() ) ? array_map( function ( $r ) { return array( $r['title'], $r['text'], $r['c1'] ?: '#8A3FFC', $r['c2'] ?: '#16C75A' ); }, oneam_ctx( 'items' ) ) : apply_filters(
 	'oneam_benefits',
 	array(
-		array( 'Wholesale pricing', 'Trade pricing for approved accounts, visible as soon as you log in.', '#FF2E4D', '#FFB321' ),
-		array( 'Approved retailers only', 'We only work with stores whose business documents we have verified.', '#8A3FFC', '#1E5BFF' ),
-		array( 'Ships where it\'s allowed', 'Orders ship only to provinces where our products can be sold.', '#00C2A8', '#16C75A' ),
-		array( 'Clear product info', 'Specs, flavours and product details in one place.', '#FFD60A', '#FF8A4D' ),
+		array( 'Wholesale only', 'Every account is reviewed and verified before it can see pricing or place orders.', '#8A3FFC', '#1E5BFF' ),
+		array( 'Compliance first', 'Products are supplied for sale in line with Canadian excise stamp and provincial requirements.', '#00C2A8', '#16C75A' ),
+		array( 'Product integrity', 'Original packaging, warning labels and regulatory markings stay intact from our warehouse to your shelf.', '#FF2E4D', '#FFB321' ),
+		array( 'Fast, tracked shipping', 'Orders ship by Purolator, UPS or Canpar Ground, typically arriving in 1–5 business days.', '#FFD60A', '#FF8A4D' ),
 	)
 );
 ?>
@@ -20,7 +20,7 @@ $items = oneam_ctx( 'items', array() ) ? array_map( function ( $r ) { return arr
 	<ul class="benefits__list">
 		<?php foreach ( $items as $b ) : ?>
 			<li class="benefit" style="--c1:<?php echo esc_attr( $b[2] ); ?>;--c2:<?php echo esc_attr( $b[3] ); ?>">
-				<span class="benefit__mark" aria-hidden="true"></span>
+				<span class="benefit__mark" aria-hidden="true"><?php echo esc_html( str_pad( (string) ( array_search( $b, $items, true ) + 1 ), 2, '0', STR_PAD_LEFT ) ); ?></span>
 				<h3><?php echo esc_html( $b[0] ); ?></h3>
 				<p><?php echo esc_html( $b[1] ); ?></p>
 			</li>

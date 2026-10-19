@@ -249,3 +249,58 @@ add_filter(
 		return $robots;
 	}
 );
+
+/* ---------------------------------------------------------------------------
+ * 로그인 상태 헤더 아이콘: 내 계정 · 장바구니(승인 회원) · 로그아웃
+ * ------------------------------------------------------------------------- */
+function oneam_icon( $name ) {
+	$paths = array(
+		'user'   => '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',
+		'cart'   => '<path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6.2"/><circle cx="10" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/>',
+		'logout' => '<path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>',
+		'mail'   => '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M4 7l8 6 8-6"/>',
+		'arrow'  => '<path d="M5 12h14"/><path d="M13 6l6 6-6 6"/>',
+	);
+	return '<svg class="icon icon--' . esc_attr( $name ) . '" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $paths[ $name ] . '</svg>';
+}
+
+function oneam_cart_count() {
+	return function_exists( 'WC' ) && WC()->cart ? (int) WC()->cart->get_cart_contents_count() : 0;
+}
+
+function oneam_header_icons( $state ) {
+	$user = wp_get_current_user();
+	echo '<div class="site-nav__icons">';
+	printf(
+		'<a class="site-nav__icon" href="%s" aria-label="My account" title="My account">%s<span class="site-nav__label">%s</span></a>',
+		esc_url( oneam_login_url() ),
+		oneam_icon( 'user' ), // phpcs:ignore WordPress.Security.EscapeOutput
+		esc_html( $user->first_name ? $user->first_name : 'My account' )
+	);
+	if ( 'approved' === $state && function_exists( 'wc_get_cart_url' ) ) {
+		$n = oneam_cart_count();
+		printf(
+			'<a class="site-nav__icon site-nav__cart" href="%s" aria-label="Cart" title="Cart">%s<span class="site-nav__count%s">%d</span></a>',
+			esc_url( wc_get_cart_url() ),
+			oneam_icon( 'cart' ), // phpcs:ignore WordPress.Security.EscapeOutput
+			$n ? '' : ' is-empty',
+			(int) $n
+		);
+	}
+	printf(
+		'<a class="site-nav__icon" href="%s" aria-label="Log out" title="Log out">%s</a>',
+		esc_url( wp_logout_url( home_url( '/' ) ) ),
+		oneam_icon( 'logout' ) // phpcs:ignore WordPress.Security.EscapeOutput
+	);
+	echo '</div>';
+}
+
+/** 장바구니에 담으면 헤더 숫자도 바로 바뀌게 */
+add_filter(
+	'woocommerce_add_to_cart_fragments',
+	function ( $fragments ) {
+		$n = oneam_cart_count();
+		$fragments['span.site-nav__count'] = '<span class="site-nav__count' . ( $n ? '' : ' is-empty' ) . '">' . (int) $n . '</span>';
+		return $fragments;
+	}
+);

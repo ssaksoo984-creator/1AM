@@ -4,7 +4,7 @@
  * Args: kicker, title (line breaks allowed), line (product line slug)
  */
 $line    = isset( $args['line'] ) ? $args['line'] : 'slim-hybrid';
-$flavors = array_values( array_filter( oneam_get_flavors(), function ( $f ) use ( $line ) { return $f['line'] === $line; } ) );
+$flavors = oneam_flavours_for_line( $line );
 if ( ! $flavors ) {
 	return;
 }

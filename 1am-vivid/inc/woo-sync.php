@@ -306,6 +306,25 @@ add_action(
 );
 
 /** 맛 슬라이더를 상품 페이지 맨 위(전체 폭)에, 맛 목록·가입 유도를 아래에 */
+/** 맛 목록 (line 이 '' 이면 전체) */
+function oneam_flavours_for_line( $line ) {
+	return array_values( array_filter( oneam_get_flavors(), function ( $f ) use ( $line ) { return '' === $line || $f['line'] === $line; } ) );
+}
+
+/**
+ * 상품 페이지에 보여줄 맛 묶음.
+ * 옵션(맛)이 있는 상품 → 그 상품의 맛 / 옵션 없는 일반 상품 → 전체 맛 / 출시 예정 상품 → 없음(false)
+ */
+function oneam_product_flavour_line( $product ) {
+	if ( 'yes' === $product->get_meta( '_oneam_soon' ) ) {
+		return false;
+	}
+	if ( oneam_flavours_for_line( $product->get_slug() ) ) {
+		return $product->get_slug();
+	}
+	return oneam_get_flavors() ? '' : false;
+}
+
 add_action(
 	'woocommerce_before_main_content',
 	function () {
@@ -313,14 +332,15 @@ add_action(
 			return;
 		}
 		$product = wc_get_product( get_queried_object_id() );
-		if ( $product && $product->is_type( 'variable' ) && $product->get_children() ) {
+		$line    = $product ? oneam_product_flavour_line( $product ) : false;
+		if ( false !== $line ) {
 			get_template_part(
 				'template-parts/hero',
 				null,
 				array(
-					'line'   => $product->get_slug(),
+					'line'   => $line,
 					'title'  => $product->get_name() . '.',
-					'kicker' => $product->get_meta( '_oneam_label' ) ?: count( $product->get_children() ) . ' flavours',
+					'kicker' => $product->get_meta( '_oneam_label' ) ?: count( oneam_flavours_for_line( $line ) ) . ' flavours',
 				)
 			);
 		}
@@ -334,8 +354,9 @@ add_action(
 			return;
 		}
 		$product = wc_get_product( get_queried_object_id() );
-		if ( $product && $product->is_type( 'variable' ) ) {
-			get_template_part( 'template-parts/flavors', null, array( 'line' => $product->get_slug(), 'title' => $product->get_name() ) );
+		$line    = $product ? oneam_product_flavour_line( $product ) : false;
+		if ( false !== $line ) {
+			get_template_part( 'template-parts/flavors', null, array( 'line' => $line, 'title' => $product->get_name() ) );
 		}
 		get_template_part( 'template-parts/cta' );
 	},

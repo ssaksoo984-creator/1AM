@@ -225,3 +225,20 @@ add_action(
 		);
 	}
 );
+
+/** About 페이지는 템플릿을 따로 고르지 않아도 1AM About 레이아웃으로 */
+add_filter(
+	'template_include',
+	function ( $template ) {
+		if ( ! is_page() || oneam_is_builder_page() || oneam_is_builder_preview() ) {
+			return $template;
+		}
+		$chosen = get_page_template_slug();
+		$about  = trim( (string) wp_parse_url( oneam_opt( 'oneam_about_url' ), PHP_URL_PATH ), '/' );
+		if ( ! $chosen && $about && get_post_field( 'post_name', get_queried_object_id() ) === basename( $about ) ) {
+			$t = locate_template( 'template-about.php' );
+			return $t ? $t : $template;
+		}
+		return $template;
+	}
+);
