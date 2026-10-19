@@ -5,10 +5,12 @@ $hero    = $flavors[0];
 $stack  = array_slice( $flavors, 0, 7 );
 $custom = (array) oneam_ctx( 'device_image', array() );
 if ( $custom ) {
-	$stack = array();
+	$mine = array();
 	foreach ( $custom as $url ) {
-		$stack[] = array_merge( $hero, array( 'img' => $url ) );
+		$mine[] = array_merge( $hero, array( 'img' => $url ) );
 	}
+	// 1~2장만 올렸으면 맛 이미지와 섞어서 3개가 돌아가게 (넓은 사진 한 장만 쓰려면 "Rotate with flavour images" 끄기)
+	$stack = ( count( $mine ) < 3 && 'no' !== oneam_ctx( 'mix_flavours', 'yes' ) ) ? array_merge( $mine, $stack ) : $mine;
 }
 $callouts = oneam_ctx( 'callouts', array() ) ? array_map( function ( $r ) { return array( $r['title'], $r['text'] ); }, oneam_ctx( 'callouts' ) ) : array(
 	array( 'Crystal shell', 'A clear crystal body shows the colour core inside.' ),
@@ -23,7 +25,7 @@ if ( ! $specs ) {
 	}
 }
 ?>
-<section class="device" id="device" data-header="light" style="<?php echo oneam_flavor_style( $hero ); // phpcs:ignore ?>">
+<section class="device" id="device" style="<?php echo oneam_flavor_style( $hero ); // phpcs:ignore ?>">
 	<div class="device__pin">
 		<h2 class="device__title">
 			<?php foreach ( preg_split( '/\r?\n/', trim( oneam_opt( 'oneam_device_title' ) ) ) as $part ) : ?>

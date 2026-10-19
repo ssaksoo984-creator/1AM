@@ -189,7 +189,8 @@ function oneam_elementor_widgets() {
 			'part'     => 'device',
 			'controls' => array(
 				'oneam_device_title' => array( 'label' => 'Title', 'type' => 'textarea', 'default' => oneam_opt( 'oneam_device_title' ), 'description' => 'One line per row. ' . $italic ),
-				'device_image'       => array( 'label' => 'Device images (optional)', 'type' => 'gallery', 'description' => 'Upload 3 or more product images to rotate (3 shown at once). Empty = the flavours from WooCommerce. One wide image = shown alone.' ),
+				'device_image'       => array( 'label' => 'Device images (optional)', 'type' => 'gallery', 'description' => 'Upload product images to rotate (3 shown at once). Empty = the flavours from WooCommerce.' ),
+				'mix_flavours'       => array( 'label' => 'Rotate with flavour images when fewer than 3 are uploaded', 'type' => 'switch', 'default' => 'yes' ),
 				'show_specs'         => array( 'label' => 'Show the spec numbers under the device', 'type' => 'switch', 'default' => '' ),
 				'callouts'           => array(
 					'label'   => 'Callouts',

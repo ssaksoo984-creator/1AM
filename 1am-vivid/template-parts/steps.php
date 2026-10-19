@@ -15,7 +15,7 @@ $oneam_bg  = is_array( $oneam_bg ) ? ( $oneam_bg['url'] ?? '' ) : $oneam_bg;
 $oneam_ov  = oneam_ctx( 'overlay', 'rgba(13,11,18,0.6)' );
 $oneam_sty = $oneam_bg ? "--steps-img:url('" . esc_url( $oneam_bg ) . "');--steps-tint:" . esc_attr( $oneam_ov ?: 'rgba(13,11,18,0.6)' ) : '';
 ?>
-<section class="steps<?php echo $oneam_bg ? ' has-img' : ''; ?>" id="how-to-order" data-header="light" style="<?php echo $oneam_sty; // phpcs:ignore ?>">
+<section class="steps<?php echo $oneam_bg ? ' has-img' : ''; ?>" id="how-to-order" style="<?php echo $oneam_sty; // phpcs:ignore ?>">
 	<div class="steps__head">
 		<p class="eyebrow"><?php echo esc_html( oneam_ctx( 'eyebrow', 'How to order' ) ); ?></p>
 		<h2 class="section-title section-title--md" data-reveal><?php echo oneam_lines( oneam_ctx( 'title', "Four steps\n*to your first* order" ) ); // phpcs:ignore ?></h2>

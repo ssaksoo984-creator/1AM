@@ -113,7 +113,48 @@
 		if (!header || body.classList.contains('nav-open')) return;
 		header.classList.toggle('is-scrolled', y > 10); // 메뉴는 항상 위에 고정
 		lastY = y;
+		headerTone();
 	}
+
+	// 헤더 뒤에 있는 섹션이 어두우면 흰 글씨(is-dark), 밝으면 검은 글씨
+	// 섹션에 data-header="light"(=흰 글씨) / "dark"(=검은 글씨)가 있으면 그대로, 없으면 배경색 밝기로 판단
+	var toneRaf = 0;
+	function bgTone(el) {
+		for (; el && el !== document.documentElement; el = el.parentElement) {
+			if (el.dataset && el.dataset.header) return el.dataset.header === 'light' ? 'dark' : 'light';
+			var cs = getComputedStyle(el);
+			var m = cs.backgroundColor.match(/[\d.]+/g);
+			if (m && (m.length < 4 || +m[3] > .5)) {
+				var lum = (0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]) / 255;
+				return lum < .5 ? 'dark' : 'light';
+			}
+			if (cs.backgroundImage && cs.backgroundImage !== 'none') return 'dark'; // 사진 · 그라데이션 배경
+			if (el.tagName === 'VIDEO' || el.tagName === 'CANVAS') return 'dark';
+		}
+		return 'light';
+	}
+	function headerTone() {
+		if (!header || toneRaf) return;
+		toneRaf = requestAnimationFrame(function () {
+			toneRaf = 0;
+			var r = header.getBoundingClientRect();
+			var y = r.bottom - 4, dark = 0;
+			// 왼쪽 · 가운데 · 오른쪽 세 군데를 보고 더 많은 쪽으로
+			[.06, .5, .94].forEach(function (fx) {
+				var list = document.elementsFromPoint ? document.elementsFromPoint(window.innerWidth * fx, y) : [];
+				for (var i = 0; i < list.length; i++) {
+					if (list[i].closest('#site-header, .topbar, .cursor, .loader, #wpadminbar')) continue;
+					if (bgTone(list[i]) === 'dark') dark++;
+					break;
+				}
+			});
+			header.classList.toggle('is-dark', dark >= 2);
+		});
+	}
+	window.addEventListener('scroll', headerTone, { passive: true });
+	window.addEventListener('resize', headerTone);
+	window.addEventListener('load', headerTone);
+	headerTone();
 	if (lenis) lenis.on('scroll', function (l) { onScrollHeader(l.scroll); });
 	else window.addEventListener('scroll', function () { onScrollHeader(window.scrollY); }, { passive: true });
 
