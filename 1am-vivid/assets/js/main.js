@@ -280,49 +280,14 @@
 		};
 	}
 
-	/* ------------------------------------------------------------------ Lab */
-	function lab() {
-		var root = $('#products');
-		if (!root) return;
-		var track = $('.lab__track', root);
-		var panels = $$('.lab__panel', root);
-		var bg = $('.lab__bg', root);
-		var dist = function () { return track.scrollWidth - window.innerWidth; };
-
-		gsap.set(root, { '--c1': panels[0].dataset.c1, '--c2': panels[0].dataset.c2 });
-
-		var tween = gsap.to(track, {
-			x: function () { return -dist(); },
-			ease: 'none',
-			scrollTrigger: {
-				trigger: root,
-				start: 'top top',
-				end: function () { return '+=' + dist(); },
-				pin: true,
-				scrub: 1,
-				invalidateOnRefresh: true,
-				onUpdate: function (s) {
-					gsap.set('.lab__bar span', { scaleX: s.progress });
-					// 패널 사이에서 배경 컬러 보간
-					var p = s.progress * (panels.length - 1);
-					var i = Math.min(Math.floor(p), panels.length - 2);
-					var t = p - i;
-					var a = panels[i].dataset, b = panels[i + 1].dataset;
-					root.style.setProperty('--c1', gsap.utils.interpolate(a.c1, b.c1, t));
-					root.style.setProperty('--c2', gsap.utils.interpolate(a.c2, b.c2, t));
-				}
-			}
+	/* ------------------------------------------------- Product line-up */
+	// 카드가 세로로 쌓이는 구조 (CSS sticky) — 스크롤은 그대로, 들어올 때 한 번만 등장
+	function lineup() {
+		$$('.pitem').forEach(function (card) {
+			var img = $('.pitem__img, .ghost', card);
+			if (img) gsap.from(img, { y: 120, opacity: 0, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: card, start: 'top 80%', once: true } });
+			gsap.from($$('.pitem__text > *', card), { y: 30, opacity: 0, duration: .8, stagger: .06, ease: 'expo.out', scrollTrigger: { trigger: card, start: 'top 75%', once: true } });
 		});
-
-		panels.forEach(function (panel) {
-			var chars = $$('.lab__name .ch', panel);
-			var st = { trigger: panel, containerAnimation: tween, start: 'left 80%', end: 'left 20%', scrub: 1 };
-			gsap.from(chars, { yPercent: 100, rotate: 12, opacity: 0, stagger: .03, ease: 'power3.out', scrollTrigger: st });
-			gsap.fromTo($('.lab__img', panel), { rotate: 25, yPercent: 20 }, { rotate: -10, yPercent: 0, ease: 'none', scrollTrigger: { trigger: panel, containerAnimation: tween, start: 'left right', end: 'center center', scrub: true } });
-			gsap.fromTo($('.lab__num', panel), { xPercent: 40 }, { xPercent: -20, ease: 'none', scrollTrigger: { trigger: panel, containerAnimation: tween, start: 'left right', end: 'right left', scrub: true } });
-		});
-		// 배경 자체는 CSS 변수로 갱신되므로 bg 참조만 유지
-		return bg;
 	}
 
 	/* -------------------------------------------------------------- Flavors */
@@ -378,23 +343,28 @@
 	}
 
 	/* --------------------------------------------------------------- Device */
+	// 스크롤을 붙잡지 않음: 들어올 때 한 번 등장하고, 화면에 보이는 동안 맛이 저절로 바뀜
 	function device() {
 		var root = $('#device');
 		if (!root) return;
 		var imgs = $$('.device__stack img', root);
-		var tl = gsap.timeline({
-			scrollTrigger: { trigger: root, start: 'top top', end: '+=250%', pin: '.device__pin', scrub: 1 }
-		});
-		tl.from('.device__title .line > span', { yPercent: 110, stagger: .1, duration: .6 }, 0)
-			.from('.device__stack', { scale: .5, rotate: -30, y: 200, duration: 1 }, 0)
-			.from('.callout', { opacity: 0, x: function (i) { return i % 2 ? 60 : -60; }, stagger: .3, duration: .5 }, .6);
-
-		imgs.forEach(function (img, i) {
-			if (!i) return;
-			var at = .8 + i * .5;
-			tl.to(imgs[i - 1], { opacity: 0, rotate: 12, duration: .4 }, at)
-				.fromTo(img, { opacity: 0, rotate: -12 }, { opacity: 1, rotate: 0, duration: .4 }, at)
-				.to(root, { '--c1': img.dataset.c1, '--c2': img.dataset.c2, duration: .4 }, at);
+		gsap.timeline({ scrollTrigger: { trigger: root, start: 'top 65%', once: true } })
+			.from($$('.device__title .line > span', root), { yPercent: 110, stagger: .1, duration: .9, ease: 'expo.out' }, 0)
+			.from($('.device__stack', root), { scale: .6, rotate: -25, y: 120, opacity: 0, duration: 1.2, ease: 'expo.out' }, .1)
+			.from($$('.callout', root), { opacity: 0, x: function (i) { return i % 2 ? 50 : -50; }, stagger: .12, duration: .8, ease: 'expo.out' }, .4);
+		if (imgs.length < 2) return;
+		var cur = 0, timer = null;
+		function next() {
+			var a = imgs[cur];
+			cur = (cur + 1) % imgs.length;
+			var b = imgs[cur];
+			gsap.to(a, { opacity: 0, rotate: 12, duration: .7, ease: 'power2.inOut' });
+			gsap.fromTo(b, { opacity: 0, rotate: -12 }, { opacity: 1, rotate: 0, duration: .7, ease: 'power2.inOut' });
+			gsap.to(root, { '--c1': b.dataset.c1, '--c2': b.dataset.c2, duration: .7 });
+		}
+		ST.create({
+			trigger: root, start: 'top bottom', end: 'bottom top',
+			onToggle: function (s) { clearInterval(timer); if (s.isActive) timer = setInterval(next, 2200); }
 		});
 	}
 
@@ -509,7 +479,7 @@
 		// 2) 멈춘 상태에서 쫙 펼쳐지고 → 소개 글 등장 → 이후 계속 왼쪽으로 흐름
 		var tl = gsap.timeline({
 			scrollTrigger: {
-				trigger: row, start: 'top top', end: '+=140%', pin: true, scrub: 1, invalidateOnRefresh: true,
+				trigger: row, start: 'top top', end: '+=110%', pin: true, scrub: .5, invalidateOnRefresh: true,
 				onUpdate: function (s) {
 					// 파스텔 원: 펼쳐지기 시작하면 피어남
 					if (s.progress > .12 && !st.bloomed) { st.bloomed = true; bloomTl.play(); }
@@ -563,7 +533,7 @@
 	if (!reduce) {
 		film();
 		about();
-		lab();
+		lineup();
 		flavors();
 		device();
 		blocks();

@@ -1,6 +1,11 @@
 <?php
 $flavors = oneam_get_flavors();
 $hero    = $flavors[0];
+// Elementor 에서 디바이스 이미지를 따로 올리면 그 이미지 하나만
+$stack = array_slice( $flavors, 0, 5 );
+if ( oneam_ctx( 'device_image' ) ) {
+	$stack = array( array_merge( $hero, array( 'img' => oneam_ctx( 'device_image' ) ) ) );
+}
 $callouts = oneam_ctx( 'callouts', array() ) ? array_map( function ( $r ) { return array( $r['title'], $r['text'] ); }, oneam_ctx( 'callouts' ) ) : array(
 	array( 'Crystal shell', 'A clear crystal body shows the colour core inside.' ),
 	array( 'Gradient core', 'Each flavour has its own gradient.' ),
@@ -25,7 +30,7 @@ if ( ! $specs ) {
 		<div class="device__stage">
 			<div class="device__ring" aria-hidden="true"></div>
 			<div class="device__stack">
-				<?php foreach ( array_slice( $flavors, 0, 5 ) as $i => $f ) : ?>
+				<?php foreach ( $stack as $i => $f ) : ?>
 					<img src="<?php echo esc_url( $f['img'] ); ?>" alt="<?php echo 0 === $i ? esc_attr( '1AM Slim HYBRID' ) : ''; ?>" width="246" height="1400" loading="lazy" data-c1="<?php echo esc_attr( $f['c1'] ); ?>" data-c2="<?php echo esc_attr( $f['c2'] ); ?>">
 				<?php endforeach; ?>
 			</div>

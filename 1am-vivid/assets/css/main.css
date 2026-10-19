@@ -1447,9 +1447,117 @@ body.nav-open .nav-toggle i:last-child { transform: translateY(-3.5px) rotate(-4
 .is-builder .bloom { opacity: .95; transform: none; }
 .is-builder .row__item.is-clone { opacity: 1; }
 .is-builder .row__track { --gap: 28px; transform: translateX(calc(-100% / 3)); }
-.is-builder .lab { height: auto; }
-.is-builder .lab__track { width: auto; height: auto; flex-direction: column; }
-.is-builder .lab__panel { width: 100%; height: 100vh; }
 .is-builder .cta__fan img { transform: translateX(calc(var(--o) * 50px)) rotate(calc(var(--o) * 11deg)); }
 .is-builder [data-fill] { --fill: 100%; }
 .is-builder .agegate, .is-builder .loader, .is-builder .cursor { display: none !important; }
+
+/* ==========================================================================
+   Product line-up — stacked cards (native scroll, no scroll-jacking)
+   ========================================================================== */
+.plist { padding: clamp(90px, 11vw, 160px) var(--gutter) clamp(60px, 8vw, 120px); }
+.plist__head { display: grid; gap: 14px; margin-bottom: clamp(32px, 5vw, 64px); }
+.plist__items { display: grid; gap: 28px; }
+.pitem {
+	position: sticky;
+	top: calc(var(--warn-h) + var(--head-h) + 16px + var(--i) * 16px);
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	align-items: center;
+	gap: clamp(24px, 4vw, 64px);
+	min-height: min(76vh, 660px);
+	padding: clamp(28px, 4vw, 56px);
+	border-radius: 36px;
+	overflow: hidden;
+	isolation: isolate;
+	color: var(--white);
+	background: linear-gradient(135deg, var(--c1), var(--c2));
+	box-shadow: 0 -10px 30px rgba(20, 12, 24, .08);
+}
+.pitem.is-flip .pitem__visual { order: 2; }
+.pitem__visual { position: relative; display: grid; place-items: center; min-height: 0; height: 100%; }
+.pitem__num {
+	position: absolute;
+	left: 0;
+	top: -.06em;
+	z-index: -1;
+	font-size: clamp(120px, 18vw, 280px);
+	font-weight: 900;
+	line-height: .8;
+	font-variation-settings: "wdth" 62;
+	color: transparent;
+	-webkit-text-stroke: 2px rgba(255, 255, 255, .35);
+}
+.pitem.is-flip .pitem__num { left: auto; right: 0; }
+.pitem__blob {
+	position: absolute;
+	z-index: -1;
+	width: min(48vh, 90%);
+	aspect-ratio: 1;
+	border-radius: 50%;
+	background: radial-gradient(circle, rgba(255, 255, 255, .55), rgba(255, 255, 255, 0) 70%);
+	filter: blur(10px);
+}
+.pitem .pitem__img, .pitem .ghost { height: min(58vh, 500px); width: auto; max-width: none; transform: rotate(-10deg); filter: drop-shadow(0 18px 24px rgba(40, 20, 60, .14)); }
+.pitem.is-flip .pitem__img, .pitem.is-flip .ghost { transform: rotate(10deg); }
+.pitem__status {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 18px;
+	padding: 7px 14px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, .22);
+	font-size: 12px;
+	font-weight: 800;
+	letter-spacing: .12em;
+	text-transform: uppercase;
+}
+.pitem__status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--white); }
+.pitem.is-soon .pitem__status .dot { background: #ffd60a; }
+.pitem__name { margin: 0; font-size: clamp(40px, 6vw, 96px); line-height: .88; font-weight: 900; font-variation-settings: "wdth" 70; text-transform: uppercase; }
+.pitem__tag { margin: 10px 0 0; font-family: var(--f-serif); font-style: italic; font-size: clamp(22px, 2.4vw, 34px); }
+.pitem__desc { max-width: 42ch; margin: 18px 0 0; font-size: 17px; opacity: .9; }
+.pitem__specs { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 0; }
+.pitem__specs div { padding: 10px 14px; border-radius: 14px; background: rgba(255, 255, 255, .18); }
+.pitem__specs dt { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; opacity: .75; }
+.pitem__specs dd { margin: 2px 0 0; font-size: 18px; font-weight: 900; }
+.pitem .btn { --bg: var(--white); --fg: var(--ink); margin-top: 28px; }
+@media (max-width: 800px) {
+	.pitem { grid-template-columns: minmax(0, 1fr); min-height: 0; top: calc(var(--warn-h) + var(--head-h) + 8px + var(--i) * 10px); }
+	.pitem.is-flip .pitem__visual { order: 0; }
+	.pitem .pitem__img, .pitem .ghost { height: 32vh; }
+	.pitem__desc { font-size: 15px; }
+}
+
+/* "Stock 1AM." — 1AM 은 로고 (글자처럼 왼쪽부터 컬러가 채워짐) */
+.cta__logo {
+	display: inline-block;
+	height: .78em;
+	aspect-ratio: 700 / 355;
+	vertical-align: -.02em;
+	-webkit-mask: var(--logo) center / contain no-repeat;
+	mask: var(--logo) center / contain no-repeat;
+	background: linear-gradient(90deg, var(--c1), var(--c2)) 0 0 / var(--fill, 0%) 100% no-repeat, var(--ink);
+}
+.is-builder .cta__logo { --fill: 100%; }
+
+/* Elementor 의 기본 이미지 규칙(.elementor img { height: auto }) 때문에 1AM 이미지가 커지는 것 방지 */
+.elementor .row__item img { width: 100%; height: 100%; max-width: none; }
+.elementor .cta__fan img { height: 100%; width: auto; max-width: none; }
+.elementor .device__stack img { width: 100%; height: 100%; max-width: none; }
+.elementor .hero__device img { width: 100%; height: 100%; max-width: none; }
+.elementor .card__img img { height: 280px; width: auto; max-width: none; }
+.elementor .film__media--empty img { height: 76%; width: auto; max-width: none; }
+.elementor .pitem .pitem__img { height: min(58vh, 500px); width: auto; max-width: none; }
+.elementor .site-footer__logo img, .elementor .site-header__logo img { height: auto; }
+@media (max-width: 800px) {
+	.elementor .film__media--empty img { height: 40%; }
+	.elementor .pitem .pitem__img { height: 32vh; }
+}
+@media (max-width: 560px) {
+	.elementor .card__img img { height: 180px; }
+}
+
+/* Device: 스크롤 고정 없이 한 화면 높이 이상 확보 (콜아웃 겹침 방지) */
+.device__pin { height: auto; min-height: 100svh; row-gap: 24px; }
+.device__stage { min-height: min(64vh, 600px); }

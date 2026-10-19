@@ -56,6 +56,14 @@ function oneam_elementor_widgets() {
 				'oneam_video_youtube' => array( 'label' => 'or YouTube link', 'type' => 'text' ),
 				'oneam_video_poster'  => array( 'label' => 'Poster image', 'type' => 'image' ),
 			),
+			'style'    => array(
+				array( 'tint', 'Dark tint strength', 'slider', '.film__tint', 'opacity' ),
+				array( 'title_color', 'Headline colour', 'color', '.film__title', 'color' ),
+				array( 'title_font', 'Headline font', 'typography', '.film__title' ),
+				array( 'text_color', 'Caption colour', 'color', '.film__text', 'color' ),
+				array( 'btn_bg', 'Button colour', 'color', '.film__btns .btn--solid', '--bg' ),
+				array( 'btn_fg', 'Button text colour', 'color', '.film__btns .btn--solid', '--fg' ),
+			),
 		),
 		'about'    => array(
 			'title'    => 'Flavour line-up + About',
@@ -68,15 +76,51 @@ function oneam_elementor_widgets() {
 				'oneam_about_text'  => array( 'label' => 'Text', 'type' => 'textarea', 'default' => oneam_opt( 'oneam_about_text' ) ),
 				'button'            => array( 'label' => 'Button text', 'type' => 'text', 'default' => 'About' ),
 				'oneam_about_url'   => array( 'label' => 'Button link', 'type' => 'url', 'default' => '/about-us/' ),
+				'bloom1'            => array( 'label' => 'Pastel circle colour 1', 'type' => 'color' ),
+				'bloom2'            => array( 'label' => 'Pastel circle colour 2', 'type' => 'color' ),
+				'bloom3'            => array( 'label' => 'Pastel circle colour 3', 'type' => 'color' ),
+			),
+			'style'    => array(
+				array( 'bg', 'Background colour', 'color', '.about', 'background-color' ),
+				array( 'eyebrow_color', 'Small label colour', 'color', '.about__intro .eyebrow', 'color' ),
+				array( 'title_color', 'Title colour', 'color', '.about__title', 'color' ),
+				array( 'title_font', 'Title font', 'typography', '.about__title' ),
+				array( 'text_color', 'Text colour', 'color', '.about__text', 'color' ),
+				array( 'btn_color', 'Button colour', 'color', '.about__intro .btn', 'color' ),
 			),
 		),
 		'lineup'   => array(
-			'title'    => 'Product line-up (horizontal scroll)',
+			'title'    => 'Product line-up',
 			'icon'     => 'eicon-posts-carousel',
 			'part'     => 'lineup',
-			'note'     => 'Shows your WooCommerce products. Edit names, images, label and colours in Products.',
+			'note'     => 'Shows your WooCommerce products as stacked cards (edit them in Products), or your own custom products below.',
 			'controls' => array(
 				'eyebrow' => array( 'label' => 'Small label', 'type' => 'text', 'default' => 'Product lineup' ),
+				'title'   => array( 'label' => 'Title', 'type' => 'textarea', 'default' => "Three lines,\n*one standard.*", 'description' => 'One line per row. ' . $italic ),
+				'items'   => array(
+					'label'       => 'Custom products (optional)',
+					'description' => 'Leave empty to show your WooCommerce products. Add items here to show your own instead.',
+					'type'        => 'repeater',
+					'fields'      => array(
+						'name'  => array( 'label' => 'Name', 'type' => 'text' ),
+						'tag'   => array( 'label' => 'Label (e.g. 2ml Disposable)', 'type' => 'text' ),
+						'desc'  => array( 'label' => 'Description', 'type' => 'textarea' ),
+						'image' => array( 'label' => 'Image (tall, transparent PNG/WebP)', 'type' => 'image' ),
+						'c1'    => array( 'label' => 'Colour 1', 'type' => 'color' ),
+						'c2'    => array( 'label' => 'Colour 2', 'type' => 'color' ),
+						'link'  => array( 'label' => 'Link', 'type' => 'url' ),
+						'soon'  => array( 'label' => 'Coming soon', 'type' => 'switch' ),
+					),
+					'default'     => array(),
+				),
+			),
+			'style'    => array(
+				array( 'bg', 'Background colour', 'color', '.plist', 'background-color' ),
+				array( 'title_color', 'Title colour', 'color', '.plist__head .section-title', 'color' ),
+				array( 'title_font', 'Title font', 'typography', '.plist__head .section-title' ),
+				array( 'name_font', 'Product name font', 'typography', '.pitem__name' ),
+				array( 'card_color', 'Card text colour', 'color', '.pitem', 'color' ),
+				array( 'radius', 'Card corner radius', 'slider_px', '.pitem', 'border-radius' ),
 			),
 		),
 		'device'   => array(
@@ -85,6 +129,7 @@ function oneam_elementor_widgets() {
 			'part'     => 'device',
 			'controls' => array(
 				'oneam_device_title' => array( 'label' => 'Title', 'type' => 'textarea', 'default' => oneam_opt( 'oneam_device_title' ), 'description' => 'One line per row. ' . $italic ),
+				'device_image'       => array( 'label' => 'Device image (optional)', 'type' => 'image', 'description' => 'Empty = the first 5 flavours from WooCommerce take turns.' ),
 				'callouts'           => array(
 					'label'   => 'Callouts',
 					'type'    => 'repeater',
@@ -113,6 +158,13 @@ function oneam_elementor_widgets() {
 					),
 				),
 			),
+			'style'    => array(
+				array( 'c1', 'Glow colour 1', 'color', '.device', '--c1' ),
+				array( 'c2', 'Glow colour 2', 'color', '.device', '--c2' ),
+				array( 'bg', 'Background colour', 'color', '.device', 'background-color' ),
+				array( 'text_color', 'Text colour', 'color', '.device', 'color' ),
+				array( 'title_font', 'Title font', 'typography', '.device__title' ),
+			),
 		),
 		'cta'      => array(
 			'title'    => 'Wholesale call to action',
@@ -123,6 +175,16 @@ function oneam_elementor_widgets() {
 				'oneam_cta_title' => array( 'label' => 'Title', 'type' => 'text', 'default' => oneam_opt( 'oneam_cta_title' ), 'description' => $italic ),
 				'oneam_cta_text'  => array( 'label' => 'Text', 'type' => 'textarea', 'default' => oneam_opt( 'oneam_cta_text' ) ),
 				'note'            => array( 'label' => 'Small print', 'type' => 'text', 'default' => 'Retailers only · ' . (int) oneam_opt( 'oneam_min_age' ) . '+ · Canada' ),
+				'logo_on'         => array( 'label' => 'Show "1AM" as the logo', 'type' => 'switch', 'default' => 'yes' ),
+				'logo'            => array( 'label' => 'Logo image (optional)', 'type' => 'image', 'description' => 'Empty = the site logo.' ),
+			),
+			'style'    => array(
+				array( 'c1', 'Fill colour 1', 'color', '.cta', '--c1' ),
+				array( 'c2', 'Fill colour 2', 'color', '.cta', '--c2' ),
+				array( 'bg', 'Background colour', 'color', '.cta', 'background-color' ),
+				array( 'stroke', 'Title outline colour', 'color', '.cta__title', '-webkit-text-stroke-color' ),
+				array( 'title_font', 'Title font', 'typography', '.cta__title' ),
+				array( 'text_color', 'Text colour', 'color', '.cta__text', 'color' ),
 			),
 		),
 		'benefits' => array(
@@ -149,6 +211,13 @@ function oneam_elementor_widgets() {
 					),
 				),
 			),
+			'style'    => array(
+				array( 'bg', 'Background colour', 'color', '.benefits', 'background-color' ),
+				array( 'title_color', 'Title colour', 'color', '.benefits .section-title', 'color' ),
+				array( 'title_font', 'Title font', 'typography', '.benefits .section-title' ),
+				array( 'card_bg', 'Card colour', 'color', '.benefit', 'background-color' ),
+				array( 'card_color', 'Card text colour', 'color', '.benefit', 'color' ),
+			),
 		),
 		'steps'    => array(
 			'title'    => 'How to order steps',
@@ -170,6 +239,11 @@ function oneam_elementor_widgets() {
 						array( 'title' => 'Order', 'text' => 'Log in to the private shop, see wholesale pricing and place your order.' ),
 					),
 				),
+			),
+			'style'    => array(
+				array( 'bg', 'Background colour', 'color', '.steps', 'background-color' ),
+				array( 'text_color', 'Text colour', 'color', '.steps', 'color' ),
+				array( 'title_font', 'Title font', 'typography', '.steps .section-title' ),
 			),
 		),
 		'faq'      => array(
@@ -195,6 +269,12 @@ function oneam_elementor_widgets() {
 					),
 				),
 			),
+			'style'    => array(
+				array( 'bg', 'Background colour', 'color', '.faq', 'background-color' ),
+				array( 'title_color', 'Title colour', 'color', '.faq .section-title', 'color' ),
+				array( 'title_font', 'Title font', 'typography', '.faq .section-title' ),
+				array( 'q_color', 'Question colour', 'color', '.faq__item summary', 'color' ),
+			),
 		),
 		'flavors'  => array(
 			'title'    => 'Flavour grid',
@@ -204,6 +284,10 @@ function oneam_elementor_widgets() {
 			'controls' => array(
 				'title' => array( 'label' => 'Title', 'type' => 'text', 'default' => 'Slim HYBRID', 'arg' => true ),
 				'line'  => array( 'label' => 'Only this product (slug, optional)', 'type' => 'text', 'default' => '', 'arg' => true, 'description' => 'e.g. slim-hybrid. Empty = all flavours.' ),
+			),
+			'style'    => array(
+				array( 'bg', 'Background colour', 'color', '.flavors', 'background-color' ),
+				array( 'title_font', 'Title font', 'typography', '.flavors .section-title' ),
 			),
 		),
 		'hero'     => array(

@@ -19,6 +19,13 @@ $blooms = array(
 	array( 14, 84, 14, '#c3f1dc' ),
 	array( 78, 86, 12, '#ffc6dc' ),
 );
+// Elementor 에서 고른 파스텔 색이 있으면 그 색으로
+$bloom_colours = array_values( array_filter( array( oneam_ctx( 'bloom1' ), oneam_ctx( 'bloom2' ), oneam_ctx( 'bloom3' ) ) ) );
+if ( $bloom_colours ) {
+	foreach ( $blooms as $i => $b ) {
+		$blooms[ $i ][3] = $bloom_colours[ $i % count( $bloom_colours ) ];
+	}
+}
 ?>
 <section class="about" id="about">
 	<div class="row" id="row">

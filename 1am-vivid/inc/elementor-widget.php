@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Elementor\Controls_Manager;
+use Elementor\Group_Control_Typography;
 use Elementor\Widget_Base;
 
 abstract class OneAM_El_Widget extends Widget_Base {
@@ -51,6 +52,7 @@ abstract class OneAM_El_Widget extends Widget_Base {
 			'video'    => Controls_Manager::MEDIA,
 			'color'    => Controls_Manager::COLOR,
 			'repeater' => Controls_Manager::REPEATER,
+			'switch'   => Controls_Manager::SWITCHER,
 		);
 		$type = $c['type'];
 		$out  = array(
@@ -62,6 +64,11 @@ abstract class OneAM_El_Widget extends Widget_Base {
 		}
 		if ( 'textarea' === $type ) {
 			$out['rows'] = 3;
+		}
+		if ( 'switch' === $type ) {
+			$out['label_on']     = 'Yes';
+			$out['label_off']    = 'No';
+			$out['return_value'] = 'yes';
 		}
 		if ( 'url' === $type ) {
 			$out['default'] = array( 'url' => isset( $c['default'] ) ? $c['default'] : '' );
@@ -99,6 +106,29 @@ abstract class OneAM_El_Widget extends Widget_Base {
 			$this->add_control( $id, $this->control( $c ) );
 		}
 		$this->end_controls_section();
+
+		// Style 탭: 색 · 글꼴 · 크기 (편집 화면에 바로 반영)
+		if ( empty( $cfg['style'] ) ) {
+			return;
+		}
+		$this->start_controls_section( 'oneam_style', array( 'label' => 'Colours & fonts', 'tab' => Controls_Manager::TAB_STYLE ) );
+		foreach ( $cfg['style'] as $st ) {
+			list( $id, $label, $type, $selector ) = $st;
+			$prop = isset( $st[4] ) ? $st[4] : '';
+			$sel  = implode( ', ', array_map( function ( $x ) { return '{{WRAPPER}} ' . trim( $x ); }, explode( ',', $selector ) ) );
+			// 인라인으로 정해진 섹션 색(--c1 등)도 덮어쓰도록
+			$imp = 0 === strpos( $prop, '--' ) ? ' !important' : '';
+			if ( 'typography' === $type ) {
+				$this->add_group_control( Group_Control_Typography::get_type(), array( 'name' => $id, 'label' => $label, 'selector' => $sel ) );
+			} elseif ( 'slider' === $type ) {
+				$this->add_control( $id, array( 'label' => $label, 'type' => Controls_Manager::SLIDER, 'range' => array( 'px' => array( 'min' => 0, 'max' => 1, 'step' => 0.05 ) ), 'selectors' => array( $sel => $prop . ': {{SIZE}};' ) ) );
+			} elseif ( 'slider_px' === $type ) {
+				$this->add_control( $id, array( 'label' => $label, 'type' => Controls_Manager::SLIDER, 'size_units' => array( 'px' ), 'range' => array( 'px' => array( 'min' => 0, 'max' => 80 ) ), 'selectors' => array( $sel => $prop . ': {{SIZE}}{{UNIT}};' ) ) );
+			} else {
+				$this->add_control( $id, array( 'label' => $label, 'type' => Controls_Manager::COLOR, 'selectors' => array( $sel => $prop . ': {{VALUE}}' . $imp . ';' ) ) );
+			}
+		}
+		$this->end_controls_section();
 	}
 
 	protected function render() {
@@ -116,6 +146,8 @@ abstract class OneAM_El_Widget extends Widget_Base {
 				$v = (string) $v['url']; // 이미지 · 영상 · 링크
 			} elseif ( 'repeater' === $c['type'] ) {
 				$v = array_values( array_filter( (array) $v, 'is_array' ) );
+			} elseif ( 'switch' === $c['type'] ) {
+				$v = 'yes' === $v ? 'yes' : 'no';
 			}
 			if ( ! empty( $c['arg'] ) ) {
 				if ( '' !== $v ) {
