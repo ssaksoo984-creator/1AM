@@ -283,11 +283,66 @@
 	/* ------------------------------------------------- Product line-up */
 	// 카드가 세로로 쌓이는 구조 (CSS sticky) — 스크롤은 그대로, 들어올 때 한 번만 등장
 	function lineup() {
-		$$('.pitem').forEach(function (card) {
+		var cards = $$('.pitem');
+		if (!cards.length) return;
+		cards.forEach(function (card) {
 			var img = $('.pitem__img, .ghost', card);
 			if (img) gsap.from(img, { y: 120, opacity: 0, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: card, start: 'top 80%', once: true } });
 			gsap.from($$('.pitem__text > *', card), { y: 30, opacity: 0, duration: .8, stagger: .06, ease: 'expo.out', scrollTrigger: { trigger: card, start: 'top 75%', once: true } });
 		});
+		snapCards(cards);
+	}
+
+	// 카드 구간에서는 스크롤 한 번(트랙패드 관성 포함) = 카드 한 장, 그리고 멈춤
+	function snapCards(cards) {
+		if (cards.length < 2 || !finePointer) return; // 터치 기기는 기본 스크롤
+		var points = [];
+		function measure() {
+			var wrap = cards[0].parentNode;
+			var gap = parseFloat(getComputedStyle(wrap).rowGap) || 0;
+			var y = wrap.getBoundingClientRect().top + window.scrollY;
+			points = cards.map(function (c) {
+				var at = y - (parseFloat(getComputedStyle(c).top) || 0);
+				y += c.offsetHeight + gap;
+				return Math.round(at);
+			});
+		}
+		measure();
+		window.addEventListener('resize', measure);
+		ST.addEventListener('refresh', measure);
+
+		var busy = false, held = false, quiet = null;
+		var first = function () { return points[0]; };
+		var last = function () { return points[points.length - 1]; };
+		function target(dir) {
+			var y = window.scrollY;
+			if (dir > 0) { for (var i = 0; i < points.length; i++) if (points[i] > y + 4) return points[i]; }
+			else { for (var j = points.length - 1; j >= 0; j--) if (points[j] < y - 4) return points[j]; }
+			return null;
+		}
+		function go(y) {
+			busy = true;
+			var done = function () { busy = false; };
+			if (lenis) lenis.scrollTo(y, { duration: .9, easing: function (t) { return 1 - Math.pow(1 - t, 3); }, lock: true, force: true, onComplete: done });
+			else { window.scrollTo({ top: y, behavior: 'smooth' }); setTimeout(done, 900); }
+		}
+		window.addEventListener('wheel', function (e) {
+			var dir = e.deltaY > 0 ? 1 : (e.deltaY < 0 ? -1 : 0);
+			if (!dir) return;
+			var y = window.scrollY;
+			// 같은 제스처(관성 포함)가 끝날 때까지 추가 스크롤 무시
+			clearTimeout(quiet);
+			quiet = setTimeout(function () { held = false; }, 200);
+			var inside = dir > 0 ? (y >= first() - 4 && y < last() - 4) : (y > first() + 4 && y <= last() + 4);
+			if (!(busy || held || inside)) return;
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			if (busy || held) return;
+			var to = target(dir);
+			if (to === null || to < first() - 4 || to > last() + 4) return;
+			held = true;
+			go(to);
+		}, { passive: false, capture: true });
 	}
 
 	/* -------------------------------------------------------------- Flavors */
@@ -352,6 +407,8 @@
 			.from($$('.device__title .line > span', root), { yPercent: 110, stagger: .1, duration: .9, ease: 'expo.out' }, 0)
 			.from($('.device__stack', root), { scale: .6, rotate: -25, y: 120, opacity: 0, duration: 1.2, ease: 'expo.out' }, .1)
 			.from($$('.callout', root), { opacity: 0, x: function (i) { return i % 2 ? 50 : -50; }, stagger: .12, duration: .8, ease: 'expo.out' }, .4);
+		// 둥실 떠 있는 느낌 (이미지가 하나여도 움직임)
+		gsap.to($('.device__float', root) || imgs[0].parentNode, { y: -16, rotate: 3, duration: 2.6, ease: 'sine.inOut', yoyo: true, repeat: -1 });
 		if (imgs.length < 2) return;
 		var cur = 0, timer = null;
 		function next() {

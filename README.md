@@ -23,7 +23,7 @@ tools/              ← 미리보기 생성 스크립트
 | – | 상단 고정 경고문 + 흰색 블러 헤더 | Products(드롭다운) · About · How to Order · FAQ · Log in · Apply for wholesale |
 | 1 | 영상 (첫 화면) | 전체 화면 영상 + 은은한 어두운 톤 + 하단 한 줄 흰 글씨 + 소리 버튼 + 도매 신청 버튼 |
 | 2 | 라인업 + About | 제품이 촘촘히 일자로 선 채 위에서 내려와 → 쫙 펼쳐지고 → 왼쪽으로 계속 흐름(호버하면 멈추고 맛 이름 표시). 파스텔 원이 꽃처럼 퐁퐁 피어나고 아래에 소개 문구 + About → 버튼 |
-| 3 | 상품 3종 (세로 카드) | 스크롤하면 카드가 차곡차곡 쌓임 (스크롤을 가로채지 않음) |
+| 3 | 상품 3종 (세로 카드) | 스크롤 한 번 = 카드 한 장씩 쌓이고 멈춤 (트랙패드 관성도 한 번으로 처리) |
 | 4 | Slim outside. Loud inside. | 디바이스 + 스펙 (화면에 보이는 동안 맛이 저절로 바뀜, 스크롤 고정 없음) |
 | 5 | Stock 1AM. | 도매 가입 유도 — "1AM" 은 로고로 표시 |
 
@@ -73,7 +73,7 @@ Elementor 가 설치돼 있으면 테마의 모든 섹션이 **Elementor 위젯*
 |---|---|
 | Video intro | 첫 화면 영상 + 한 줄 문구 + 도매 버튼 (영상·포스터 업로드 가능) |
 | Flavour line-up + About | 15개 제품 일렬 애니메이션 + 소개 문구 |
-| Product line-up | 상품 카드 (WooCommerce 자동, 또는 직접 입력: 이름·설명·이미지·색·링크·출시 예정) |
+| Product line-up | 상품 카드 — Products 목록에 지금 상품이 미리 들어 있음 (이름·라벨·설명·스펙·이미지·색·링크·출시 예정 수정, 추가·삭제·순서 변경) |
 | Device + specs | Slim outside. Loud inside. + 콜아웃 + 숫자 |
 | Wholesale call to action | Stock 1AM. 가입 유도 |
 | Benefit cards / How to order steps / FAQ | 장점 카드, 구매 절차, 자주 묻는 질문 (항목 추가·삭제) |

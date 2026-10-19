@@ -53,6 +53,7 @@ abstract class OneAM_El_Widget extends Widget_Base {
 			'color'    => Controls_Manager::COLOR,
 			'repeater' => Controls_Manager::REPEATER,
 			'switch'   => Controls_Manager::SWITCHER,
+			'gallery'  => Controls_Manager::GALLERY,
 		);
 		$type = $c['type'];
 		$out  = array(
@@ -142,10 +143,21 @@ abstract class OneAM_El_Widget extends Widget_Base {
 		$args = array();
 		foreach ( $cfg['controls'] as $id => $c ) {
 			$v = isset( $s[ $id ] ) ? $s[ $id ] : '';
-			if ( is_array( $v ) && array_key_exists( 'url', $v ) ) {
-				$v = (string) $v['url']; // 이미지 · 영상 · 링크
+			if ( 'gallery' === $c['type'] ) {
+				// 예전 단일 이미지 값도 받아줌
+				$list = ( is_array( $v ) && ( isset( $v['url'] ) || isset( $v['id'] ) ) ) ? array( $v ) : (array) $v;
+				$v    = array_values( array_filter( array_map( 'oneam_media_url', array_filter( $list, 'is_array' ) ) ) );
+			} elseif ( is_array( $v ) && ( array_key_exists( 'url', $v ) || array_key_exists( 'id', $v ) ) ) {
+				$v = oneam_media_url( $v ); // 이미지 · 영상 · 링크
 			} elseif ( 'repeater' === $c['type'] ) {
 				$v = array_values( array_filter( (array) $v, 'is_array' ) );
+				foreach ( $v as $n => $row ) {
+					foreach ( $row as $k => $cell ) {
+						if ( is_array( $cell ) && ( array_key_exists( 'url', $cell ) || array_key_exists( 'id', $cell ) ) ) {
+							$v[ $n ][ $k ] = oneam_media_url( $cell );
+						}
+					}
+				}
 			} elseif ( 'switch' === $c['type'] ) {
 				$v = 'yes' === $v ? 'yes' : 'no';
 			}

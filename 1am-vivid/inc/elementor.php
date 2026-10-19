@@ -38,6 +38,41 @@ add_filter(
 	}
 );
 
+/** Elementor 이미지/링크 값 → 주소 (주소가 비어 있고 ID 만 있으면 ID 로 찾음) */
+function oneam_media_url( $v ) {
+	if ( ! is_array( $v ) ) {
+		return (string) $v;
+	}
+	$url = isset( $v['url'] ) ? (string) $v['url'] : '';
+	if ( '' === $url && ! empty( $v['id'] ) ) {
+		$url = (string) wp_get_attachment_url( (int) $v['id'] );
+	}
+	return $url;
+}
+
+/** 지금 상품(WooCommerce)을 "Products" 목록 기본값으로 — 편집 화면에 기존 상품이 그대로 보이게 */
+function oneam_products_as_rows() {
+	$rows = array();
+	foreach ( oneam_get_products() as $p ) {
+		$specs = array();
+		foreach ( (array) $p['specs'] as $k => $val ) {
+			$specs[] = $k . ': ' . $val;
+		}
+		$rows[] = array(
+			'name'  => $p['name'],
+			'tag'   => $p['tag'],
+			'desc'  => $p['desc'],
+			'specs' => implode( "\n", $specs ),
+			'image' => array( 'url' => $p['img'], 'id' => '' ),
+			'c1'    => $p['c1'],
+			'c2'    => $p['c2'],
+			'link'  => array( 'url' => 'soon' === $p['status'] ? '' : $p['url'] ),
+			'soon'  => 'soon' === $p['status'] ? 'yes' : '',
+		);
+	}
+	return $rows;
+}
+
 /* ---------------------------------------------------------------------------
  * 위젯 목록
  * ------------------------------------------------------------------------- */
@@ -54,7 +89,7 @@ function oneam_elementor_widgets() {
 				'oneam_intro_text'    => array( 'label' => 'Caption', 'type' => 'text', 'default' => oneam_opt( 'oneam_intro_text' ) ),
 				'oneam_video_mp4'     => array( 'label' => 'Video (MP4)', 'type' => 'video' ),
 				'oneam_video_youtube' => array( 'label' => 'or YouTube link', 'type' => 'text' ),
-				'oneam_video_poster'  => array( 'label' => 'Poster image', 'type' => 'image' ),
+				'oneam_video_poster'  => array( 'label' => 'Background image', 'type' => 'image', 'description' => 'Shown before the video loads, or instead of it when no video is set.' ),
 			),
 			'style'    => array(
 				array( 'tint', 'Dark tint strength', 'slider', '.film__tint', 'opacity' ),
@@ -93,25 +128,26 @@ function oneam_elementor_widgets() {
 			'title'    => 'Product line-up',
 			'icon'     => 'eicon-posts-carousel',
 			'part'     => 'lineup',
-			'note'     => 'Shows your WooCommerce products as stacked cards (edit them in Products), or your own custom products below.',
+			'note'     => 'Stacked product cards. Scrolling moves one card at a time.',
 			'controls' => array(
 				'eyebrow' => array( 'label' => 'Small label', 'type' => 'text', 'default' => 'Product lineup' ),
 				'title'   => array( 'label' => 'Title', 'type' => 'textarea', 'default' => "Three lines,\n*one standard.*", 'description' => 'One line per row. ' . $italic ),
 				'items'   => array(
-					'label'       => 'Custom products (optional)',
-					'description' => 'Leave empty to show your WooCommerce products. Add items here to show your own instead.',
+					'label'       => 'Products',
+					'description' => 'Starts with your current WooCommerce products. Edit, reorder, delete or add cards here.',
 					'type'        => 'repeater',
 					'fields'      => array(
 						'name'  => array( 'label' => 'Name', 'type' => 'text' ),
 						'tag'   => array( 'label' => 'Label (e.g. 2ml Disposable)', 'type' => 'text' ),
 						'desc'  => array( 'label' => 'Description', 'type' => 'textarea' ),
+						'specs' => array( 'label' => 'Specs (one per line, e.g. E-liquid: 2ml)', 'type' => 'textarea' ),
 						'image' => array( 'label' => 'Image (tall, transparent PNG/WebP)', 'type' => 'image' ),
 						'c1'    => array( 'label' => 'Colour 1', 'type' => 'color' ),
 						'c2'    => array( 'label' => 'Colour 2', 'type' => 'color' ),
 						'link'  => array( 'label' => 'Link', 'type' => 'url' ),
 						'soon'  => array( 'label' => 'Coming soon', 'type' => 'switch' ),
 					),
-					'default'     => array(),
+					'default'     => oneam_products_as_rows(),
 				),
 			),
 			'style'    => array(
@@ -129,7 +165,7 @@ function oneam_elementor_widgets() {
 			'part'     => 'device',
 			'controls' => array(
 				'oneam_device_title' => array( 'label' => 'Title', 'type' => 'textarea', 'default' => oneam_opt( 'oneam_device_title' ), 'description' => 'One line per row. ' . $italic ),
-				'device_image'       => array( 'label' => 'Device image (optional)', 'type' => 'image', 'description' => 'Empty = the first 5 flavours from WooCommerce take turns.' ),
+				'device_image'       => array( 'label' => 'Device images (one or more, optional)', 'type' => 'gallery', 'description' => 'Several images take turns. Empty = the first 5 flavours from WooCommerce.' ),
 				'callouts'           => array(
 					'label'   => 'Callouts',
 					'type'    => 'repeater',

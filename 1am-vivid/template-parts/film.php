@@ -37,6 +37,8 @@ $first = oneam_get_flavors()[0];
 				</video>
 			<?php elseif ( $yt_id ) : ?>
 				<iframe class="film__media film__media--yt" src="https://www.youtube-nocookie.com/embed/<?php echo esc_attr( $yt_id ); ?>?autoplay=1&amp;mute=1&amp;loop=1&amp;playlist=<?php echo esc_attr( $yt_id ); ?>&amp;controls=0&amp;playsinline=1&amp;rel=0&amp;modestbranding=1" title="1AM brand film" allow="autoplay; encrypted-media; picture-in-picture"></iframe>
+			<?php elseif ( oneam_ctx( 'oneam_video_poster' ) ) : ?>
+				<img class="film__media film__media--img" src="<?php echo esc_url( oneam_ctx( 'oneam_video_poster' ) ); ?>" alt="">
 			<?php else : ?>
 				<div class="film__media film__media--empty" aria-hidden="true">
 					<img src="<?php echo esc_url( $first['img'] ); ?>" alt="" width="246" height="1400">

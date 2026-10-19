@@ -1561,3 +1561,10 @@ body.nav-open .nav-toggle i:last-child { transform: translateY(-3.5px) rotate(-4
 /* Device: 스크롤 고정 없이 한 화면 높이 이상 확보 (콜아웃 겹침 방지) */
 .device__pin { height: auto; min-height: 100svh; row-gap: 24px; }
 .device__stage { min-height: min(64vh, 600px); }
+
+/* Device: 직접 올린 이미지는 모양에 상관없이 크게 */
+.device__float { position: relative; display: grid; place-items: center; }
+.device__stack.is-custom { aspect-ratio: auto; height: min(56vh, 520px); width: min(80vw, 620px); }
+.device__stack.is-custom img { object-fit: contain; }
+.elementor .device__stack.is-custom img { width: 100%; height: 100%; }
+@media (max-width: 800px) { .device__stack.is-custom { height: 40vh; width: 86vw; } }

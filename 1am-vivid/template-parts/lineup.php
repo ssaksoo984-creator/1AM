@@ -9,17 +9,24 @@ if ( $custom ) {
 	$products = array();
 	foreach ( $custom as $i => $r ) {
 		$soon       = ! empty( $r['soon'] ) && 'yes' === $r['soon'];
+		$specs      = array();
+		foreach ( preg_split( '/\r?\n/', isset( $r['specs'] ) ? (string) $r['specs'] : '' ) as $line ) {
+			$kv = array_map( 'trim', explode( ':', $line, 2 ) );
+			if ( 2 === count( $kv ) && '' !== $kv[0] ) {
+				$specs[ $kv[0] ] = $kv[1];
+			}
+		}
 		$products[] = array(
 			'name'   => isset( $r['name'] ) ? $r['name'] : '',
-			'slug'   => 'custom-' . $i,
+			'slug'   => sanitize_title( isset( $r['name'] ) ? $r['name'] : '' ) ?: 'custom-' . $i,
 			'tag'    => isset( $r['tag'] ) ? $r['tag'] : '',
 			'desc'   => isset( $r['desc'] ) ? $r['desc'] : '',
-			'img'    => isset( $r['image']['url'] ) ? $r['image']['url'] : '',
+			'img'    => isset( $r['image'] ) ? oneam_media_url( $r['image'] ) : '',
 			'c1'     => ! empty( $r['c1'] ) ? $r['c1'] : '#8A3FFC',
 			'c2'     => ! empty( $r['c2'] ) ? $r['c2'] : '#16C75A',
-			'url'    => isset( $r['link']['url'] ) && $r['link']['url'] ? $r['link']['url'] : oneam_signup_url(),
+			'url'    => isset( $r['link'] ) && oneam_media_url( $r['link'] ) ? oneam_media_url( $r['link'] ) : oneam_signup_url(),
 			'status' => $soon ? 'soon' : 'available',
-			'specs'  => array(),
+			'specs'  => $specs,
 		);
 	}
 }
