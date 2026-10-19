@@ -356,3 +356,4 @@
 .pinfo__regions.is-pick li { padding: 0; }
 .pinfo__regions.is-pick button { display: block; padding: var(--chip-pad, 8px 14px); border: 0; border-radius: inherit; background: none; color: inherit; font: inherit; cursor: pointer; user-select: none; }
 .pinfo__regions.is-pick li:not(.is-you):hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.pinfo__regions li.is-off { opacity: .4; cursor: not-allowed; }

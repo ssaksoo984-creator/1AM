@@ -38,6 +38,10 @@ foreach ( $product->get_attributes() as $attr ) {
 	$vals = $attr->is_taxonomy() ? wc_get_product_terms( $product->get_id(), $attr->get_name(), array( 'fields' => 'names' ) ) : $attr->get_options();
 	$oneam_specs[ wc_attribute_label( $attr->get_name() ) ] = implode( ', ', $vals );
 }
+// 니코틴 함량 (상품 편집 > Nicotine concentration)
+if ( $product->get_meta( '_oneam_nicotine' ) ) {
+	$oneam_specs['Nicotine'] = $product->get_meta( '_oneam_nicotine' );
+}
 
 // 옵션 버튼 색 (맛 이름 → 색)
 $oneam_swatch = array();
@@ -97,7 +101,7 @@ $oneam_lines = function ( $key ) {
 
 			<?php if ( $oneam_soon ) : ?>
 				<div class="spdp__gate">
-					<p><strong>This line is in development.</strong> Approved retailers will be the first to know when it launches.</p>
+					<p><strong>In development.</strong> Approved retailers will be notified when it launches.</p>
 					<?php oneam_member_cta(); ?>
 				</div>
 			<?php elseif ( 'approved' === $oneam_state ) : ?>
@@ -138,13 +142,13 @@ $oneam_lines = function ( $key ) {
 			<?php endif; ?>
 
 			<ul class="spdp__facts">
-				<li><?php echo oneam_icon( 'truck' ); // phpcs:ignore ?> Ships in 1–5 business days · Purolator, UPS, Canpar</li>
-				<li><?php echo oneam_icon( 'check' ); // phpcs:ignore ?> Provincial excise stamps for <?php echo esc_html( $oneam_pp ? implode( ', ', array_keys( $oneam_pp ) ) : 'your province' ); ?></li>
+				<li><?php echo oneam_icon( 'truck' ); // phpcs:ignore ?> Ships within <?php echo esc_html( oneam_opt( 'oneam_dispatch_time' ) ); ?> of payment · delivery <?php echo esc_html( oneam_opt( 'oneam_transit_time' ) ); ?> after shipping</li>
+				<li><?php echo oneam_icon( 'check' ); // phpcs:ignore ?> We ship only products stamped for your store's province<?php echo $oneam_pp ? ' (' . esc_html( implode( ' · ', array_map( function ( $c ) { return $c . ': ' . oneam_stamp_for( $c ); }, array_keys( $oneam_pp ) ) ) ) . ')' : ''; ?></li>
 				<li><?php echo oneam_icon( 'card' ); // phpcs:ignore ?> <?php echo esc_html( oneam_opt( 'oneam_payments' ) ); ?> · Prices in CAD before GST</li>
 				<li><?php echo oneam_icon( 'check' ); // phpcs:ignore ?> <?php echo oneam_opt( 'oneam_processor' ) ? 'Secure payment by ' . esc_html( oneam_opt( 'oneam_processor' ) ) . ' · ' : ''; ?>All sales final</li>
 			</ul>
 
-			<p class="spdp__warning"><?php echo esc_html( oneam_opt( 'oneam_topbar' ) ); ?></p>
+			<p class="spdp__warning"><?php echo esc_html( oneam_health_warning() ); ?></p>
 		</div>
 	</div>
 
@@ -184,7 +188,7 @@ $oneam_lines = function ( $key ) {
 							<?php foreach ( $oneam_pp as $code => $price ) : ?>
 								<tr>
 									<td><?php echo esc_html( oneam_provinces()[ $code ] ?? $code ); ?></td>
-									<td><?php echo esc_html( $code ); ?> stamp</td>
+									<td><?php echo esc_html( oneam_stamp_label( $code ) ); ?></td>
 									<?php if ( 'approved' === $oneam_state ) : ?>
 										<td><?php echo wp_kses_post( wc_price( $price ) ); ?> + GST</td>
 									<?php endif; ?>
@@ -202,6 +206,7 @@ $oneam_lines = function ( $key ) {
 		<details class="spdp__acc">
 			<summary>Shipping &amp; returns</summary>
 			<div class="spdp__acc-body">
+				<p><?php echo esc_html( oneam_shipping_time_sentence() ); ?></p>
 				<?php foreach ( $oneam_lines( 'oneam_shop_shipping' ) as $line ) : ?>
 					<p><?php echo esc_html( $line ); ?></p>
 				<?php endforeach; ?>

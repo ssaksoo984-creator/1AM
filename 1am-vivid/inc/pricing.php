@@ -143,11 +143,11 @@ add_filter(
 		if ( ! ( function_exists( 'is_checkout' ) && ( is_checkout() || is_cart() ) ) && ! wp_doing_ajax() && ! ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 			return $states;
 		}
-		$allowed = null;
+		$allowed = oneam_sales_regions(); // 판매 주 (1AM Settings > Business & legal)
 		foreach ( WC()->cart->get_cart() as $item ) {
 			$pp = oneam_province_prices( $item['data'] );
 			if ( $pp ) {
-				$allowed = null === $allowed ? array_keys( $pp ) : array_intersect( $allowed, array_keys( $pp ) );
+				$allowed = array_intersect( $allowed, array_keys( $pp ) );
 			}
 		}
 		if ( $allowed ) {
@@ -164,6 +164,7 @@ add_action(
 		if ( oneam_province_prices( $values['data'] ) ) {
 			$prov = $order->get_shipping_state() ?: $order->get_billing_state();
 			$item->add_meta_data( 'Province / excise stamp', $prov, true );
+			$item->add_meta_data( 'Excise stamp', oneam_stamp_label( $prov ), true );
 		}
 	},
 	10,
@@ -195,6 +196,14 @@ add_action(
 				'description' => 'Shown after the price, e.g. "$80.00 / carton + GST".',
 			)
 		);
+		woocommerce_wp_text_input(
+			array(
+				'id'          => '_oneam_nicotine',
+				'label'       => 'Nicotine concentration',
+				'placeholder' => 'e.g. 20 mg/mL',
+				'description' => 'Shown in the product specs. Federal maximum: 20 mg/mL.',
+			)
+		);
 		echo '</div>';
 	},
 	30
@@ -213,6 +222,9 @@ add_action(
 		}
 		if ( isset( $_POST['_oneam_unit'] ) ) {
 			$product->update_meta_data( '_oneam_unit', sanitize_text_field( wp_unslash( $_POST['_oneam_unit'] ) ) );
+		}
+		if ( isset( $_POST['_oneam_nicotine'] ) ) {
+			$product->update_meta_data( '_oneam_nicotine', sanitize_text_field( wp_unslash( $_POST['_oneam_nicotine'] ) ) );
 		}
 		// phpcs:enable
 	}
@@ -341,7 +353,9 @@ function oneam_regions_html( $regions, $product = null ) {
 		if ( $show && isset( $pp[ $code ] ) ) {
 			$label .= ' ' . wp_strip_all_tags( wc_price( $pp[ $code ] ) ) . ' / ' . oneam_unit_label( $product ) . ' + GST';
 		}
-		if ( $pick && isset( $pp[ $code ] ) ) {
+		if ( $pick && isset( $pp[ $code ] ) && ! oneam_account_can_ship_to( $code ) ) {
+			$out .= '<li class="is-off" title="' . esc_attr( 'Your account is not registered for a store in ' . ( oneam_provinces()[ $code ] ?? $code ) . '. Contact us to add one.' ) . '">' . esc_html( $label ) . '</li>';
+		} elseif ( $pick && isset( $pp[ $code ] ) ) {
 			$out .= '<li' . ( $code === $you ? ' class="is-you"' : '' ) . '><button type="button" data-prov="' . esc_attr( $code ) . '" data-name="' . esc_attr( oneam_provinces()[ $code ] ?? $code ) . '" data-price="' . esc_attr( wc_price( $pp[ $code ] ) ) . '" aria-pressed="' . ( $code === $you ? 'true' : 'false' ) . '">' . esc_html( $label ) . '</button></li>';
 		} else {
 			$out .= '<li' . ( $code === $you ? ' class="is-you"' : '' ) . '>' . esc_html( $label ) . '</li>';
@@ -354,7 +368,7 @@ function oneam_regions_html( $regions, $product = null ) {
 function oneam_ajax_set_province() {
 	check_ajax_referer( 'oneam_prov', 'nonce' );
 	$prov = strtoupper( sanitize_text_field( wp_unslash( $_POST['prov'] ?? '' ) ) );
-	if ( ! isset( oneam_provinces()[ $prov ] ) || ! function_exists( 'WC' ) || ! WC()->customer ) {
+	if ( ! in_array( $prov, oneam_sales_regions(), true ) || ! oneam_account_can_ship_to( $prov ) || ! function_exists( 'WC' ) || ! WC()->customer ) {
 		wp_send_json_error();
 	}
 	WC()->customer->set_shipping_country( 'CA' );
@@ -420,7 +434,7 @@ function oneam_setup_etransfer() {
 				'enabled'      => 'yes',
 				'title'        => 'Interac e-Transfer',
 				'description'  => "After you place your order, send an Interac e-Transfer for the order total to {$email}. Put your order number in the message. Your order ships once payment is received.",
-				'instructions' => "Please send an Interac e-Transfer for the order total to {$email} and include your order number in the message. We process your order as soon as the payment arrives. Unpaid orders may be cancelled after 3 business days.",
+				'instructions' => "Please send an Interac e-Transfer for the order total to {$email} and include your order number in the message. We process your order as soon as the payment arrives. " . oneam_unpaid_note() . "",
 			)
 		)
 	);
@@ -458,11 +472,11 @@ function oneam_etransfer_box( $order, $plain = false ) {
 	$email = oneam_etransfer_email();
 	$num   = $order->get_order_number();
 	if ( $plain ) {
-		echo "\nINTERAC E-TRANSFER\nSend: {$total}\nTo: {$email}\nMessage: Order #{$num}\nUnpaid orders may be cancelled after 3 business days.\n\n"; // phpcs:ignore
+		echo "\nINTERAC E-TRANSFER\nSend: {$total}\nTo: {$email}\nMessage: Order #{$num}\n" . oneam_unpaid_note() . "\n\n"; // phpcs:ignore
 		return;
 	}
 	printf(
-		'<div class="etransfer"><p class="etransfer__title">Pay by Interac e-Transfer</p><dl><div><dt>Send</dt><dd>%s</dd></div><div><dt>To</dt><dd>%s</dd></div><div><dt>Message</dt><dd>Order #%s</dd></div></dl><p class="etransfer__note">We process your order as soon as the payment arrives. Unpaid orders may be cancelled after 3 business days.</p></div>',
+		'<div class="etransfer"><p class="etransfer__title">Pay by Interac e-Transfer</p><dl><div><dt>Send</dt><dd>%s</dd></div><div><dt>To</dt><dd>%s</dd></div><div><dt>Message</dt><dd>Order #%s</dd></div></dl><p class="etransfer__note">We process your order as soon as the payment arrives. ' . esc_html( oneam_unpaid_note() ) . '</p></div>',
 		esc_html( $total ),
 		esc_html( $email ),
 		esc_html( $num )

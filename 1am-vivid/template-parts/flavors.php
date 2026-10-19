@@ -36,7 +36,7 @@ $heading = isset( $args['title'] ) ? $args['title'] : 'Slim HYBRID';
 				<a href="<?php echo esc_url( $f['url'] ); ?>" data-cursor="View" data-flavour="<?php echo esc_attr( wp_json_encode( oneam_flavour_popup_data( $f, $cats ) ) ); ?>">
 					<span class="card__fill" aria-hidden="true"></span>
 					<span class="card__cat"><?php echo esc_html( $cats[ $f['cat'] ] ?? '' ); ?></span>
-					<span class="card__img"><img src="<?php echo esc_url( $f['img'] ); ?>" alt="" width="246" height="1400" loading="lazy"></span>
+					<span class="card__img"><img src="<?php echo esc_url( $f['img'] ); ?>" alt="<?php echo esc_attr( $f['name'] ); ?>" width="246" height="1400" loading="lazy"></span>
 					<span class="card__name"><?php echo esc_html( $f['name'] ); ?></span>
 					<span class="card__swatch" aria-hidden="true"></span>
 				</a>

@@ -43,7 +43,7 @@
 		</nav>
 	</div>
 	<div class="site-footer__bottom">
-		<p class="site-footer__warning"><?php echo esc_html( oneam_opt( 'oneam_warning' ) ); ?></p>
+		<p class="site-footer__warning"><?php echo esc_html( oneam_health_warning( 'oneam_warning' ) ); ?></p>
 		<p>
 			Distributed by <?php echo esc_html( oneam_opt( 'oneam_company' ) ); ?>
 			<?php if ( oneam_opt( 'oneam_address' ) ) : ?>
@@ -52,6 +52,9 @@
 			· <a href="mailto:<?php echo esc_attr( oneam_opt( 'oneam_email' ) ); ?>"><?php echo esc_html( oneam_opt( 'oneam_email' ) ); ?></a>
 			<?php if ( oneam_opt( 'oneam_phone' ) ) : ?>
 				· <a href="tel:<?php echo esc_attr( preg_replace( '/[^\d+]/', '', oneam_opt( 'oneam_phone' ) ) ); ?>"><?php echo esc_html( oneam_opt( 'oneam_phone' ) ); ?></a>
+			<?php endif; ?>
+			<?php if ( oneam_gst_line() ) : ?>
+				· <?php echo esc_html( oneam_gst_line() ); ?>
 			<?php endif; ?>
 			<br>
 			<?php echo esc_html( oneam_opt( 'oneam_payments' ) ); ?> · Prices in CAD<br>

@@ -1954,3 +1954,6 @@ body.home .site-header, body.home .site-header.is-dark, body.home .site-header.i
 	box-shadow: none;
 }
 body.home.nav-open .site-header { background: var(--white); }
+.apply__hint { display: block; margin-top: 6px; font-size: 12px; opacity: .7; }
+.apply__pst[hidden], .apply__hp[hidden] { display: none !important; }
+.apply label small { font-weight: 500; opacity: .7; }

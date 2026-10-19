@@ -8,7 +8,7 @@ $items = oneam_ctx( 'items', array() ) ? array_map( function ( $r ) { return arr
 		array( 'Wholesale only', 'Every account is reviewed and verified before it can see pricing or place orders.', '#8A3FFC', '#1E5BFF' ),
 		array( 'Compliance first', 'Products are supplied for sale in line with Canadian excise stamp and provincial requirements.', '#00C2A8', '#16C75A' ),
 		array( 'Product integrity', 'Original packaging, warning labels and regulatory markings stay intact from our warehouse to your shelf.', '#FF2E4D', '#FFB321' ),
-		array( 'Fast, tracked shipping', 'Orders ship by Purolator, UPS or Canpar Ground, typically arriving in 1–5 business days.', '#FFD60A', '#FF8A4D' ),
+		array( 'Fast, tracked shipping', 'Orders ship by Purolator, UPS or Canpar Ground within ' . oneam_opt( 'oneam_dispatch_time' ) . ' of payment and typically arrive ' . oneam_opt( 'oneam_transit_time' ) . ' after shipping.', '#FFD60A', '#FF8A4D' ),
 	)
 );
 ?>

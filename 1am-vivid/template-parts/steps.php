@@ -5,8 +5,8 @@
 $steps = oneam_ctx( 'items', array() ) ? array_map( function ( $r ) { return array( $r['title'], $r['text'] ); }, oneam_ctx( 'items' ) ) : array(
 	array( 'Apply', 'Submit the retail account application with your business information and documents confirming an authorized adult-only vape store.' ),
 	array( 'Get verified', 'Our team reviews your application, usually within 1–2 business days, and emails you once your account is approved.' ),
-	array( 'Order online', 'Log in to see wholesale pricing. Choose products with the correct excise stamps for your province and confirm compliance at checkout.' ),
-	array( 'Pay & ship', 'Pay by ' . ( oneam_opt( 'oneam_processor' ) ? 'Interac e-Transfer or card' : 'Interac e-Transfer' ) . '. Orders ship by Purolator, UPS or Canpar Ground, typically arriving in 1–5 business days.' ),
+	array( 'Order online', 'Log in to see wholesale pricing. Choose your store\'s province — we ship only products stamped for it — and confirm compliance at checkout.' ),
+	array( 'Pay & ship', 'Pay by ' . ( oneam_opt( 'oneam_processor' ) ? 'Interac e-Transfer or card' : 'Interac e-Transfer' ) . '. Orders ship within ' . oneam_opt( 'oneam_dispatch_time' ) . ' of payment by Purolator, UPS or Canpar Ground and typically arrive ' . oneam_opt( 'oneam_transit_time' ) . ' after shipping.' ),
 );
 ?>
 <?php

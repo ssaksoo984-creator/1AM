@@ -12,7 +12,7 @@ $email = oneam_ctx( 'email', oneam_opt( 'oneam_email' ) );
 	<div class="work__cards">
 		<article class="work__card work__card--apply">
 			<span class="work__badge"><?php echo esc_html( oneam_ctx( 'apply_label', 'Retail account' ) ); ?></span>
-			<h3><?php echo esc_html( oneam_ctx( 'apply_title', 'Run an adult-only vape store in Canada?' ) ); ?></h3>
+			<h3><?php echo esc_html( oneam_ctx( 'apply_title', 'Run an adult-only vape store in ' . oneam_regions_phrase() . '?' ) ); ?></h3>
 			<p><?php echo esc_html( oneam_ctx( 'apply_text', 'Apply for a wholesale account. Once your business is verified, you can see pricing and order online.' ) ); ?></p>
 			<?php oneam_member_cta( 'btn--light' ); ?>
 		</article>

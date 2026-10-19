@@ -39,6 +39,29 @@ function oneam_wholesale_fields() {
 	);
 }
 
+/** 선택 항목 (빈칸 가능) */
+function oneam_wholesale_optional_fields() {
+	return array(
+		'oneam_pst_number' => 'PST number (BC/SK, for resale exemption)',
+	);
+}
+
+/** 형식 검사: BN 9자리 · 우편번호 A1A 1A1 · 전화 10자리. 문제가 있으면 오류 코드 */
+function oneam_validate_application( $data ) {
+	$bn = preg_replace( '/[\s-]/', '', $data['oneam_business_number'] );
+	if ( ! preg_match( '/^\d{9}([A-Z]{2}\d{4})?$/i', $bn ) ) {
+		return 'bn';
+	}
+	if ( ! preg_match( '/^[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z][ -]?\d[ABCEGHJ-NPRSTV-Z]\d$/i', trim( $data['oneam_postcode'] ) ) ) {
+		return 'postcode';
+	}
+	$phone = preg_replace( '/\D/', '', $data['oneam_phone'] );
+	if ( 11 === strlen( $phone ) && '1' === $phone[0] ) {
+		$phone = substr( $phone, 1 );
+	}
+	return 10 === strlen( $phone ) ? '' : 'phone';
+}
+
 /** 메일 보내기: 답장은 영업 메일로, 서명은 유통사 */
 function oneam_mail( $to, $subject, $body ) {
 	$email = oneam_opt( 'oneam_email' );
@@ -61,6 +84,16 @@ function oneam_wholesale_status( $user_id ) {
  * 서류 보관 폴더 (웹에서 직접 열 수 없게)
  * ------------------------------------------------------------------------- */
 function oneam_docs_dir() {
+	// 가능하면 웹 폴더 바깥(사이트 폴더 한 단계 위)에 저장 — 웹 주소로는 절대 열 수 없음
+	$outside = dirname( untrailingslashit( ABSPATH ) ) . '/oneam-private-docs';
+	if ( is_dir( $outside ) || ( is_writable( dirname( $outside ) ) && wp_mkdir_p( $outside ) ) ) {
+		return $outside;
+	}
+	return oneam_docs_dir_public();
+}
+
+/** 예전 보관 위치 (wp-content/uploads 안, .htaccess 로 차단 · 파일 이름은 무작위) */
+function oneam_docs_dir_public() {
 	$up  = wp_upload_dir();
 	$dir = trailingslashit( $up['basedir'] ) . 'oneam-wholesale-docs';
 	if ( ! is_dir( $dir ) ) {
@@ -105,8 +138,19 @@ add_action(
 				$fail( 'missing' );
 			}
 		}
-		if ( ! array_key_exists( $data['oneam_province'], oneam_provinces() ) ) {
-			$fail( 'missing' );
+		if ( ! in_array( $data['oneam_province'], oneam_sales_regions(), true ) ) {
+			$fail( 'region' );
+		}
+		$bad = oneam_validate_application( $data );
+		if ( $bad ) {
+			$fail( $bad );
+		}
+		$data['oneam_postcode'] = strtoupper( preg_replace( '/^(\w{3})[ -]?(\w{3})$/', '$1 $2', trim( $data['oneam_postcode'] ) ) );
+		foreach ( oneam_wholesale_optional_fields() as $key => $label ) {
+			$data[ $key ] = isset( $_POST[ $key ] ) ? sanitize_text_field( wp_unslash( $_POST[ $key ] ) ) : '';
+		}
+		if ( 'AB' === $data['oneam_province'] ) {
+			$data['oneam_pst_number'] = ''; // Alberta 는 PST 없음
 		}
 		$email    = isset( $_POST['oneam_email'] ) ? sanitize_email( wp_unslash( $_POST['oneam_email'] ) ) : '';
 		$password = isset( $_POST['oneam_password'] ) ? (string) wp_unslash( $_POST['oneam_password'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
@@ -133,6 +177,11 @@ add_action(
 		if ( empty( $check['ext'] ) || (int) $file['size'] > 10 * MB_IN_BYTES ) {
 			$fail( 'file' );
 		}
+		// 확장자만 믿지 않고 파일 내용으로 형식 확인
+		$real = function_exists( 'finfo_open' ) ? finfo_file( finfo_open( FILEINFO_MIME_TYPE ), $file['tmp_name'] ) : ( function_exists( 'mime_content_type' ) ? mime_content_type( $file['tmp_name'] ) : '' );
+		if ( ! $real || ! in_array( $real, array_values( $types ), true ) || $real !== $check['type'] ) {
+			$fail( 'file' );
+		}
 
 		// 계정 생성 (WooCommerce 고객, 승인 대기)
 		$login   = sanitize_user( current( explode( '@', $email ) ) . '-' . wp_generate_password( 4, false ), true );
@@ -155,6 +204,10 @@ add_action(
 		update_user_meta( $user_id, 'oneam_wholesale_status', 'pending' );
 		update_user_meta( $user_id, 'oneam_applied_at', current_time( 'mysql' ) );
 		update_user_meta( $user_id, 'oneam_terms_accepted', current_time( 'mysql' ) );
+		// CASL: 마케팅 메일은 직접 체크한 경우에만 (기본 해제), 동의 시각 기록
+		if ( ! empty( $_POST['oneam_marketing'] ) ) {
+			update_user_meta( $user_id, 'oneam_marketing_consent', current_time( 'mysql' ) );
+		}
 		// WooCommerce 청구지 정보도 미리 채워둠
 		update_user_meta( $user_id, 'billing_company', $data['oneam_business_name'] );
 		update_user_meta( $user_id, 'billing_phone', $data['oneam_phone'] );
@@ -176,12 +229,12 @@ add_action(
 		oneam_mail(
 			oneam_staff_emails(),
 			'[1AM] New wholesale application: ' . $data['oneam_business_name'],
-			"A new retail account application is waiting for verification.\n\nBusiness: {$data['oneam_business_name']}\nBusiness number: {$data['oneam_business_number']}\nStore: {$data['oneam_store_address']}, {$data['oneam_city']}, {$data['oneam_province']} {$data['oneam_postcode']}\nContact: {$data['oneam_contact_name']}\nEmail: {$email}\nPhone: {$data['oneam_phone']}\n\nCheck the documents and approve or reject here:\n{$admin_url}"
+			"A new retail account application is waiting for verification.\n\nBusiness: {$data['oneam_business_name']}\nBusiness number: {$data['oneam_business_number']}\nStore: {$data['oneam_store_address']}, {$data['oneam_city']}, {$data['oneam_province']} {$data['oneam_postcode']}\nPST number: " . ( $data['oneam_pst_number'] ?: '—' ) . "\nContact: {$data['oneam_contact_name']}\nEmail: {$email}\nPhone: {$data['oneam_phone']}\n\nCheck the documents and approve or reject here:\n{$admin_url}"
 		);
 		oneam_mail(
 			$email,
 			'We received your 1AM retail account application',
-			"Hi {$data['oneam_contact_name']},\n\nThank you for applying for a 1AM retail account. 1AM products are sold exclusively to verified and approved adult-only vape retailers in Canada.\n\nOur team will review your business information and documents, usually within 1–2 business days. We may contact you if additional documentation is needed. You will receive an email as soon as your account is approved.\n\nQuestions? Just reply to this email."
+			"Hi {$data['oneam_contact_name']},\n\nThank you for applying for a 1AM retail account. 1AM products are sold exclusively to verified and approved adult-only vape retailers in " . oneam_regions_phrase() . ".\n\nOur team will review your business information and documents, usually within 1–2 business days. We may contact you if additional documentation is needed. You will receive an email as soon as your account is approved.\n\nQuestions? Just reply to this email."
 		);
 
 		// 바로 로그인 → 승인 대기 안내
@@ -221,6 +274,10 @@ function oneam_wholesale_form() {
 	$errors = array(
 		'expired'  => 'The form expired. Please try again.',
 		'missing'  => 'Please fill in every field.',
+		'region'   => 'We currently supply stores in ' . oneam_regions_phrase() . ' only. Stores in other provinces and territories are not supported yet.',
+		'bn'       => 'Please enter your 9-digit Business Number (BN), e.g. 123456789.',
+		'postcode' => 'Please enter a valid Canadian postal code, e.g. V6B 1A1.',
+		'phone'    => 'Please enter a 10-digit phone number, e.g. 604-555-0100.',
 		'email'    => 'Please enter a valid email address.',
 		'exists'   => 'An account with this email already exists. Please log in instead.',
 		'password' => 'Your password must be at least 8 characters.',
@@ -236,28 +293,30 @@ function oneam_wholesale_form() {
 	<form class="apply__form" method="post" enctype="multipart/form-data">
 		<?php wp_nonce_field( 'oneam_apply', 'oneam_apply_nonce' ); ?>
 		<input type="hidden" name="oneam_wholesale_apply" value="1">
-		<p class="apply__hp" aria-hidden="true"><label>Website <input type="text" name="oneam_website" tabindex="-1" autocomplete="off"></label></p>
+		<div class="apply__hp" aria-hidden="true" hidden><label>Leave this field empty <input type="text" name="oneam_website" tabindex="-1" autocomplete="off"></label></div>
 
 		<fieldset>
 			<legend>Business</legend>
 			<p><label for="oneam_business_name">Business name</label><input id="oneam_business_name" name="oneam_business_name" required autocomplete="organization"></p>
-			<p><label for="oneam_business_number">Business number (BN)</label><input id="oneam_business_number" name="oneam_business_number" required></p>
+			<p><label for="oneam_business_number">Business number (BN, 9 digits)</label><input id="oneam_business_number" name="oneam_business_number" required inputmode="numeric" title="9-digit Business Number, e.g. 123456789"></p>
 			<p class="is-wide"><label for="oneam_store_address">Store address</label><input id="oneam_store_address" name="oneam_store_address" required autocomplete="street-address"></p>
 			<p><label for="oneam_city">City</label><input id="oneam_city" name="oneam_city" required autocomplete="address-level2"></p>
 			<p><label for="oneam_province">Province</label>
 				<select id="oneam_province" name="oneam_province" required>
 					<option value="">Choose…</option>
-					<?php foreach ( oneam_provinces() as $code => $label ) : ?>
-						<option value="<?php echo esc_attr( $code ); ?>"><?php echo esc_html( $label ); ?></option>
+					<?php foreach ( oneam_sales_regions() as $code ) : ?>
+						<option value="<?php echo esc_attr( $code ); ?>"><?php echo esc_html( oneam_provinces()[ $code ] ); ?></option>
 					<?php endforeach; ?>
-				</select></p>
-			<p><label for="oneam_postcode">Postal code</label><input id="oneam_postcode" name="oneam_postcode" required autocomplete="postal-code"></p>
+				</select>
+				<small class="apply__hint">We currently supply stores in <?php echo esc_html( oneam_regions_phrase() ); ?> only. Other provinces and territories are not supported yet.</small></p>
+			<p><label for="oneam_postcode">Postal code</label><input id="oneam_postcode" name="oneam_postcode" required autocomplete="postal-code" title="Canadian postal code, e.g. V6B 1A1"></p>
+			<p class="apply__pst"><label for="oneam_pst_number">PST number <small>(optional — BC/SK, for resale exemption)</small></label><input id="oneam_pst_number" name="oneam_pst_number" autocomplete="off"></p>
 		</fieldset>
 
 		<fieldset>
 			<legend>Contact &amp; login</legend>
 			<p><label for="oneam_contact_name">Contact name</label><input id="oneam_contact_name" name="oneam_contact_name" required autocomplete="name"></p>
-			<p><label for="oneam_phone">Phone</label><input id="oneam_phone" name="oneam_phone" type="tel" required autocomplete="tel"></p>
+			<p><label for="oneam_phone">Phone</label><input id="oneam_phone" name="oneam_phone" type="tel" required autocomplete="tel" title="10-digit phone number, e.g. 604-555-0100"></p>
 			<p><label for="oneam_email">Email</label><input id="oneam_email" name="oneam_email" type="email" required autocomplete="email"></p>
 			<p><label for="oneam_password">Password (8+ characters)</label><input id="oneam_password" name="oneam_password" type="password" minlength="8" required autocomplete="new-password"></p>
 		</fieldset>
@@ -266,11 +325,20 @@ function oneam_wholesale_form() {
 			<legend>Documents</legend>
 			<p class="is-wide"><label for="oneam_document">Proof of your authorized adult-only vape retail store — e.g. business licence or registration (PDF, JPG or PNG, max 10 MB). We may ask for more documents.</label><input id="oneam_document" name="oneam_document" type="file" accept=".pdf,.jpg,.jpeg,.png" required></p>
 			<p class="is-wide apply__check"><label><input type="checkbox" name="oneam_agree" value="1" required> <span>I confirm my business is an authorized adult-only vape retail store in Canada, legally permitted to purchase and resell vaping products, that the information provided is accurate, and that I am <?php echo (int) oneam_opt( 'oneam_min_age' ); ?> or older. I agree to the <a href="<?php echo esc_url( home_url( '/terms/' ) ); ?>" target="_blank">Terms &amp; Conditions</a>, including <a href="<?php echo esc_url( home_url( '/terms/#vape-compliance' ) ); ?>" target="_blank">Vaping Product Compliance</a>.</span></label></p>
+			<p class="is-wide apply__check"><label><input type="checkbox" name="oneam_marketing" value="1"> <span>Optional: email me about new products and offers. I can unsubscribe at any time.</span></label></p>
 		</fieldset>
 
 		<button class="btn btn--solid btn--xl" type="submit"<?php disabled( $preview ); ?>><span>Submit application &rarr;</span></button>
 		<p class="apply__login">Already applied? <a href="<?php echo esc_url( oneam_login_url() ); ?>">Log in</a></p>
 	</form>
+	<script>
+	(function () {
+		var p = document.getElementById('oneam_province'), box = document.querySelector('.apply__pst');
+		if (!p || !box) return;
+		function sync() { box.hidden = p.value === 'AB'; if (box.hidden) box.querySelector('input').value = ''; }
+		p.addEventListener('change', sync); sync();
+	})();
+	</script>
 	<?php
 	echo '</div>';
 	return ob_get_clean();
@@ -326,7 +394,7 @@ function oneam_set_wholesale_status( $user_id, $status ) {
 		oneam_mail(
 			$user->user_email,
 			'Your 1AM retail account is approved',
-			"Hi {$name},\n\nGood news — your business has been verified and your 1AM retail account is approved. Log in to see wholesale pricing and place your first order:\n" . oneam_login_url() . "\n\nBefore ordering, please make sure the products you select carry the correct excise stamps for your retail sales jurisdiction. If you are unsure which stamp you need, contact us before placing your order.\n\nOrders are subject to our Terms & Conditions, including Vaping Product Compliance:\n" . home_url( '/terms/#vape-compliance' ) . "\n\nWelcome aboard."
+			"Hi {$name},\n\nGood news — your business has been verified and your 1AM retail account is approved. Log in to see wholesale pricing and place your first order:\n" . oneam_login_url() . "\n\nWe ship only products stamped for your store's province: choose your store's province on the product page or at checkout, and your order ships with the matching excise stamp. Operating stores in more than one province? Reply to this email and we will add them to your account.\n\nOrders are subject to our Terms & Conditions, including Vaping Product Compliance:\n" . home_url( '/terms/#vape-compliance' ) . "\n\nWelcome aboard."
 		);
 	} elseif ( 'rejected' === $status ) {
 		oneam_mail(
@@ -428,6 +496,9 @@ add_action(
 		}
 		$name = basename( (string) get_user_meta( $uid, 'oneam_document', true ) );
 		$path = oneam_docs_dir() . '/' . $name;
+		if ( $name && ! is_file( $path ) ) {
+			$path = oneam_docs_dir_public() . '/' . $name; // 예전 위치에 있는 서류
+		}
 		if ( ! $name || ! is_file( $path ) ) {
 			wp_die( 'Document not found.' );
 		}
@@ -508,9 +579,11 @@ function oneam_wholesale_profile( $user ) {
 			</select>
 			<p class="description">Changing to Approved or Rejected emails the applicant.</p>
 		</td></tr>
-		<?php foreach ( oneam_wholesale_fields() as $key => $label ) : ?>
+		<?php foreach ( oneam_wholesale_fields() + oneam_wholesale_optional_fields() as $key => $label ) : ?>
 			<tr><th><?php echo esc_html( $label ); ?></th><td><input type="text" class="regular-text" name="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( get_user_meta( $user->ID, $key, true ) ); ?>"></td></tr>
 		<?php endforeach; ?>
+		<?php do_action( 'oneam_wholesale_profile_rows', $user ); ?>
+		<tr><th>Marketing emails</th><td><?php echo esc_html( get_user_meta( $user->ID, 'oneam_marketing_consent', true ) ? 'Opted in on ' . get_user_meta( $user->ID, 'oneam_marketing_consent', true ) : 'No consent — do not send marketing emails' ); ?></td></tr>
 		<tr><th>Document</th><td>
 			<?php if ( get_user_meta( $user->ID, 'oneam_document', true ) ) : ?>
 				<a class="button" target="_blank" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=oneam_doc&user=' . $user->ID ), 'oneam_doc_' . $user->ID ) ); ?>">View uploaded document</a>
@@ -531,11 +604,12 @@ function oneam_wholesale_profile_save( $user_id ) {
 	}
 	// 프로필 저장은 WordPress 가 nonce 를 확인합니다 (update-user_{id}).
 	// phpcs:disable WordPress.Security.NonceVerification
-	foreach ( array_keys( oneam_wholesale_fields() ) as $key ) {
+	foreach ( array_keys( oneam_wholesale_fields() + oneam_wholesale_optional_fields() ) as $key ) {
 		if ( isset( $_POST[ $key ] ) ) {
 			update_user_meta( $user_id, $key, sanitize_text_field( wp_unslash( $_POST[ $key ] ) ) );
 		}
 	}
+	do_action( 'oneam_wholesale_profile_save', $user_id );
 	if ( isset( $_POST['oneam_wholesale_status'] ) ) {
 		$to = sanitize_key( wp_unslash( $_POST['oneam_wholesale_status'] ) );
 		if ( '' === $to ) {

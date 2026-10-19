@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_VERSION', '1.17.4' );
+define( 'ONEAM_VERSION', '1.18.0' );
 
 function oneam_asset( $path ) {
 	return get_template_directory_uri() . '/assets/' . ltrim( $path, '/' );
@@ -20,10 +20,12 @@ require get_template_directory() . '/inc/woo-sync.php';
 require get_template_directory() . '/inc/pricing.php';
 require get_template_directory() . '/inc/editor.php';
 require get_template_directory() . '/inc/wholesale.php';
+require get_template_directory() . '/inc/compliance.php';
 require get_template_directory() . '/inc/elementor.php';
 require get_template_directory() . '/inc/policies.php';
 require get_template_directory() . '/inc/setup-pages.php';
 require get_template_directory() . '/inc/elementor-pages.php';
+require get_template_directory() . '/inc/migrate.php';
 
 add_action(
 	'after_setup_theme',
