@@ -645,3 +645,87 @@ add_action(
 		);
 	}
 );
+
+/* ---------------------------------------------------------------------------
+ * 상품 라인업 목록 채우기
+ * 예전 버전에서 만든 위젯은 "Products" 목록이 비어 있음 → 지금 상품으로 채워서 편집할 수 있게
+ * ------------------------------------------------------------------------- */
+function oneam_lineup_rows_with_ids() {
+	return array_map(
+		function ( $r ) {
+			return array_merge( array( '_id' => substr( md5( wp_generate_password( 8, false ) ), 0, 7 ) ), $r );
+		},
+		oneam_products_as_rows()
+	);
+}
+
+/**
+ * Elementor 데이터 안의 1AM 상품 라인업 위젯을 찾아 목록 채우기.
+ * $replace_unmatched: 실제 상품과 이름이 하나도 안 맞는 목록(테스트 입력)도 교체
+ */
+function oneam_fill_lineup_data( &$elements, $replace_unmatched ) {
+	$changed = false;
+	$names   = array_map( 'strtolower', wp_list_pluck( oneam_get_products(), 'name' ) );
+	foreach ( $elements as &$el ) {
+		if ( isset( $el['widgetType'] ) && 'oneam-lineup' === $el['widgetType'] ) {
+			$settings = isset( $el['settings'] ) ? (array) $el['settings'] : array();
+			$items    = isset( $settings['items'] ) ? (array) $settings['items'] : array();
+			$matched  = array_filter( $items, function ( $r ) use ( $names ) { return isset( $r['name'] ) && in_array( strtolower( trim( $r['name'] ) ), $names, true ); } );
+			if ( ! $items || ( $replace_unmatched && ! $matched ) ) {
+				$settings['items'] = oneam_lineup_rows_with_ids();
+				$el['settings']    = $settings;
+				$changed           = true;
+			}
+		}
+		if ( ! empty( $el['elements'] ) && oneam_fill_lineup_data( $el['elements'], $replace_unmatched ) ) {
+			$changed = true;
+		}
+	}
+	return $changed;
+}
+
+function oneam_fill_lineup_post( $post_id, $replace_unmatched ) {
+	$raw = get_post_meta( $post_id, '_elementor_data', true );
+	if ( ! is_string( $raw ) || false === strpos( $raw, 'oneam-lineup' ) ) {
+		return false;
+	}
+	$data = json_decode( $raw, true );
+	if ( ! is_array( $data ) || ! oneam_fill_lineup_data( $data, $replace_unmatched ) ) {
+		return false;
+	}
+	update_post_meta( $post_id, '_elementor_data', wp_slash( wp_json_encode( $data ) ) );
+	delete_post_meta( $post_id, '_elementor_css' );
+	return true;
+}
+
+/** 한 번만: 사이트의 모든 Elementor 페이지 정리 */
+add_action(
+	'admin_init',
+	function () {
+		if ( '1' === get_option( 'oneam_lineup_rows_v1' ) || ! current_user_can( 'edit_pages' ) ) {
+			return;
+		}
+		global $wpdb;
+		$ids = $wpdb->get_col( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_elementor_data' AND meta_value LIKE '%oneam-lineup%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		foreach ( $ids as $id ) {
+			oneam_fill_lineup_post( (int) $id, true );
+		}
+		update_option( 'oneam_lineup_rows_v1', '1' );
+	}
+);
+
+/** Elementor 로 열 때마다: 비어 있는 목록은 채워서 열기 */
+add_action(
+	'admin_action_elementor',
+	function () {
+		$id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification
+		if ( $id && current_user_can( 'edit_post', $id ) ) {
+			oneam_fill_lineup_post( $id, false );
+			$auto = wp_get_post_autosave( $id ); // Elementor 가 자동 저장본으로 열 때도
+			if ( $auto ) {
+				oneam_fill_lineup_post( $auto->ID, false );
+			}
+		}
+	},
+	2
+);
