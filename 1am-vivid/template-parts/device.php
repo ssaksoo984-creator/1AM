@@ -9,8 +9,6 @@ if ( $custom ) {
 	foreach ( $custom as $url ) {
 		$mine[] = array_merge( $hero, array( 'img' => $url ) );
 	}
-	// 1~2장만 올렸으면 맛 이미지와 섞어서 3개가 돌아가게 (넓은 사진 한 장만 쓰려면 "Rotate with flavour images" 끄기)
-	$stack = ( count( $mine ) < 3 && 'no' !== oneam_ctx( 'mix_flavours', 'yes' ) ) ? array_merge( $mine, $stack ) : $mine;
 }
 $callouts = oneam_ctx( 'callouts', array() ) ? array_map( function ( $r ) { return array( $r['title'], $r['text'] ); }, oneam_ctx( 'callouts' ) ) : array(
 	array( 'Crystal shell', 'A clear crystal body shows the colour core inside.' ),
@@ -37,10 +35,10 @@ if ( ! $specs ) {
 			<div class="device__ring" aria-hidden="true"></div>
 			<div class="device__float">
 			<?php
-			// 이미지가 3장 이상이면 3개가 나란히 보이며 돌아가고, 직접 올린 이미지가 1~2장이면 그 이미지만 크게
-			$oneam_fan = count( $stack ) >= 3;
+			// 제품 하나만 둥둥 (직접 올린 이미지가 있으면 그 첫 장, 없으면 첫 번째 맛)
+			$stack = array_slice( $custom ? $mine : $stack, 0, 1 );
 			?>
-			<div class="device__stack<?php echo $custom && ! $oneam_fan ? ' is-custom' : ''; ?><?php echo $oneam_fan ? ' is-fan' : ''; ?>">
+			<div class="device__stack is-single">
 				<?php foreach ( $stack as $i => $f ) : ?>
 					<img src="<?php echo esc_url( $f['img'] ); ?>" alt="<?php echo 0 === $i ? esc_attr( '1AM Slim HYBRID' ) : ''; ?>" width="246" height="1400" loading="lazy" data-c1="<?php echo esc_attr( $f['c1'] ); ?>" data-c2="<?php echo esc_attr( $f['c2'] ); ?>">
 				<?php endforeach; ?>

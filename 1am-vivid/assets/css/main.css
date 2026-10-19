@@ -1937,3 +1937,10 @@ body.nav-open .site-header.is-dark .nav-toggle i { background: var(--ink); }
 
 /* 디바이스 섹션 제목이 고정 헤더에 가리지 않게 */
 .device__pin { padding-top: calc(var(--warn-h) + var(--head-h) + 24px); }
+
+/* v1.17.3 — 디바이스: 제품 하나 크게 둥둥 · 첫 화면 제목 조금 위로 */
+.device__stack.is-single, .elementor .device__stack.is-single { height: auto; }
+.device__stack.is-single { aspect-ratio: auto; display: flex; justify-content: center; align-items: center; width: auto; }
+.device__stack.is-single img { position: relative; inset: auto; width: auto !important; height: min(48svh, 520px) !important; max-width: min(80vw, 640px); opacity: 1; filter: drop-shadow(0 24px 36px rgba(0, 0, 0, .4)); }
+.film__bar { bottom: clamp(56px, 11vh, 120px); }
+@media (max-width: 800px) { .film__bar { bottom: clamp(40px, 8vh, 72px); } }

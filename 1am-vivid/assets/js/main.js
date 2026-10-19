@@ -111,7 +111,9 @@
 	var lastY = 0;
 	function onScrollHeader(y) {
 		if (!header || body.classList.contains('nav-open')) return;
-		header.classList.toggle('is-scrolled', y > 10); // 메뉴는 항상 위에 고정
+		header.classList.toggle('is-scrolled', y > 10);
+		// 아래로 내릴 때는 헤더 숨김, 위로 올릴 때는 다시 보임 (맨 위 근처에서는 항상 보임)
+		if (Math.abs(y - lastY) > 4) header.classList.toggle('is-hidden', y > lastY && y > 160);
 		lastY = y;
 		headerTone();
 	}
@@ -473,7 +475,7 @@
 			.from($$('.callout', root), { opacity: 0, x: function (i) { return i % 2 ? 50 : -50; }, stagger: .12, duration: .8, ease: 'expo.out' }, .4);
 		// 둥실 떠 있는 느낌 (이미지가 하나여도 움직임)
 		gsap.to($('.device__float', root) || imgs[0].parentNode, { y: -16, rotate: 3, duration: 2.6, ease: 'sine.inOut', yoyo: true, repeat: -1 });
-		if (imgs.length < 2) return;
+		if (imgs.length < 2 || !root.querySelector('.device__stack.is-cycle')) return;
 		var cur = 0, timer = null;
 		var fan = root.querySelector('.device__stack.is-fan');
 		// 3개가 나란히: 가운데 크게, 양옆은 작게 기울여서 — 2.2초마다 한 칸씩 돌아감
