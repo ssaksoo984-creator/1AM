@@ -306,3 +306,15 @@ add_action(
 	},
 	1
 );
+
+// 지금 사이트에서 돌아가는 테마 버전 표시 (관리자 대시보드 · 페이지 소스) — 업로드가 제대로 됐는지 확인용
+add_action(
+	'admin_notices',
+	function () {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( $screen && 'dashboard' === $screen->id && current_user_can( 'manage_options' ) ) {
+			echo '<div class="notice notice-success"><p><strong>1AM Vivid theme v' . esc_html( ONEAM_VERSION ) . '</strong> is active. If the site still looks old, clear the cache (GoDaddy: "Flush Cache" in the top admin bar or in Managed WordPress settings) and reload with Cmd/Ctrl + Shift + R.</p></div>';
+		}
+	}
+);
+add_action( 'wp_head', function () { echo "<!-- 1AM Vivid v" . esc_html( ONEAM_VERSION ) . " -->\n"; }, 0 );

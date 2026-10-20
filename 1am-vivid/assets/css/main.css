@@ -1929,7 +1929,7 @@ html.fpop-open, html.fpop-open body { overflow: hidden; }
 .site-header.is-dark .site-header__logo img { filter: invert(1); }
 .site-header.is-dark .nav-toggle i { background: var(--white); }
 @media (min-width: 901px) {
-	.site-header.is-dark .site-nav a:not(.btn), .site-header.is-dark .site-nav__icon, .site-header.is-dark .site-nav__login { color: var(--white); }
+	.site-header.is-dark .site-nav > ul > li > a, .site-header.is-dark .site-nav__icon, .site-header.is-dark .site-nav__login { color: var(--white); }
 	.site-header.is-dark .site-nav .btn--solid { --bg: var(--white); --fg: var(--ink); }
 }
 body.nav-open .site-header.is-dark .site-header__logo img { filter: none; }
@@ -1970,4 +1970,11 @@ body.home.nav-open .site-header { background: var(--white); }
 	.hero__names { display: none; } /* 큰 맛 이름이 제목과 겹치지 않게 */
 	.plist .pitem, .pitem { position: relative !important; top: auto !important; } /* 카드가 서로 겹치며 쌓이지 않게 */
 	.pitem + .pitem { margin-top: 0; }
+}
+
+/* 메뉴 글씨가 배경과 같은 색이 되지 않게: 드롭다운 · 모바일 메뉴는 항상 흰 바탕에 검은 글씨 */
+.site-header.is-dark .site-nav ul ul a, .site-header.is-dark .site-nav .sub-menu a { color: var(--ink) !important; }
+@media (max-width: 900px) {
+	.site-header.is-dark .site-nav, .site-header.is-dark .site-nav a:not(.btn), .site-header.is-dark .site-nav__icon, .site-header.is-dark .site-nav__login { color: var(--ink) !important; }
+	.site-header.is-dark .site-nav .btn--solid { --bg: var(--ink); --fg: var(--white); }
 }
