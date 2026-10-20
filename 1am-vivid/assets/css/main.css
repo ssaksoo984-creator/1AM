@@ -1987,3 +1987,5 @@ body.home.nav-open .site-header { background: var(--white); }
 /* v1.19.3 — 맛 카드 이미지가 깨져 보이던 문제 (3D + 그림자 필터 조합 → 그래픽 렌더링 오류) */
 .card__img { transform: none !important; }
 .card__img img, .elementor .card__img img { filter: none !important; backface-visibility: hidden; }
+.pinfo__specs div { min-width: 0; }
+.pinfo__specs dd { white-space: nowrap; overflow: hidden; }

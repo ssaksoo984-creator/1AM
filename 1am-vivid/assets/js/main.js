@@ -529,6 +529,28 @@
 		gsap.fromTo(title, { '--fill': '0%' }, { '--fill': '100%', ease: 'none', scrollTrigger: { trigger: title, start: 'top 85%', end: 'bottom 45%', scrub: true } });
 	}
 
+	/* ------------------------------------------------ 스펙 글자 칸에 맞추기 */
+	// 값이 칸보다 길면(예: Disposable) 같은 줄의 스펙 글자를 함께 조금씩 줄임 — 원래 크기보다 커지지는 않음
+	function fitSpecs() {
+		$$('.spdp__specs, .pinfo__specs').forEach(function (group) {
+			var dds = $$('dd', group);
+			if (!dds.length) return;
+			dds.forEach(function (d) { d.style.fontSize = ''; });
+			var base = parseFloat(getComputedStyle(dds[0]).fontSize), size = base;
+			var range = document.createRange();
+			var fits = function () {
+				return dds.every(function (d) { range.selectNodeContents(d); return range.getBoundingClientRect().width <= d.clientWidth - 10; }); // 오른쪽 여백 10px 이상
+			};
+			while (!fits() && size > 12) {
+				size -= 1;
+				dds.forEach(function (d) { d.style.fontSize = size + 'px'; });
+			}
+		});
+	}
+	fitSpecs();
+	window.addEventListener('resize', fitSpecs);
+	if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitSpecs);
+
 	/* --------------------------------------------------------- 공통 리빌 */
 	function reveals() {
 		$$('[data-reveal]').forEach(function (el) {

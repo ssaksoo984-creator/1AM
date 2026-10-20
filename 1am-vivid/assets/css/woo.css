@@ -143,7 +143,7 @@
 .spdp__chip--status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--white); }
 .spdp__name { margin: 0; font-size: clamp(40px, 5vw, 76px); line-height: .9; font-weight: 900; font-variation-settings: "wdth" 70; text-transform: uppercase; }
 .spdp__lead p { margin: 0; font-size: 17px; opacity: .85; }
-.spdp__specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin: 0; }
+.spdp__specs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; }
 .spdp__specs div { padding: 14px 16px; border-radius: 18px; background: var(--white); }
 .spdp__specs dt { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; opacity: .55; }
 .spdp__specs dd { margin: 4px 0 0; font-size: 20px; font-weight: 900; }
@@ -363,7 +363,6 @@
 /* v1.19 — 모바일: 스펙 2칸 · 내 계정 내용이 화면 밖으로 나가지 않게 */
 @media (max-width: 560px) {
 	.spdp__specs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-	.spdp__specs dd { font-size: 17px; overflow-wrap: anywhere; }
 }
 @media (max-width: 860px) {
 	.woocommerce-account .woocommerce { grid-template-columns: minmax(0, 1fr); }
@@ -391,3 +390,7 @@
 	.woocommerce ul.products li.product, .woocommerce-page ul.products li.product { width: 100% !important; float: none !important; margin: 0 !important; }
 	.woocommerce ul.products::before, .woocommerce ul.products::after { display: none !important; }
 }
+
+/* v1.19.4 — 스펙 값: 칸 너비에 맞춰 글자 크기 자동 축소 (긴 단어가 칸 끝에 붙지 않게) */
+.spdp__specs div, .pinfo__specs div { min-width: 0; }
+.spdp__specs dd { font-size: 20px; white-space: nowrap; overflow: hidden; }
