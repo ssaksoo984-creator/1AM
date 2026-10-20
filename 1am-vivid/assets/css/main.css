@@ -1983,3 +1983,7 @@ body.home.nav-open .site-header { background: var(--white); }
 @media (max-width: 800px) {
 	.cta__fan, .elementor .cta__fan { height: min(28vh, 220px); margin-bottom: 56px; }
 }
+
+/* v1.19.3 — 맛 카드 이미지가 깨져 보이던 문제 (3D + 그림자 필터 조합 → 그래픽 렌더링 오류) */
+.card__img { transform: none !important; }
+.card__img img, .elementor .card__img img { filter: none !important; backface-visibility: hidden; }
