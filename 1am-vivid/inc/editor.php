@@ -192,7 +192,7 @@ add_action(
 
 <!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"}} -->
 <div class="wp-block-buttons"><!-- wp:button -->
-<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/wholesale-signup/">Apply for wholesale →</a></div>
+<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/become-a-retailer/">Become a Retailer →</a></div>
 <!-- /wp:button -->
 
 <!-- wp:button {"className":"is-style-outline"} -->

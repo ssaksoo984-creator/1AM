@@ -4,7 +4,7 @@
 	<div class="site-footer__top">
 		<div class="site-footer__brand">
 			<a class="site-footer__logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="1AM home"><?php oneam_logo( 'white' ); ?></a>
-			<p class="site-footer__lead">A wholesale-only brand for approved Canadian retailers.</p>
+			<p class="site-footer__lead">A Canadian vape brand serving licensed retailers. We do not sell directly to consumers.</p>
 			<?php oneam_member_cta(); ?>
 		</div>
 		<nav class="site-footer__nav" aria-label="Footer">
@@ -20,10 +20,10 @@
 			);
 			?>
 		</nav>
-		<nav class="site-footer__nav" aria-label="Wholesale">
-			<p class="site-footer__eyebrow">Wholesale</p>
+		<nav class="site-footer__nav" aria-label="Retailers">
+			<p class="site-footer__eyebrow">Retailers</p>
 			<ul>
-				<li><a href="<?php echo esc_url( oneam_signup_url() ); ?>">Apply</a></li>
+				<li><a href="<?php echo esc_url( oneam_signup_url() ); ?>">Become a Retailer</a></li>
 				<li><a href="<?php echo esc_url( oneam_login_url() ); ?>">Log in</a></li>
 				<li><a href="<?php echo esc_url( oneam_opt( 'oneam_order_url' ) ); ?>">How to order</a></li>
 			</ul>
@@ -52,6 +52,9 @@
 			· <a href="mailto:<?php echo esc_attr( oneam_opt( 'oneam_email' ) ); ?>"><?php echo esc_html( oneam_opt( 'oneam_email' ) ); ?></a>
 			<?php if ( oneam_opt( 'oneam_phone' ) ) : ?>
 				· <a href="tel:<?php echo esc_attr( preg_replace( '/[^\d+]/', '', oneam_opt( 'oneam_phone' ) ) ); ?>"><?php echo esc_html( oneam_opt( 'oneam_phone' ) ); ?></a>
+			<?php endif; ?>
+			<?php if ( oneam_licence_line() ) : ?>
+				· <?php echo esc_html( oneam_licence_line() ); ?>
 			<?php endif; ?>
 			<?php if ( oneam_gst_line() ) : ?>
 				· <?php echo esc_html( oneam_gst_line() ); ?>

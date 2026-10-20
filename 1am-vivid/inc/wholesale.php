@@ -228,7 +228,7 @@ add_action(
 		$admin_url = admin_url( 'users.php?oneam_wholesale=pending' );
 		oneam_mail(
 			oneam_staff_emails(),
-			'[1AM] New wholesale application: ' . $data['oneam_business_name'],
+			'[1AM] New retailer application: ' . $data['oneam_business_name'],
 			"A new retail account application is waiting for verification.\n\nBusiness: {$data['oneam_business_name']}\nBusiness number: {$data['oneam_business_number']}\nStore: {$data['oneam_store_address']}, {$data['oneam_city']}, {$data['oneam_province']} {$data['oneam_postcode']}\nPST number: " . ( $data['oneam_pst_number'] ?: '—' ) . "\nContact: {$data['oneam_contact_name']}\nEmail: {$email}\nPhone: {$data['oneam_phone']}\n\nCheck the documents and approve or reject here:\n{$admin_url}"
 		);
 		oneam_mail(
@@ -366,9 +366,9 @@ add_action(
 	function () {
 		$status = oneam_wholesale_status( get_current_user_id() );
 		if ( 'pending' === $status ) {
-			echo '<div class="apply__note"><strong>Wholesale application under review.</strong><p>We will email you once your account is approved.</p></div>';
+			echo '<div class="apply__note"><strong>Retailer application under review.</strong><p>We will email you once your account is approved.</p></div>';
 		} elseif ( 'rejected' === $status ) {
-			echo '<div class="apply__note is-bad"><strong>Your wholesale application was not approved.</strong></div>';
+			echo '<div class="apply__note is-bad"><strong>Your retailer application was not approved.</strong></div>';
 		}
 	},
 	5

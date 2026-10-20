@@ -1957,3 +1957,17 @@ body.home.nav-open .site-header { background: var(--white); }
 .apply__hint { display: block; margin-top: 6px; font-size: 12px; opacity: .7; }
 .apply__pst[hidden], .apply__hp[hidden] { display: none !important; }
 .apply label small { font-weight: 500; opacity: .7; }
+
+/* v1.19 — 경고 문구 크게 */
+:root { --warn-h: 42px; }
+.topbar p { font-size: 15px; letter-spacing: .01em; }
+@media (max-width: 900px) { .topbar p { font-size: 13px; } }
+@media (max-width: 560px) { :root { --warn-h: 52px; } .topbar p { font-size: 12.5px; line-height: 1.25; white-space: normal; } }
+
+/* v1.19 — 모바일 손질 */
+.story { padding-top: calc(var(--warn-h) + var(--head-h) + clamp(28px, 6vw, 80px)); }
+@media (max-width: 800px) {
+	.hero__names { display: none; } /* 큰 맛 이름이 제목과 겹치지 않게 */
+	.plist .pitem, .pitem { position: relative !important; top: auto !important; } /* 카드가 서로 겹치며 쌓이지 않게 */
+	.pitem + .pitem { margin-top: 0; }
+}

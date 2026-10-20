@@ -265,7 +265,7 @@ function oneam_elementor_widgets() {
 						'c2'    => array( 'label' => 'Colour 2', 'type' => 'color' ),
 					),
 					'default' => array(
-						array( 'title' => 'Wholesale only', 'text' => 'Every account is reviewed and verified before it can see pricing or place orders.', 'c1' => '#8A3FFC', 'c2' => '#1E5BFF' ),
+						array( 'title' => 'Licensed retailers only', 'text' => 'Every account is reviewed and verified before it can see pricing or place orders.', 'c1' => '#8A3FFC', 'c2' => '#1E5BFF' ),
 						array( 'title' => 'Compliance first', 'text' => 'Products are supplied for sale in line with Canadian excise stamp and provincial requirements.', 'c1' => '#00C2A8', 'c2' => '#16C75A' ),
 						array( 'title' => 'Product integrity', 'text' => 'Original packaging, warning labels and regulatory markings stay intact from our warehouse to your shelf.', 'c1' => '#FF2E4D', 'c2' => '#FFB321' ),
 						array( 'title' => 'Fast, tracked shipping', 'text' => 'Orders ship by Purolator, UPS or Canpar Ground within ' . oneam_opt( 'oneam_dispatch_time' ) . ' of payment and typically arrive ' . oneam_opt( 'oneam_transit_time' ) . ' after shipping.', 'c1' => '#FFD60A', 'c2' => '#FF8A4D' ),
@@ -366,7 +366,7 @@ function oneam_elementor_widgets() {
 			'controls' => array(
 				'eyebrow' => array( 'label' => 'Small label', 'type' => 'text', 'default' => 'About 1AM' ),
 				'title'   => array( 'label' => 'Title', 'type' => 'textarea', 'default' => "Made for\n*Canadian retail.*", 'description' => 'One line per row. ' . $italic ),
-				'text'    => array( 'label' => 'Text', 'type' => 'textarea', 'default' => '1AM is a vape brand built for adult-only vape retailers in ' . oneam_regions_phrase() . '. Our products are distributed by ' . oneam_opt( 'oneam_company' ) . ' and sold exclusively to verified, approved retail partners — never directly to consumers.' ),
+				'text'    => array( 'label' => 'Text', 'type' => 'textarea', 'default' => '1AM is a Canadian vape brand serving licensed retailers across Canada. Our products are distributed by ' . oneam_opt( 'oneam_company' ) . ' and sold exclusively to verified, approved retail partners — never directly to consumers.' ),
 				'stats'   => array(
 					'label'   => 'Numbers',
 					'type'    => 'repeater',
@@ -413,7 +413,7 @@ function oneam_elementor_widgets() {
 				'title'       => array( 'label' => 'Title', 'type' => 'textarea', 'default' => "Let’s stock\n*your shelves.*", 'description' => 'One line per row. ' . $italic ),
 				'apply_label' => array( 'label' => 'Apply card — label', 'type' => 'text', 'default' => 'Retail account' ),
 				'apply_title' => array( 'label' => 'Apply card — title', 'type' => 'text', 'default' => 'Run an adult-only vape store in ' . oneam_regions_phrase() . '?' ),
-				'apply_text'  => array( 'label' => 'Apply card — text', 'type' => 'textarea', 'default' => 'Apply for a wholesale account. Once your business is verified, you can see pricing and order online.' ),
+				'apply_text'  => array( 'label' => 'Apply card — text', 'type' => 'textarea', 'default' => 'Become a retailer. Once your business is verified, you can see pricing and order online.' ),
 				'mail_title'  => array( 'label' => 'Email card — title', 'type' => 'text', 'default' => 'Talk to our sales team' ),
 				'mail_text'   => array( 'label' => 'Email card — text', 'type' => 'textarea', 'default' => 'Questions about accounts, products, excise stamps or orders? We are happy to help.' ),
 				'email'       => array( 'label' => 'Email (empty = site sales email)', 'type' => 'text', 'default' => '' ),
@@ -476,7 +476,7 @@ function oneam_elementor_widgets() {
 			),
 		),
 		'signup'   => array(
-			'title'    => 'Wholesale application form',
+			'title'    => 'Become a Retailer form',
 			'icon'     => 'eicon-form-horizontal',
 			'part'     => '',
 			'note'     => 'The sign-up form. Applications appear in Users › Pending wholesale.',

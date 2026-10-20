@@ -22,6 +22,9 @@ function oneam_policy_contact() {
 	if ( oneam_opt( 'oneam_phone' ) ) {
 		$lines[] = 'Phone: ' . esc_html( oneam_opt( 'oneam_phone' ) );
 	}
+	if ( oneam_licence_line() ) {
+		$lines[] = esc_html( oneam_licence_line() );
+	}
 	if ( oneam_gst_line() ) {
 		$lines[] = esc_html( oneam_gst_line() );
 	}

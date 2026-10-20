@@ -39,6 +39,9 @@ foreach ( $product->get_attributes() as $attr ) {
 	$oneam_specs[ wc_attribute_label( $attr->get_name() ) ] = implode( ', ', $vals );
 }
 // 니코틴 함량 (상품 편집 > Nicotine concentration)
+if ( oneam_pack_count( $product ) ) {
+	$oneam_specs['Per carton'] = oneam_pack_count( $product ) . ' pcs';
+}
 if ( $product->get_meta( '_oneam_nicotine' ) ) {
 	$oneam_specs['Nicotine'] = $product->get_meta( '_oneam_nicotine' );
 }

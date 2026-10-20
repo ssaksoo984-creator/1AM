@@ -71,7 +71,7 @@ function oneam_faq_items() {
 	$co    = oneam_opt( 'oneam_company' );
 	return array(
 		array( 'Who can purchase products from 1AM?', '1AM products are available exclusively to verified and approved adult-only vape retailers in ' . oneam_regions_phrase() . '. We do not sell directly to individual consumers.' ),
-		array( 'How do I open a retail account?', 'Click “Apply for wholesale” and complete the account application with your business information and required documentation. Once your business has been verified and approved by our team, you will receive access to our online ordering system.' ),
+		array( 'How do I open a retail account?', 'Click “Become a Retailer” and complete the account application with your business information and required documentation. Once your business has been verified and approved by our team, you will receive access to our online ordering system.' ),
 		array( 'What documents are required for account approval?', 'We require valid business information and supporting documentation confirming that your business operates as an authorized adult-only vape retail store. Additional documentation may be requested during the verification process.' ),
 		array( 'Can I view wholesale pricing without an approved account?', 'No. Wholesale pricing and online ordering are available only to verified and approved retail account holders.' ),
 		array( 'Which provinces do you supply?', 'We currently supply licensed adult-only vape stores in ' . oneam_regions_phrase() . '. Stores in other provinces and territories are not supported yet.' ),
@@ -100,20 +100,20 @@ function oneam_setup_pages() {
 			'title'    => 'About',
 			'template' => 'template-about.php',
 			'content'  => oneam_b_h( 'Made for Canadian retail.' )
-				. oneam_b_p( "1AM is a vape brand built for adult-only vape retailers in " . oneam_regions_phrase() . ". Our products are distributed by {$co} and sold exclusively to verified, approved retail partners — never directly to consumers." )
+				. oneam_b_p( "1AM is a Canadian vape brand serving licensed retailers across Canada. Our products are distributed by {$co} and sold exclusively to verified, approved retail partners — never directly to consumers." )
 				. oneam_b_h( 'What we make', 3 )
 				. oneam_b_p( 'Our first line, <strong>Slim HYBRID</strong>, is a slim disposable with a crystal-clear body, 2ml of e-liquid and 15 flavours across three families: <em>Fruit Ice</em>, <em>Mint</em> and <em>Classic Ice</em>. HYBRID Max and HYBRID Refill are in development.' )
 				. oneam_b_h( 'How we work', 3 )
 				. oneam_b_list(
 					array(
-						'<strong>Wholesale only.</strong> Every account is reviewed and verified before it can see pricing or place orders.',
+						'<strong>Licensed retailers only.</strong> Every account is reviewed and verified before it can see pricing or place orders.',
 						'<strong>Compliance first.</strong> Products are supplied for sale in line with Canadian excise stamp and provincial requirements.',
 						'<strong>Product integrity.</strong> Original packaging, warning labels and regulatory markings stay intact from our warehouse to your shelf.',
 						'<strong>Fast, tracked shipping.</strong> Orders ship by Purolator, UPS or Canpar Ground within ' . oneam_opt( 'oneam_dispatch_time' ) . ' of payment and typically arrive ' . oneam_opt( 'oneam_transit_time' ) . ' after shipping.',
 					)
 				)
 				. oneam_b_h( 'Work with us', 3 )
-				. oneam_b_p( "Run an adult-only vape store in " . oneam_regions_phrase() . "? Apply for a wholesale account, or reach our sales team at {$mail}." ),
+				. oneam_b_p( "Run an adult-only vape store in " . oneam_regions_phrase() . "? Become a retailer, or reach our sales team at {$mail}." ),
 		),
 		'faq'           => array(
 			'title'    => 'FAQ',

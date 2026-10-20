@@ -25,9 +25,10 @@
 	if (!gsap) { body.classList.remove('is-loading'); return; }
 	gsap.registerPlugin(ST);
 
+	// 나이 확인은 방문할 때마다(브라우저 탭을 새로 열 때마다) — 같은 방문 안에서 페이지를 옮길 때는 다시 묻지 않음
 	var store = {
-		get: function (k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } },
-		set: function (k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* noop */ } }
+		get: function (k) { try { return window.sessionStorage.getItem(k); } catch (e) { return null; } },
+		set: function (k, v) { try { window.sessionStorage.setItem(k, v); } catch (e) { /* noop */ } }
 	};
 
 	/* ---------------------------------------------------------------- Lenis */

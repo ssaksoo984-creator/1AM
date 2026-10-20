@@ -29,7 +29,7 @@ $oneam_recent = function_exists( 'wc_get_orders' ) ? wc_get_orders(
 ) : array();
 ?>
 <p class="acct__hello">Hi, <?php echo esc_html( $oneam_name ); ?></p>
-<p>Welcome to your 1AM wholesale account<?php echo $oneam_store ? ' for <strong>' . esc_html( $oneam_store ) . '</strong>' : ''; ?>.</p>
+<p>Welcome to your 1AM retailer account<?php echo $oneam_store ? ' for <strong>' . esc_html( $oneam_store ) . '</strong>' : ''; ?>.</p>
 
 <div class="acct__meta">
 	<?php if ( 'approved' === $oneam_state ) : ?>

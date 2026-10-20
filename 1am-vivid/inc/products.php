@@ -127,7 +127,7 @@ function oneam_signup_page_id() {
 	}
 	$id   = 0;
 	$path = trim( (string) wp_parse_url( (string) oneam_opt( 'oneam_signup_url' ), PHP_URL_PATH ), '/' );
-	foreach ( array_filter( array( $path, 'wholesale-signup', 'wholesale-sign-up', 'wholesale-application', 'apply', 'signup', 'sign-up' ) ) as $slug ) {
+	foreach ( array_filter( array( $path, 'become-a-retailer', 'wholesale-signup', 'wholesale-sign-up', 'wholesale-application', 'apply', 'signup', 'sign-up' ) ) as $slug ) {
 		$page = get_page_by_path( $slug );
 		if ( $page && 'publish' === $page->post_status ) {
 			$id = $page->ID;
@@ -144,7 +144,7 @@ function oneam_signup_url() {
 	if ( $id ) {
 		return get_permalink( $id );
 	}
-	return oneam_opt( 'oneam_signup_url' ) ?: home_url( '/wholesale-signup/' );
+	return oneam_opt( 'oneam_signup_url' ) ?: home_url( '/become-a-retailer/' );
 }
 
 function oneam_login_url() {
@@ -167,7 +167,7 @@ function oneam_shop_url() {
 function oneam_member_cta( $size = '' ) {
 	$state = oneam_member_state();
 	$map   = array(
-		'guest'    => array( oneam_signup_url(), 'Apply for wholesale' ),
+		'guest'    => array( oneam_signup_url(), 'Become a Retailer' ),
 		'pending'  => array( oneam_opt( 'oneam_pending_url' ) ?: oneam_signup_url(), 'Application under review' ),
 		'approved' => array( oneam_shop_url(), 'Shop wholesale' ),
 	);

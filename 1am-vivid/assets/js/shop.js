@@ -158,4 +158,24 @@
 			fetch(cfg.ajax || '/wp-admin/admin-ajax.php', { method: 'POST', credentials: 'same-origin', body: body }).catch(function () {});
 		});
 	}
+
+	/* ---------- 맛을 고르지 않고 담기를 누르면: 브라우저 경고창 대신 화면 안내 ---------- */
+	wrap.addEventListener('click', function (e) {
+		var btn = e.target.closest('.single_add_to_cart_button');
+		if (!btn || !btn.classList.contains('wc-variation-selection-needed')) return;
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		var box = wrap.querySelector('.spdp__added');
+		if (box) {
+			box.querySelector('.spdp__added-msg').textContent = 'Choose a flavour first, then add to cart.';
+			box.querySelector('.spdp__added-cart').textContent = '';
+			box.hidden = false;
+			box.classList.add('is-error');
+		}
+		var sw = wrap.querySelector('.spdp-sw');
+		if (sw) {
+			sw.classList.remove('is-shake'); void sw.offsetWidth; sw.classList.add('is-shake');
+			sw.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		}
+	}, true);
 })(window.jQuery);

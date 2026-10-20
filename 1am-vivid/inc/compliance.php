@@ -333,18 +333,18 @@ function oneam_has_seo_plugin() {
 function oneam_meta_description() {
 	$regions = oneam_regions_phrase();
 	if ( is_front_page() ) {
-		return oneam_opt( 'oneam_meta_desc' ) ?: "1AM is a wholesale-only vape brand for verified adult-only vape retailers in {$regions}. Apply for a retail account to see pricing and order.";
+		return oneam_opt( 'oneam_meta_desc' ) ?: "1AM is a Canadian vape brand serving licensed retailers across Canada. We do not sell directly to consumers. Become a retailer to see pricing and order.";
 	}
 	$slug  = is_singular() ? get_post_field( 'post_name', get_queried_object_id() ) : '';
 	$fixed = array(
-		'about-us'         => "About 1AM: a wholesale-only vape brand distributed by " . oneam_opt( 'oneam_company' ) . " to approved adult-only vape retailers in {$regions}.",
-		'faq'              => 'Answers for retailers about 1AM wholesale accounts, pricing, excise stamps, payment, shipping and returns.',
+		'about-us'         => "About 1AM: a Canadian vape brand serving licensed retailers, distributed by " . oneam_opt( 'oneam_company' ) . ". We do not sell directly to consumers.",
+		'faq'              => 'Answers for retailers about 1AM retailer accounts, pricing, excise stamps, payment, shipping and returns.',
 		'how-to-order'     => 'How to open a 1AM retail account and place a wholesale order: apply, get verified, order online and pay by Interac e-Transfer.',
 		'terms'            => '1AM wholesale terms of sale and vaping product compliance terms for approved retailers.',
 		'shipping-policy'  => "1AM shipping policy: where we ship ({$regions}), carriers, dispatch and delivery times.",
 		'return-policy'    => '1AM return policy: final sale, and how to report damaged, defective or incorrect items.',
 		'privacy-policy'   => '1AM privacy policy: how we collect, use and protect business and personal information under PIPEDA and BC PIPA.',
-		'wholesale-signup' => "Apply for a 1AM wholesale account. For verified adult-only vape retailers in {$regions}.",
+		'become-a-retailer' => "Become a 1AM retailer. For licensed adult-only vape stores in {$regions}.",
 	);
 	if ( isset( $fixed[ $slug ] ) ) {
 		return $fixed[ $slug ];
@@ -352,7 +352,7 @@ function oneam_meta_description() {
 	if ( function_exists( 'is_product' ) && is_product() ) {
 		$p = wc_get_product( get_queried_object_id() );
 		$d = $p ? wp_strip_all_tags( $p->get_short_description() ?: $p->get_description() ) : '';
-		return trim( wp_trim_words( $d, 28, '…' ) . " Wholesale only, for approved retailers in {$regions}." );
+		return trim( wp_trim_words( $d, 28, '…' ) . " For licensed retailers in {$regions}." );
 	}
 	if ( is_singular() ) {
 		$d = get_the_excerpt( get_queried_object_id() );
@@ -466,7 +466,7 @@ add_filter(
 add_filter(
 	'woocommerce_email_footer_text',
 	function ( $text ) {
-		$lines = array_filter( array( oneam_opt( 'oneam_company' ), str_replace( "\n", ', ', trim( (string) oneam_opt( 'oneam_address' ) ) ), oneam_opt( 'oneam_phone' ), oneam_gst_line() ) );
+		$lines = array_filter( array( oneam_opt( 'oneam_company' ), str_replace( "\n", ', ', trim( (string) oneam_opt( 'oneam_address' ) ) ), oneam_opt( 'oneam_phone' ), oneam_licence_line(), oneam_gst_line() ) );
 		return trim( $text . "\n" . implode( ' · ', $lines ) );
 	}
 );
@@ -475,8 +475,10 @@ add_filter(
 add_action(
 	'wpo_wcpdf_after_shop_address',
 	function ( $type ) {
-		if ( 'invoice' === $type && oneam_gst_line() ) {
-			echo '<div class="oneam-gst">' . esc_html( oneam_gst_line() ) . '</div>';
+		if ( 'invoice' === $type ) {
+			foreach ( array_filter( array( oneam_licence_line(), oneam_gst_line() ) ) as $line ) {
+				echo '<div class="oneam-gst">' . esc_html( $line ) . '</div>';
+			}
 		}
 	}
 );
@@ -583,3 +585,42 @@ function oneam_finalize_order_stamps( $order ) {
 }
 add_action( 'woocommerce_store_api_checkout_order_processed', 'oneam_finalize_order_stamps' );
 add_action( 'woocommerce_checkout_order_processed', 'oneam_finalize_order_stamps', 20 );
+
+/* ---------------------------------------------------------------------------
+ * 면허 번호 · 최소 주문 금액
+ * ------------------------------------------------------------------------- */
+function oneam_licence_line() {
+	$no = trim( (string) oneam_opt( 'oneam_licence' ) );
+	return $no ? 'Vaping Product Licence No. ' . $no : '';
+}
+
+function oneam_min_order() {
+	return (float) preg_replace( '/[^\d.]/', '', (string) oneam_opt( 'oneam_min_order' ) );
+}
+
+function oneam_min_order_error() {
+	$min = oneam_min_order();
+	if ( ! $min || ! function_exists( 'WC' ) || ! WC()->cart || WC()->cart->is_empty() ) {
+		return '';
+	}
+	$sub = (float) WC()->cart->get_subtotal();
+	return $sub < $min ? sprintf( 'The minimum order is %s before GST. Your cart is %s.', wp_strip_all_tags( wc_price( $min ) ), wp_strip_all_tags( wc_price( $sub ) ) ) : '';
+}
+add_action(
+	'woocommerce_check_cart_items',
+	function () {
+		$e = oneam_min_order_error();
+		if ( $e ) {
+			wc_add_notice( $e, 'error' );
+		}
+	}
+);
+add_action(
+	'woocommerce_store_api_cart_errors',
+	function ( $errors ) {
+		$e = oneam_min_order_error();
+		if ( $e ) {
+			$errors->add( 'oneam_min_order', $e );
+		}
+	}
+);

@@ -53,10 +53,10 @@ function oneam_el_page_defs() {
 		'shipping-policy' => array( 'Shipping Policy', false, array( array( 'core:text-editor', array( 'editor' => oneam_el_page_html( 'shipping-policy' ) ) ) ) ),
 		'privacy-policy'  => array( 'Privacy Policy', false, array( array( 'core:text-editor', array( 'editor' => oneam_el_page_html( 'privacy-policy' ) ) ) ) ),
 		$signup         => array(
-			'Wholesale Sign up',
+			'Become a Retailer',
 			false,
 			array(
-				array( 'core:text-editor', array( 'editor' => '<p>Apply for a 1AM retail account. We review every application within 1–2 business days and email you once your account is approved.</p>' ) ),
+				array( 'core:text-editor', array( 'editor' => '<p>Become a 1AM retailer. We review every application within 1–2 business days and email you once your account is approved.</p>' ) ),
 				array( 'signup' ),
 			),
 		),

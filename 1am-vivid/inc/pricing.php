@@ -37,7 +37,15 @@ function oneam_province_prices( $product ) {
 function oneam_unit_label( $product ) {
 	$parent = $product && $product->is_type( 'variation' ) ? wc_get_product( $product->get_parent_id() ) : $product;
 	$unit   = $parent ? trim( (string) $parent->get_meta( '_oneam_unit' ) ) : '';
-	return '' !== $unit ? $unit : 'carton';
+	$unit = '' !== $unit ? $unit : 'carton';
+	$pack = oneam_pack_count( $product );
+	return $pack ? $unit . ' (' . $pack . ' pcs)' : $unit;
+}
+
+/** 한 단위(카톤)에 들어있는 개수 — 상품 편집 > Pieces per carton */
+function oneam_pack_count( $product ) {
+	$parent = $product && $product->is_type( 'variation' ) ? wc_get_product( $product->get_parent_id() ) : $product;
+	return $parent ? (int) $parent->get_meta( '_oneam_pack' ) : 0;
 }
 
 /** 지금 손님의 주 (배송지 → 청구지 → 가입 때 매장 주) */
@@ -198,6 +206,15 @@ add_action(
 		);
 		woocommerce_wp_text_input(
 			array(
+				'id'          => '_oneam_pack',
+				'label'       => 'Pieces per carton',
+				'type'        => 'number',
+				'placeholder' => 'e.g. 10',
+				'description' => 'Shown with the price, on the product page and in the cart, e.g. "$80.00 / carton (10 pcs) + GST".',
+			)
+		);
+		woocommerce_wp_text_input(
+			array(
 				'id'          => '_oneam_nicotine',
 				'label'       => 'Nicotine concentration',
 				'placeholder' => 'e.g. 20 mg/mL',
@@ -222,6 +239,9 @@ add_action(
 		}
 		if ( isset( $_POST['_oneam_unit'] ) ) {
 			$product->update_meta_data( '_oneam_unit', sanitize_text_field( wp_unslash( $_POST['_oneam_unit'] ) ) );
+		}
+		if ( isset( $_POST['_oneam_pack'] ) ) {
+			$product->update_meta_data( '_oneam_pack', absint( wp_unslash( $_POST['_oneam_pack'] ) ) ?: '' );
 		}
 		if ( isset( $_POST['_oneam_nicotine'] ) ) {
 			$product->update_meta_data( '_oneam_nicotine', sanitize_text_field( wp_unslash( $_POST['_oneam_nicotine'] ) ) );
@@ -532,4 +552,30 @@ add_filter(
 		unset( $items['downloads'] );
 		return $items;
 	}
+);
+
+// 장바구니 · 결제 · 주문서: "Carton: 10 pcs"
+add_filter(
+	'woocommerce_get_item_data',
+	function ( $data, $item ) {
+		$pack = isset( $item['data'] ) ? oneam_pack_count( $item['data'] ) : 0;
+		if ( $pack ) {
+			$unit   = trim( (string) ( $item['data']->is_type( 'variation' ) ? wc_get_product( $item['data']->get_parent_id() )->get_meta( '_oneam_unit' ) : $item['data']->get_meta( '_oneam_unit' ) ) ) ?: 'carton';
+			$data[] = array( 'key' => ucfirst( $unit ), 'value' => $pack . ' pcs' );
+		}
+		return $data;
+	},
+	10,
+	2
+);
+add_action(
+	'woocommerce_checkout_create_order_line_item',
+	function ( $item, $key, $values ) {
+		$pack = isset( $values['data'] ) ? oneam_pack_count( $values['data'] ) : 0;
+		if ( $pack ) {
+			$item->add_meta_data( 'Pieces per carton', $pack, true );
+		}
+	},
+	10,
+	3
 );

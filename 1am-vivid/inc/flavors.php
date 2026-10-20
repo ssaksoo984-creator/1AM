@@ -25,7 +25,7 @@ function oneam_default_flavors() {
 		array( 'Grape Ice', 'grape-ice', 'fruit-ice', '#8A3FFC', '#16C75A', 'Rich red grape · Juicy & sweet · Icy cooling · Classic refreshment' ),
 		array( 'Blue Razz Ice', 'blue-razz-ice', 'fruit-ice', '#00C2A8', '#1E5BFF', 'Sweet & sour · Tangy raspberry · Extra frosty · Bold punch' ),
 		array( 'Watermelon Ice', 'watermelon-ice', 'fruit-ice', '#FF2E4D', '#2BD45A', 'Fresh watermelon juice · Bright & sweet · Summer cooling · Hydrating vibe' ),
-		array( 'Lemon Lime Ice', 'lemon-lime-ice', 'fruit-ice', '#1FD65A', '#D7F21A', 'Zesty lemon citrus · Tangy lime twist · Super refreshing · Crisp icy' ),
+		array( 'Lemon Lime Ice', 'lemon-lime-ice', 'classic-ice', '#1FD65A', '#D7F21A', 'Zesty lemon citrus · Tangy lime twist · Super refreshing · Crisp icy' ),
 		array( 'Raspberry Dragonfruit Ice', 'raspberry-dragonfruit-ice', 'fruit-ice', '#B026FF', '#FF1464', 'Exotic dragonfruit · Tangy raspberry · Sweet & fruity · Chilled ice finish' ),
 		array( 'Miami Mint', 'miami-mint', 'mint', '#12D16B', '#19C6E6', 'Smooth spearmint · Citrus touch · Gentle cooling · All-day refresh' ),
 		array( 'Double Mint', 'double-mint', 'mint', '#2F6BFF', '#12D16B', 'Pure spearmint · Zero sweetness · Extra frosty · Clean mouthfeel' ),
@@ -36,7 +36,7 @@ function oneam_default_flavors() {
 		array( 'Juicy Peach Ice', 'juicy-peach-ice', 'fruit-ice', '#FF8A4D', '#FFC857', 'Ripe peach · Sweet & luscious · Crisp ice finish · Fragrant aroma' ),
 		array( 'Guava Ice', 'guava-ice', 'fruit-ice', '#FF5C8A', '#E8174B', 'Exotic tropical · Soft sweetness · Mild cooling · Smooth aromatic' ),
 		array( 'Banana Ice', 'banana-ice', 'fruit-ice', '#FFD60A', '#FF9F1C', 'Sweet creamy banana · Smooth tropical blend · Crisp frost · Icy refreshment' ),
-		array( 'Double Birch Ice', 'double-birch-ice', 'mint', '#F2B705', '#A0461F', 'Woody sweetness · Deep birch sap · Crisp chilly · Clean finish' ),
+		array( 'Double Birch Ice', 'double-birch-ice', 'classic-ice', '#F2B705', '#A0461F', 'Woody sweetness · Deep birch sap · Crisp chilly · Clean finish' ),
 	);
 }
 

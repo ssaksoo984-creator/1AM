@@ -14,16 +14,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_COMPLIANCE_VERSION', '2026-10-compliance' );
+define( 'ONEAM_COMPLIANCE_VERSION', '2026-10-20-client' );
 
 /** 옛 문구 → 새 문구 (페이지 글 · Elementor 데이터) */
 function oneam_migrate_replacements() {
 	$regions = oneam_regions_phrase();
+	$brand   = '1AM is a Canadian vape brand serving licensed retailers across Canada. We do not sell directly to consumers.';
 	$list    = array(
-		'adult-only vape retailers across Canada'   => 'adult-only vape retailers in ' . $regions,
-		'vape retailers across Canada'              => 'vape retailers in ' . $regions,
-		'retailers across Canada'                   => 'retailers in ' . $regions,
-		'across Canada'                             => 'in ' . $regions,
+		// 대표님 요청 (2026-10-20): "wholesale only brand" 표현 없애기 · Apply for wholesale → Become a Retailer
+		'1AM is a wholesale-only vape brand for Canadian retail stores. We supply proven products and work only with approved retail partners.' => $brand,
+		'1AM is a vape brand built for adult-only vape retailers in ' . $regions . '.' => '1AM is a Canadian vape brand serving licensed retailers across Canada.',
+		'1AM is a vape brand built for adult-only vape retailers across Canada.' => '1AM is a Canadian vape brand serving licensed retailers across Canada.',
+		'A wholesale brand built for *Canadian retailers.*' => 'Built for *licensed retailers.*',
+		'A wholesale-only brand for approved Canadian retailers.' => 'A Canadian vape brand serving licensed retailers. We do not sell directly to consumers.',
+		'Slim HYBRID · 15 flavours · Wholesale only' => 'Slim HYBRID · 15 flavours · For licensed retailers',
+		'Apply for a wholesale account' => 'Become a retailer',
+		'Apply for wholesale'           => 'Become a Retailer',
+		'Apply for Wholesale'           => 'Become a Retailer',
+		'Wholesale Sign up'             => 'Become a Retailer',
+		'Wholesale Sign Up'             => 'Become a Retailer',
+		'Wholesale Signup'              => 'Become a Retailer',
+		'<strong>Wholesale only.</strong>' => '<strong>Licensed retailers only.</strong>',
+		'Wholesale only — available to approved Canadian retailers.' => 'For licensed retailers only — we do not sell directly to consumers.',
+		'"title":"Wholesale only"'      => '"title":"Licensed retailers only"',
 		'Retailers are responsible for selecting products with the appropriate excise stamps for their intended sales jurisdiction.' => "We ship only products stamped for your store's province.",
 		'Choose products with the correct excise stamps for your province and confirm compliance at checkout.' => "Choose your store's province (we ship only products stamped for it) and confirm compliance at checkout.",
 		'Choose products with the correct excise stamps for your retail sales jurisdiction.' => "We ship only products stamped for your store's province.",
@@ -57,8 +70,84 @@ function oneam_slug_redirects() {
 	return (array) get_option( 'oneam_slug_redirects', array() );
 }
 
-function oneam_run_compliance_migration() {
+/** 대표님이 준 회사 정보 (한 번만 — 이후 사용자 정의하기에서 바꾼 값은 덮어쓰지 않음) */
+function oneam_apply_client_info() {
+	if ( get_option( 'oneam_client_info_v' ) ) {
+		return array();
+	}
 	$report = array();
+	$mods   = array(
+		'oneam_company'        => 'VANSKAI TRADING LTD.',
+		'oneam_gst_number'     => '767692510 RT0001',
+		'oneam_licence'        => '52-VAL-288',
+		'oneam_dispatch_time'  => '1–3 business days',
+		'oneam_shipping_rates' => 'Shipping is free.',
+		'oneam_address'        => '', // 주거지 주소라 사이트에 표시하지 않음 (면허 번호로 대신)
+		'oneam_phone'          => '',
+		'oneam_signup_url'     => '/become-a-retailer/',
+	);
+	foreach ( $mods as $k => $v ) {
+		set_theme_mod( $k, $v );
+	}
+	foreach ( array( 'oneam_about_text', 'oneam_about_title', 'oneam_intro_text' ) as $k ) {
+		$cur = get_theme_mod( $k );
+		if ( is_string( $cur ) && $cur !== oneam_migrate_text( $cur ) ) {
+			set_theme_mod( $k, oneam_migrate_text( $cur ) );
+		}
+	}
+	$report[] = 'Company info set: VANSKAI TRADING LTD., licence 52-VAL-288, GST 767692510 RT0001, ships 1–3 business days after payment, free shipping. Address and phone hidden.';
+
+	// 가입 페이지 → Become a Retailer (/become-a-retailer/, 옛 주소는 301)
+	$sid = function_exists( 'oneam_signup_page_id' ) ? oneam_signup_page_id() : 0;
+	if ( $sid ) {
+		$old       = get_post_field( 'post_name', $sid );
+		$redirects = oneam_slug_redirects();
+		if ( 'become-a-retailer' !== $old ) {
+			$redirects[ $old ] = 'become-a-retailer';
+		}
+		$redirects['wholesale-signup']  = 'become-a-retailer';
+		$redirects['wholesale-sign-up'] = 'become-a-retailer';
+		unset( $redirects['become-a-retailer'] );
+		update_option( 'oneam_slug_redirects', $redirects, false );
+		wp_update_post( array( 'ID' => $sid, 'post_title' => 'Become a Retailer', 'post_name' => 'become-a-retailer' ) );
+		$report[] = 'Sign-up page renamed to “Become a Retailer” (/become-a-retailer/); /' . $old . '/ redirects there.';
+	}
+
+	// 맛 분류: Lemon Lime Ice · Double Birch Ice → Classic Ice
+	if ( function_exists( 'wc_get_products' ) ) {
+		foreach ( wc_get_products( array( 'type' => 'variation', 'limit' => -1, 'status' => array( 'publish', 'private' ) ) ) as $v ) {
+			$name = strtolower( implode( ' ', $v->get_attributes() ) );
+			if ( ( false !== strpos( $name, 'lemon lime' ) || false !== strpos( $name, 'double birch' ) ) && $v->get_meta( '_oneam_cat' ) && 'classic-ice' !== $v->get_meta( '_oneam_cat' ) ) {
+				$v->update_meta_data( '_oneam_cat', 'classic-ice' );
+				$v->save();
+			}
+		}
+		// Slim HYBRID: 1 carton = 10 pcs
+		$slim = get_page_by_path( 'slim-hybrid', OBJECT, 'product' );
+		$p    = $slim ? wc_get_product( $slim->ID ) : null;
+		if ( $p && ! $p->get_meta( '_oneam_pack' ) ) {
+			$p->update_meta_data( '_oneam_pack', 10 );
+			$p->save();
+			$report[] = 'Slim HYBRID: 10 pcs per carton (change per product: Products › Edit › Pieces per carton).';
+		}
+	}
+
+	// 무료 배송: 배송 방법이 없는 배송 구역에 Free shipping 추가
+	if ( class_exists( 'WC_Shipping_Zones' ) ) {
+		foreach ( WC_Shipping_Zones::get_zones() as $z ) {
+			if ( empty( $z['shipping_methods'] ) ) {
+				$zone = new WC_Shipping_Zone( $z['id'] );
+				$zone->add_shipping_method( 'free_shipping' );
+				$report[] = 'Free shipping added to shipping zone “' . $z['zone_name'] . '”.';
+			}
+		}
+	}
+	update_option( 'oneam_client_info_v', '2026-10-20' );
+	return $report;
+}
+
+function oneam_run_compliance_migration() {
+	$report = oneam_apply_client_info();
 	update_option( 'oneam_policy_updated', wp_date( 'F j, Y' ) );
 	if ( ! get_theme_mod( 'oneam_terms_effective' ) ) {
 		set_theme_mod( 'oneam_terms_effective', wp_date( 'F j, Y' ) );
@@ -109,12 +198,13 @@ function oneam_run_compliance_migration() {
 
 	// 5) 저장된 글 · Elementor 데이터의 옛 문구
 	$changed = array();
-	$ids     = get_posts( array( 'post_type' => array( 'page', 'elementor_library' ), 'post_status' => array( 'publish', 'draft', 'private' ), 'numberposts' => -1, 'fields' => 'ids' ) );
+	$ids     = get_posts( array( 'post_type' => array( 'page', 'elementor_library', 'product' ), 'post_status' => array( 'publish', 'draft', 'private' ), 'numberposts' => -1, 'fields' => 'ids' ) );
 	foreach ( $ids as $id ) {
 		$post = get_post( $id );
 		$new  = oneam_migrate_text( $post->post_content );
-		if ( $new !== $post->post_content ) {
-			wp_update_post( wp_slash( array( 'ID' => $id, 'post_content' => $new ) ) );
+		$exc  = oneam_migrate_text( $post->post_excerpt );
+		if ( $new !== $post->post_content || $exc !== $post->post_excerpt ) {
+			wp_update_post( wp_slash( array( 'ID' => $id, 'post_content' => $new, 'post_excerpt' => $exc ) ) );
 			$changed[ $id ] = $post->post_title;
 		}
 		$data = get_post_meta( $id, '_elementor_data', true );
@@ -189,7 +279,7 @@ add_action(
 		foreach ( (array) $report as $line ) {
 			echo '<li>' . esc_html( $line ) . '</li>';
 		}
-		echo '</ul><p>Values still to confirm with the owner (address, phone, GST number, dispatch time, payment and claim deadlines, Privacy Officer) are in <a href="' . esc_url( admin_url( 'customize.php?autofocus[section]=oneam_business' ) ) . '">Customize › 1AM Settings › Business &amp; legal</a>. After changing them, <a href="' . esc_url( $again ) . '">run the update again</a> to refresh the policy pages.</p></div>';
+		echo '</ul><p>Values still to confirm with the owner (Privacy Officer, payment and claim deadlines, minimum order amount) are in <a href="' . esc_url( admin_url( 'customize.php?autofocus[section]=oneam_business' ) ) . '">Customize › 1AM Settings › Business &amp; legal</a>. After changing them, <a href="' . esc_url( $again ) . '">run the update again</a> to refresh the policy pages.</p></div>';
 	}
 );
 
