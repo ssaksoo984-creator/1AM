@@ -372,5 +372,22 @@
 	.acct__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 	.acct__card { padding: 16px; }
 	.acct__pill { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-	.woocommerce-account table.shop_table_responsive tr td { display: flex; justify-content: space-between; gap: 12px; text-align: right; }
+}
+
+/* v1.19.2 — 모바일: 안내 상자의 버튼은 글 아래로 (글과 겹치지 않게) */
+@media (max-width: 700px) {
+	.woocommerce .woocommerce-info, .woocommerce .woocommerce-message, .woocommerce .woocommerce-error,
+	.woocommerce-info, .woocommerce-message, .woocommerce-error {
+		display: flex; flex-direction: column; align-items: flex-start; gap: 12px;
+	}
+	.woocommerce-info .button, .woocommerce-message .button, .woocommerce-error .button,
+	.woocommerce-info a.button, .woocommerce-message a.button { float: none !important; order: 9; margin: 0 !important; align-self: flex-start; }
+	.woocommerce-info::before, .woocommerce-message::before, .woocommerce-error::before { display: none !important; }
+	.woocommerce .woocommerce-info, .woocommerce .woocommerce-message, .woocommerce .woocommerce-error, .woocommerce-info, .woocommerce-message, .woocommerce-error { padding: 18px 20px !important; }
+	.wc-block-components-notice-banner { flex-wrap: wrap; }
+	.wc-block-components-notice-banner .wc-forward, .wc-block-components-notice-banner .button { float: none; display: inline-flex; margin: 10px 0 0; }
+	/* 상점 목록: 한 줄에 상품 하나 */
+	.woocommerce ul.products, .woocommerce-page ul.products { display: grid !important; grid-template-columns: minmax(0, 1fr) !important; gap: 16px; }
+	.woocommerce ul.products li.product, .woocommerce-page ul.products li.product { width: 100% !important; float: none !important; margin: 0 !important; }
+	.woocommerce ul.products::before, .woocommerce ul.products::after { display: none !important; }
 }

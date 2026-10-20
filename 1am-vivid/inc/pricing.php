@@ -377,6 +377,9 @@ function oneam_regions_html( $regions, $product = null ) {
 			$out .= '<li class="is-off" title="' . esc_attr( 'Your account is not registered for a store in ' . ( oneam_provinces()[ $code ] ?? $code ) . '. Contact us to add one.' ) . '">' . esc_html( $label ) . '</li>';
 		} elseif ( $pick && isset( $pp[ $code ] ) ) {
 			$out .= '<li' . ( $code === $you ? ' class="is-you"' : '' ) . '><button type="button" data-prov="' . esc_attr( $code ) . '" data-name="' . esc_attr( oneam_provinces()[ $code ] ?? $code ) . '" data-price="' . esc_attr( wc_price( $pp[ $code ] ) ) . '" aria-pressed="' . ( $code === $you ? 'true' : 'false' ) . '">' . esc_html( $label ) . '</button></li>';
+		} elseif ( $show && isset( $pp[ $code ] ) && $product ) {
+			// 소개 페이지 등: 누르면 그 주가 선택된 상품 페이지로
+			$out .= '<li' . ( $code === $you ? ' class="is-you"' : '' ) . '><a href="' . esc_url( add_query_arg( 'oneam_prov', $code, get_permalink( $product->get_id() ) ) ) . '">' . esc_html( $label ) . '</a></li>';
 		} else {
 			$out .= '<li' . ( $code === $you ? ' class="is-you"' : '' ) . '>' . esc_html( $label ) . '</li>';
 		}
@@ -578,4 +581,21 @@ add_action(
 	},
 	10,
 	3
+);
+
+// 상품 주소에 ?oneam_prov=AB 가 있으면 그 주로 선택 (소개 페이지의 주 버튼)
+add_action(
+	'template_redirect',
+	function () {
+		if ( empty( $_GET['oneam_prov'] ) || ! function_exists( 'WC' ) || ! WC()->customer || ! is_user_logged_in() ) { // phpcs:ignore WordPress.Security.NonceVerification
+			return;
+		}
+		$prov = strtoupper( sanitize_text_field( wp_unslash( $_GET['oneam_prov'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
+		if ( oneam_account_can_ship_to( $prov ) ) {
+			WC()->customer->set_shipping_country( 'CA' );
+			WC()->customer->set_shipping_state( $prov );
+			WC()->customer->save();
+		}
+	},
+	5
 );

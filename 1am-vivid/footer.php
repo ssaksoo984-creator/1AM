@@ -56,9 +56,6 @@
 			<?php if ( oneam_licence_line() ) : ?>
 				· <?php echo esc_html( oneam_licence_line() ); ?>
 			<?php endif; ?>
-			<?php if ( oneam_gst_line() ) : ?>
-				· <?php echo esc_html( oneam_gst_line() ); ?>
-			<?php endif; ?>
 			<br>
 			<?php echo esc_html( oneam_opt( 'oneam_payments' ) ); ?> · Prices in CAD<br>
 			&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> 1AM. All rights reserved.

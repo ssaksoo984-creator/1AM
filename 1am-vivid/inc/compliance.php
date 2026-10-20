@@ -86,6 +86,10 @@ function oneam_account_provinces( $user_id = 0 ) {
 
 /** 이 손님이 이 주로 주문할 수 있는지 */
 function oneam_account_can_ship_to( $prov, $user_id = 0 ) {
+	// 기본: 모든 판매 주 선택 가능 (여러 주에 매장이 있는 손님). 1AM Settings > Business & legal 에서 켜면 계정에 등록된 주만
+	if ( ! get_theme_mod( 'oneam_restrict_provinces', false ) ) {
+		return in_array( strtoupper( (string) $prov ), oneam_sales_regions(), true );
+	}
 	$mine = oneam_account_provinces( $user_id );
 	return ! $mine || in_array( strtoupper( (string) $prov ), $mine, true ); // 주 정보가 없는 옛 계정은 막지 않음
 }

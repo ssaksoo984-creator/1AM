@@ -25,9 +25,6 @@ function oneam_policy_contact() {
 	if ( oneam_licence_line() ) {
 		$lines[] = esc_html( oneam_licence_line() );
 	}
-	if ( oneam_gst_line() ) {
-		$lines[] = esc_html( oneam_gst_line() );
-	}
 	return implode( '<br>', $lines );
 }
 
@@ -59,7 +56,7 @@ function oneam_policy_vars() {
 		'defect'   => (int) oneam_opt( 'oneam_defect_days' ) ?: 30,
 		'risk'     => esc_html( oneam_opt( 'oneam_risk_transfer' ) ),
 		'etr'      => esc_html( function_exists( 'oneam_etransfer_email' ) ? oneam_etransfer_email() : oneam_opt( 'oneam_email' ) ),
-		'gst'      => oneam_opt( 'oneam_gst_number' ) ? ' (GST/HST registration no. ' . esc_html( oneam_opt( 'oneam_gst_number' ) ) . ')' : '',
+		'gst'      => '', // GST 번호는 사이트에 표시하지 않음 (인보이스 · 주문 메일에만)
 	);
 }
 

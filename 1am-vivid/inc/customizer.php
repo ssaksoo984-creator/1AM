@@ -208,6 +208,9 @@ add_action(
 			}
 		}
 
+		$wp_customize->add_setting( 'oneam_restrict_provinces', array( 'default' => false, 'sanitize_callback' => 'wp_validate_boolean' ) );
+		$wp_customize->add_control( 'oneam_restrict_provinces', array( 'label' => 'Only allow orders to the store provinces registered on each account (off = any sales province can be chosen)', 'section' => 'oneam_business', 'type' => 'checkbox' ) );
+
 		$wp_customize->add_setting( 'oneam_age_gate', array( 'default' => true, 'sanitize_callback' => 'wp_validate_boolean' ) );
 		$wp_customize->add_control( 'oneam_age_gate', array( 'label' => 'Show age verification', 'section' => 'oneam_general', 'type' => 'checkbox' ) );
 

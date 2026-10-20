@@ -1978,3 +1978,8 @@ body.home.nav-open .site-header { background: var(--white); }
 	.site-header.is-dark .site-nav, .site-header.is-dark .site-nav a:not(.btn), .site-header.is-dark .site-nav__icon, .site-header.is-dark .site-nav__login { color: var(--ink) !important; }
 	.site-header.is-dark .site-nav .btn--solid { --bg: var(--ink); --fg: var(--white); }
 }
+
+/* v1.19.2 — 모바일: 마지막 섹션 부채꼴 제품을 작게 (제목을 가리지 않게) */
+@media (max-width: 800px) {
+	.cta__fan, .elementor .cta__fan { height: min(28vh, 220px); margin-bottom: 56px; }
+}
