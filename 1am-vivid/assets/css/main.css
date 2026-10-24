@@ -1372,8 +1372,8 @@ body.nav-open .nav-toggle i:last-child { transform: translateY(-3.5px) rotate(-4
 .apply { max-width: 860px; margin: 32px auto 0; }
 .apply__form fieldset {
 	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 16px 20px;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 16px;
 	margin: 0 0 20px;
 	padding: 28px;
 	border: 0;
@@ -1391,6 +1391,7 @@ body.nav-open .nav-toggle i:last-child { transform: translateY(-3.5px) rotate(-4
 	text-transform: uppercase;
 }
 .apply__form p { margin: 0; }
+.apply__form fieldset > p > br { display: none; }
 .apply__form .is-wide { grid-column: 1 / -1; }
 .apply__form label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 700; }
 .apply__form input:not([type="checkbox"]),

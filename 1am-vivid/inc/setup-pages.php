@@ -113,7 +113,7 @@ function oneam_setup_pages() {
 					)
 				)
 				. oneam_b_h( 'Work with us', 3 )
-				. oneam_b_p( "Run an vape store in " . oneam_regions_phrase() . "? Become a retailer, or reach our sales team at {$mail}." ),
+				. oneam_b_p( "Own or operate a vape store? Apply for a retailer account, or reach our sales team at {$mail}." ),
 		),
 		'faq'           => array(
 			'title'    => 'FAQ',

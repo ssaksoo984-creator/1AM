@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_COMPLIANCE_VERSION', '2026-10-24-client-b' );
+define( 'ONEAM_COMPLIANCE_VERSION', '2026-10-24-client-c' );
 
 /** 옛 문구 → 새 문구 (페이지 글 · Elementor 데이터) */
 function oneam_migrate_replacements() {
@@ -60,7 +60,10 @@ function oneam_migrate_replacements() {
 		'HYBRID Max'    => '20ml MAX',
 		'HYBRID Refill' => '2+20ml MAX',
 		'authorized adult-only vape' => 'authorized vape',
+		'an adult-only vape' => 'a vape',
 		'adult-only vape' => 'vape',
+		'Run an vape store' => 'Own or operate a vape store',
+		'an vape' => 'a vape',
 		'Retailers are responsible for selecting products with the appropriate excise stamps for their intended sales jurisdiction.' => 'All products carry the correct excise stamp for their intended province of sale.',
 		'Choose products with the correct excise stamps for your province and confirm compliance at checkout.' => "Choose your store's province (we ship only products stamped for it) and confirm compliance at checkout.",
 		'Choose products with the correct excise stamps for your retail sales jurisdiction.' => 'All products carry the correct excise stamp for their intended province of sale.',

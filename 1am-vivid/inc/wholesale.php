@@ -289,8 +289,7 @@ function oneam_wholesale_form() {
 			<p><label for="oneam_business_number">Business number (BN) <small>(optional now — required before your first order)</small></label><input id="oneam_business_number" name="oneam_business_number" inputmode="numeric" title="9-digit Business Number, e.g. 123456789"></p>
 			<p class="is-wide"><label for="oneam_store_address">Store address</label><input id="oneam_store_address" name="oneam_store_address" required autocomplete="street-address"></p>
 			<p><label for="oneam_city">City</label><input id="oneam_city" name="oneam_city" required autocomplete="address-level2"></p>
-			<p><label for="oneam_province">Province</label>
-				<select id="oneam_province" name="oneam_province" required>
+			<p><label for="oneam_province">Province</label><select id="oneam_province" name="oneam_province" required>
 					<option value="">Choose…</option>
 					<?php foreach ( oneam_provinces() as $code => $label ) : ?>
 						<option value="<?php echo esc_attr( $code ); ?>"><?php echo esc_html( $label ); ?></option>
