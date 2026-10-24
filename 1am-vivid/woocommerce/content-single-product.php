@@ -121,6 +121,9 @@ $oneam_lines = function ( $key ) {
 							</p>
 						<?php endif; ?>
 					</div>
+					<?php if ( function_exists( 'oneam_min_order_line' ) && oneam_min_order_line() ) : ?>
+						<p class="spdp__min"><?php echo esc_html( oneam_min_order_line() ); ?></p>
+					<?php endif; ?>
 					<?php woocommerce_template_single_add_to_cart(); ?>
 					<div class="spdp__added" hidden role="status" aria-live="polite">
 						<p class="spdp__added-msg"></p>
@@ -146,7 +149,7 @@ $oneam_lines = function ( $key ) {
 
 			<ul class="spdp__facts">
 				<li><?php echo oneam_icon( 'truck' ); // phpcs:ignore ?> Ships within <?php echo esc_html( oneam_opt( 'oneam_dispatch_time' ) ); ?> of payment · delivery <?php echo esc_html( oneam_opt( 'oneam_transit_time' ) ); ?> after shipping</li>
-				<li><?php echo oneam_icon( 'check' ); // phpcs:ignore ?> We ship only products stamped for your store's province<?php echo $oneam_pp ? ' (' . esc_html( implode( ' · ', array_map( function ( $c ) { return $c . ': ' . oneam_stamp_for( $c ); }, array_keys( $oneam_pp ) ) ) ) . ')' : ''; ?></li>
+				<li><?php echo oneam_icon( 'check' ); // phpcs:ignore ?> All products carry the correct excise stamp for their intended province of sale</li>
 				<li><?php echo oneam_icon( 'card' ); // phpcs:ignore ?> <?php echo esc_html( oneam_opt( 'oneam_payments' ) ); ?> · Prices in CAD before GST</li>
 				<li><?php echo oneam_icon( 'check' ); // phpcs:ignore ?> <?php echo oneam_opt( 'oneam_processor' ) ? 'Secure payment by ' . esc_html( oneam_opt( 'oneam_processor' ) ) . ' · ' : ''; ?>All sales final</li>
 			</ul>

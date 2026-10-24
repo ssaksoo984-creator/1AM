@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_VERSION', '1.19.4' );
+define( 'ONEAM_VERSION', '1.20.0' );
 
 function oneam_asset( $path ) {
 	return get_template_directory_uri() . '/assets/' . ltrim( $path, '/' );
@@ -23,6 +23,7 @@ require get_template_directory() . '/inc/wholesale.php';
 require get_template_directory() . '/inc/compliance.php';
 require get_template_directory() . '/inc/elementor.php';
 require get_template_directory() . '/inc/policies.php';
+require get_template_directory() . '/inc/policy-texts.php';
 require get_template_directory() . '/inc/setup-pages.php';
 require get_template_directory() . '/inc/elementor-pages.php';
 require get_template_directory() . '/inc/migrate.php';

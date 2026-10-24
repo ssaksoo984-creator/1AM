@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_COMPLIANCE_VERSION', '2026-10-20-client' );
+define( 'ONEAM_COMPLIANCE_VERSION', '2026-10-24-client' );
 
 /** 옛 문구 → 새 문구 (페이지 글 · Elementor 데이터) */
 function oneam_migrate_replacements() {
@@ -37,9 +37,33 @@ function oneam_migrate_replacements() {
 		'<strong>Wholesale only.</strong>' => '<strong>Licensed retailers only.</strong>',
 		'Wholesale only — available to approved Canadian retailers.' => 'For licensed retailers only — we do not sell directly to consumers.',
 		'"title":"Wholesale only"'      => '"title":"Licensed retailers only"',
-		'Retailers are responsible for selecting products with the appropriate excise stamps for their intended sales jurisdiction.' => "We ship only products stamped for your store's province.",
+		// 대표님 요청 (2026-10-24)
+		'Run an adult-only vape store in ' . $regions . '?' => 'Own or operate a vape store?',
+		'Run an adult-only vape store in Canada?'           => 'Own or operate a vape store?',
+		'Become a retailer. Once your business is verified, you can see pricing and order online.' => 'Apply for a 1AM retailer account. Once your business is verified and approved, you can view pricing and place orders online.',
+		'Apply for a wholesale account. Once your business is verified, you can see pricing and order online.' => 'Apply for a 1AM retailer account. Once your business is verified and approved, you can view pricing and place orders online.',
+		'before it can see pricing or place orders.' => 'before it can view pricing or place orders.',
+		'Products are supplied for sale in line with Canadian excise stamp and provincial requirements.' => 'Our products are supplied in accordance with applicable Canadian excise stamping requirements and provincial regulations.',
+		'Submit the retail account application with your business information and documents confirming an authorized adult-only vape store.' => 'Complete the retailer account application to get started.',
+		'"title":"Get verified"' => '"title":"Get approved"',
+		'Our team reviews your application, usually within 1–2 business days, and emails you once your account is approved.' => 'Most applications are reviewed within 1–2 business days. We’ll email you once your account is approved.',
+		'Log in to see wholesale pricing. Choose products with the correct excise stamps for your province and confirm compliance at checkout.' => 'Log in to access wholesale pricing and place orders. Ensure each product has the correct excise stamp for its intended province of sale.',
+		"Log in to see wholesale pricing. Choose your store's province (we ship only products stamped for it) and confirm compliance at checkout." => 'Log in to access wholesale pricing and place orders. Ensure each product has the correct excise stamp for its intended province of sale.',
+		'Apply, get verified, and order at wholesale prices as soon as you are approved.' => 'Apply, get approved, and begin placing orders.',
+		"We ship only products stamped for your store's province." => 'All products carry the correct excise stamp for their intended province of sale.',
+		'Choose products with the correct excise stamps for your retail sales jurisdiction.' => 'All products carry the correct excise stamp for their intended province of sale.',
+		'Unsure which excise stamp you need? Ask us before ordering.' => 'Have questions or need assistance? Feel free to contact us at ' . oneam_opt( 'oneam_email' ) . '.',
+		'Stores in more than one province? Ask us to add them to your account.' => 'Have questions or need assistance? Feel free to contact us at ' . oneam_opt( 'oneam_email' ) . '.',
+		'Damaged or incorrect items: send your order number and photos.' => 'We typically respond within 1–2 business days.',
+		"We typically respond within 1–2 business days.\n" . oneam_opt( 'oneam_email' ) => 'We typically respond within 1–2 business days.',
+		'Minimum order quantities may vary by product.' => function_exists( 'oneam_min_order_line' ) && oneam_min_order_line() ? oneam_min_order_line() : 'Minimum order quantities may vary by product.',
+		'HYBRID Max'    => '20ml MAX',
+		'HYBRID Refill' => '2+20ml MAX',
+		'authorized adult-only vape' => 'authorized vape',
+		'adult-only vape' => 'vape',
+		'Retailers are responsible for selecting products with the appropriate excise stamps for their intended sales jurisdiction.' => 'All products carry the correct excise stamp for their intended province of sale.',
 		'Choose products with the correct excise stamps for your province and confirm compliance at checkout.' => "Choose your store's province (we ship only products stamped for it) and confirm compliance at checkout.",
-		'Choose products with the correct excise stamps for your retail sales jurisdiction.' => "We ship only products stamped for your store's province.",
+		'Choose products with the correct excise stamps for your retail sales jurisdiction.' => 'All products carry the correct excise stamp for their intended province of sale.',
 		'typically arriving in 1–5 business days.'  => 'typically arriving ' . oneam_opt( 'oneam_transit_time' ) . ' after shipping.',
 	);
 	if ( ! oneam_opt( 'oneam_processor' ) ) {
@@ -57,9 +81,12 @@ function oneam_migrate_text( $text, $json = false ) {
 	foreach ( oneam_migrate_replacements() as $old => $new ) {
 		$text = str_replace( $old, $new, $text );
 		if ( $json ) {
-			$o = substr( wp_json_encode( $old ), 1, -1 );
-			$n = substr( wp_json_encode( $new ), 1, -1 );
-			$text = str_replace( $o, $n, $text );
+			// Elementor 데이터: 특수문자가 \u2013 처럼 저장된 경우와 그대로 저장된 경우 둘 다
+			foreach ( array( 0, JSON_UNESCAPED_UNICODE ) as $flag ) {
+				$o    = substr( wp_json_encode( $old, $flag ), 1, -1 );
+				$n    = substr( wp_json_encode( $new, $flag ), 1, -1 );
+				$text = str_replace( $o, $n, $text );
+			}
 		}
 	}
 	return $text;
@@ -146,8 +173,46 @@ function oneam_apply_client_info() {
 	return $report;
 }
 
+/** 대표님 피드백 2차 (2026-10-24) — 한 번만 */
+function oneam_apply_client_round2() {
+	if ( '2026-10-24' === get_option( 'oneam_client_round2' ) ) {
+		return array();
+	}
+	$report = array();
+	set_theme_mod( 'oneam_etransfer', '' ); // e-Transfer 도 손님에게 보이는 sales@1amvape.com 으로
+	set_theme_mod( 'oneam_min_order', '1000' );
+	set_theme_mod( 'oneam_shipping_rates', 'Free ground shipping on orders of $1,000 CAD or more before tax.' );
+	foreach ( array( 'oneam_cta_text', 'oneam_shop_regions', 'oneam_shop_compliance', 'oneam_about_text' ) as $k ) {
+		$cur = get_theme_mod( $k );
+		if ( is_string( $cur ) && $cur !== oneam_migrate_text( $cur ) ) {
+			set_theme_mod( $k, oneam_migrate_text( $cur ) );
+		}
+	}
+	$report[] = 'Customer-facing email set to ' . oneam_opt( 'oneam_email' ) . ' (e-Transfer too). Minimum online order $1,000; free shipping from $1,000.';
+	if ( function_exists( 'oneam_setup_gst_rates' ) && oneam_setup_gst_rates() ) {
+		$report[] = 'Taxes switched on: GST 5% is now added at checkout (WooCommerce › Settings › Tax).';
+	}
+	// 출시 예정 제품 이름
+	foreach ( array( 'hybrid-max' => '20ml MAX', 'hybrid-refill' => '2+20ml MAX' ) as $slug => $name ) {
+		$post = get_page_by_path( $slug, OBJECT, 'product' );
+		if ( $post && $post->post_title !== $name ) {
+			wp_update_post( array( 'ID' => $post->ID, 'post_title' => $name ) );
+			$report[] = 'Product renamed: ' . $name . '.';
+		}
+	}
+	// 가입 때 넣은 BN → 결제 화면 BN 칸에 미리 채움
+	foreach ( get_users( array( 'meta_key' => 'oneam_business_number', 'fields' => 'ID' ) ) as $uid ) { // phpcs:ignore WordPress.DB.SlowDBQuery
+		$bn = get_user_meta( $uid, 'oneam_business_number', true );
+		if ( $bn && ! get_user_meta( $uid, '_wc_other/oneam/business-number', true ) ) {
+			update_user_meta( $uid, '_wc_other/oneam/business-number', strtoupper( preg_replace( '/[\s-]/', '', $bn ) ) );
+		}
+	}
+	update_option( 'oneam_client_round2', '2026-10-24' );
+	return $report;
+}
+
 function oneam_run_compliance_migration() {
-	$report = oneam_apply_client_info();
+	$report = array_merge( oneam_apply_client_info(), oneam_apply_client_round2() );
 	update_option( 'oneam_policy_updated', wp_date( 'F j, Y' ) );
 	if ( ! get_theme_mod( 'oneam_terms_effective' ) ) {
 		set_theme_mod( 'oneam_terms_effective', wp_date( 'F j, Y' ) );
@@ -279,7 +344,7 @@ add_action(
 		foreach ( (array) $report as $line ) {
 			echo '<li>' . esc_html( $line ) . '</li>';
 		}
-		echo '</ul><p>Values still to confirm with the owner (Privacy Officer, payment and claim deadlines, minimum order amount) are in <a href="' . esc_url( admin_url( 'customize.php?autofocus[section]=oneam_business' ) ) . '">Customize › 1AM Settings › Business &amp; legal</a>. After changing them, <a href="' . esc_url( $again ) . '">run the update again</a> to refresh the policy pages.</p></div>';
+		echo '</ul><p>Values still to confirm with the owner are in <a href="' . esc_url( admin_url( 'customize.php?autofocus[section]=oneam_business' ) ) . '">Customize › 1AM Settings › Business &amp; legal</a>. After changing them, <a href="' . esc_url( $again ) . '">run the update again</a> to refresh the policy pages.</p></div>';
 	}
 );
 

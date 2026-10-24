@@ -348,7 +348,7 @@ function oneam_meta_description() {
 		'shipping-policy'  => "1AM shipping policy: where we ship ({$regions}), carriers, dispatch and delivery times.",
 		'return-policy'    => '1AM return policy: final sale, and how to report damaged, defective or incorrect items.',
 		'privacy-policy'   => '1AM privacy policy: how we collect, use and protect business and personal information under PIPEDA and BC PIPA.',
-		'become-a-retailer' => "Become a 1AM retailer. For licensed adult-only vape stores in {$regions}.",
+		'become-a-retailer' => "Become a 1AM retailer. For licensed vape stores in {$regions}.",
 	);
 	if ( isset( $fixed[ $slug ] ) ) {
 		return $fixed[ $slug ];
@@ -515,53 +515,16 @@ function oneam_shipping_rates_sentence() {
 }
 
 /* ---------------------------------------------------------------------------
- * 미입금 e-Transfer 주문 자동 취소 (약관 5조: 주문 후 N영업일)
+ * 미입금 자동 취소는 사용하지 않음 (대표님 결정) — 예전에 잡힌 예약 작업도 정리
  * ------------------------------------------------------------------------- */
 function oneam_unpaid_note() {
-	$days = (int) oneam_opt( 'oneam_pay_due_days' ) ?: 2;
-	return 'Please pay within ' . $days . ' business ' . ( 1 === $days ? 'day' : 'days' ) . '. Unpaid orders are cancelled automatically after that.';
+	return '';
 }
-
-/** $from 시각 기준 N영업일(토·일 제외) 뒤 */
-function oneam_add_business_days( $from, $days ) {
-	$t = $from;
-	while ( $days > 0 ) {
-		$t += DAY_IN_SECONDS;
-		if ( (int) wp_date( 'N', $t ) < 6 ) {
-			--$days;
-		}
-	}
-	return $t;
-}
-
 add_action(
 	'init',
 	function () {
-		if ( ! wp_next_scheduled( 'oneam_cancel_unpaid' ) ) {
-			wp_schedule_event( time() + HOUR_IN_SECONDS, 'hourly', 'oneam_cancel_unpaid' );
-		}
-	}
-);
-add_action(
-	'oneam_cancel_unpaid',
-	function () {
-		if ( ! function_exists( 'wc_get_orders' ) ) {
-			return;
-		}
-		$days   = (int) oneam_opt( 'oneam_pay_due_days' ) ?: 2;
-		$orders = wc_get_orders(
-			array(
-				'status'         => array( 'on-hold', 'pending' ),
-				'payment_method' => 'bacs',
-				'date_created'   => '<' . ( time() - DAY_IN_SECONDS ),
-				'limit'          => 50,
-			)
-		);
-		foreach ( $orders as $order ) {
-			$created = $order->get_date_created();
-			if ( $created && time() > oneam_add_business_days( $created->getTimestamp(), $days ) ) {
-				$order->update_status( 'cancelled', sprintf( 'Unpaid: Interac e-Transfer not received within %d business days.', $days ) );
-			}
+		if ( wp_next_scheduled( 'oneam_cancel_unpaid' ) ) {
+			wp_clear_scheduled_hook( 'oneam_cancel_unpaid' );
 		}
 	}
 );
@@ -608,8 +571,60 @@ function oneam_min_order_error() {
 		return '';
 	}
 	$sub = (float) WC()->cart->get_subtotal();
-	return $sub < $min ? sprintf( 'The minimum order is %s before GST. Your cart is %s.', wp_strip_all_tags( wc_price( $min ) ), wp_strip_all_tags( wc_price( $sub ) ) ) : '';
+	return $sub < $min ? sprintf( 'The minimum order for online checkout is $%1$s before tax. Your cart is $%2$s. For smaller orders, please contact us at %3$s.', number_format( $min, 2 ), number_format( $sub, 2 ), oneam_opt( 'oneam_email' ) ) : '';
 }
+
+/** 구매 전 안내 한 줄: "Minimum online order: $1,000 before tax · Free shipping" */
+function oneam_min_order_line() {
+	$min = oneam_min_order();
+	return $min ? 'Minimum online order: $' . number_format( $min, floor( $min ) == $min ? 0 : 2 ) . ' before tax, with free shipping. For smaller orders, contact us at ' . oneam_opt( 'oneam_email' ) . '.' : '';
+}
+
+// 결제 화면: 최소 금액 미만이면 장바구니로 되돌림 (자동으로 결제 진행 안 됨)
+add_action(
+	'template_redirect',
+	function () {
+		if ( function_exists( 'is_checkout' ) && is_checkout() && ! is_wc_endpoint_url( 'order-received' ) && ! is_wc_endpoint_url( 'order-pay' ) && oneam_min_order_error() ) {
+			wp_safe_redirect( wc_get_cart_url() ); // 장바구니에 이미 같은 안내가 나오므로 알림은 따로 추가하지 않음
+			exit;
+		}
+	},
+	20
+);
+
+// 장바구니 화면: 안내 상자 + 최소 금액 미만이면 "Proceed to checkout" 막기 (수량을 바꾸면 바로 다시 계산)
+add_filter(
+	'render_block',
+	function ( $html, $block ) {
+		if ( 'woocommerce/cart' !== ( $block['blockName'] ?? '' ) || ! oneam_min_order() ) {
+			return $html;
+		}
+		$box = '<div class="oneam-minorder" data-min="' . esc_attr( (string) round( oneam_min_order() * 100 ) ) . '" data-email="' . esc_attr( oneam_opt( 'oneam_email' ) ) . '"><p class="oneam-minorder__line">' . esc_html( oneam_min_order_line() ) . '</p><p class="oneam-minorder__alert" hidden></p></div>';
+		return $box . $html;
+	},
+	10,
+	2
+);
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		if ( ! function_exists( 'is_cart' ) || ! is_cart() || ! oneam_min_order() ) {
+			return;
+		}
+		wp_register_script( 'oneam-minorder', '', array( 'wp-data' ), ONEAM_VERSION, true );
+		wp_enqueue_script( 'oneam-minorder' );
+		wp_add_inline_script(
+			'oneam-minorder',
+			"(function(){var box=document.querySelector('.oneam-minorder');if(!box||!window.wp||!wp.data)return;var min=+box.dataset.min,alert=box.querySelector('.oneam-minorder__alert');
+function fmt(c){return '$'+(c/100).toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function run(){var s=wp.data.select('wc/store/cart');if(!s||!s.getCartTotals)return;var t=s.getCartTotals();if(!t||t.total_items===undefined)return;var sub=+t.total_items,low=sub>0&&sub<min;
+box.classList.toggle('is-low',low);
+document.querySelectorAll('.wc-block-cart__submit-button').forEach(function(b){b.classList.toggle('is-blocked',low);b.setAttribute('aria-disabled',low?'true':'false');b.onclick=low?function(e){e.preventDefault();box.scrollIntoView({behavior:'smooth',block:'center'});}:null;});}
+wp.data.subscribe(run);setTimeout(run,800);})();"
+		);
+	}
+);
+
 add_action(
 	'woocommerce_check_cart_items',
 	function () {

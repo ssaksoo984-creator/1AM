@@ -31,7 +31,7 @@ function oneam_default_products() {
 			'regions' => array( 'BC', 'AB', 'SK' ),
 		),
 		array(
-			'name'    => 'HYBRID Max',
+			'name'    => '20ml MAX',
 			'slug'    => 'hybrid-max',
 			'tag'     => 'Large capacity',
 			'status'  => 'soon',
@@ -42,7 +42,7 @@ function oneam_default_products() {
 			'specs'   => array( 'E-liquid' => 'TBA', 'Flavours' => 'TBA', 'Type' => 'Disposable' ),
 		),
 		array(
-			'name'    => 'HYBRID Refill',
+			'name'    => '2+20ml MAX',
 			'slug'    => 'hybrid-refill',
 			'tag'     => 'Refillable pod',
 			'status'  => 'soon',
@@ -164,10 +164,10 @@ function oneam_shop_url() {
 /**
  * 회원 상태에 따른 주 버튼 (견적서: 비회원 → 가입 / 승인 대기 → 안내 / 승인 완료 → 쇼핑몰)
  */
-function oneam_member_cta( $size = '' ) {
+function oneam_member_cta( $size = '', $guest_label = '' ) {
 	$state = oneam_member_state();
 	$map   = array(
-		'guest'    => array( oneam_signup_url(), 'Become a Retailer' ),
+		'guest'    => array( oneam_signup_url(), $guest_label ?: 'Become a Retailer' ),
 		'pending'  => array( oneam_opt( 'oneam_pending_url' ) ?: oneam_signup_url(), 'Application under review' ),
 		'approved' => array( oneam_shop_url(), 'Shop wholesale' ),
 	);

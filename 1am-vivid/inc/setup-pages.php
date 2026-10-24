@@ -45,7 +45,7 @@ function oneam_compliance_blocks() {
 	$co = esc_html( oneam_opt( 'oneam_company' ) );
 	return oneam_b_h( 'Vaping Product Compliance – Wholesale Sales Only', 2, 'vape-compliance' )
 		. oneam_b_h( '1. Authorized Retailers Only', 3 )
-		. oneam_b_p( "All vaping products offered through this website are sold by {$co} exclusively to verified and approved adult-only vape retailers. Sales to individual consumers are strictly prohibited." )
+		. oneam_b_p( "All vaping products offered through this website are sold by {$co} exclusively to verified and approved vape retailers. Sales to individual consumers are strictly prohibited." )
 		. oneam_b_p( "By placing an order, the purchaser confirms that their business is legally authorized to purchase and resell vaping products and that all business information provided is accurate and current. Any changes affecting the business’s eligibility must be promptly reported to {$co}" )
 		. oneam_b_h( '2. Compliance with Federal and Provincial Regulations', 3 )
 		. oneam_b_p( 'Purchasers are responsible for ensuring that their retail activities comply with all applicable federal, provincial, territorial, and local laws and regulations governing the sale of vaping products.' )
@@ -70,18 +70,18 @@ function oneam_faq_items() {
 	$email = oneam_opt( 'oneam_email' );
 	$co    = oneam_opt( 'oneam_company' );
 	return array(
-		array( 'Who can purchase products from 1AM?', '1AM products are available exclusively to verified and approved adult-only vape retailers in ' . oneam_regions_phrase() . '. We do not sell directly to individual consumers.' ),
-		array( 'How do I open a retail account?', 'Click “Become a Retailer” and complete the account application with your business information and required documentation. Once your business has been verified and approved by our team, you will receive access to our online ordering system.' ),
-		array( 'What documents are required for account approval?', 'We require valid business information and supporting documentation confirming that your business operates as an authorized adult-only vape retail store. Additional documentation may be requested during the verification process.' ),
+		array( 'Who can purchase products from 1AM?', '1AM products are available exclusively to verified and approved vape retailers in ' . oneam_regions_phrase() . '. We do not sell directly to individual consumers.' ),
+		array( 'How do I open a retail account?', 'Click “Become a Retailer” and complete the application with your store information. Once your account is approved, you can view pricing and place orders online. Your Business Number (BN) is required before your first order.' ),
+		array( 'Do I need to upload documents to apply?', 'No. Just complete the application with your store information. We review every application and may contact you if we need anything else.' ),
 		array( 'Can I view wholesale pricing without an approved account?', 'No. Wholesale pricing and online ordering are available only to verified and approved retail account holders.' ),
-		array( 'Which provinces do you supply?', 'We currently supply licensed adult-only vape stores in ' . oneam_regions_phrase() . '. Stores in other provinces and territories are not supported yet.' ),
-		array( 'Which excise stamp will my products have?', 'We ship only products stamped for your store\'s province: ' . implode( ', ', array_map( function ( $c ) { return ( oneam_provinces()[ $c ] ?? $c ) . ' — ' . oneam_stamp_label( $c ); }, oneam_sales_regions() ) ) . '. Orders ship only to the licensed store locations registered on your account. If you operate stores in more than one province, contact us to add them to your account.' ),
-		array( 'Is there a minimum order quantity (MOQ)?', 'Minimum order quantities may vary by product. Please refer to the product details or contact our sales team for more information.' ),
+		array( 'Which provinces do you supply?', 'We currently supply licensed vape stores in ' . oneam_regions_phrase() . '. Stores in other provinces and territories are not supported yet.' ),
+		array( 'Which excise stamp will my products have?', 'All products carry the correct excise stamp for their intended province of sale. Choose the province where the products will be sold when you order, and confirm the excise stamp statement at checkout.' ),
+		array( 'Is there a minimum order?', ( function_exists( 'oneam_min_order_line' ) && oneam_min_order_line() ? oneam_min_order_line() : 'Please contact our sales team for more information.' ) ),
 		array( 'What payment methods are accepted?', 'We accept ' . oneam_opt( 'oneam_payments' ) . '.' . ( oneam_opt( 'oneam_processor' ) ? ' Card payments are processed securely by ' . oneam_opt( 'oneam_processor' ) . '.' : ' After placing your order, send an Interac e-Transfer for the order total to ' . ( function_exists( 'oneam_etransfer_email' ) ? oneam_etransfer_email() : $email ) . ' with your order number in the message.' ) . ' All prices are in Canadian dollars (CAD), before GST.' ),
 		array( 'How long does shipping take?', 'Orders ship within ' . oneam_opt( 'oneam_dispatch_time' ) . ' after payment is received, by Purolator Ground, UPS Ground or Canpar Ground. Delivery typically takes ' . oneam_opt( 'oneam_transit_time' ) . ' after shipping, depending on your location. ' . oneam_shipping_rates_sentence() ),
 		array( 'What should I do if I receive damaged, defective, or incorrect products?', 'Please contact our customer service team with your order number, product details, and supporting photos. Our team will review the issue and provide further assistance.' ),
 		array( 'Can I cancel or modify an order?', 'Please contact us as soon as possible if you need to cancel or modify your order. Changes may not be possible once the order has been processed or shipped.' ),
-		array( 'How can I contact your team?', "For account registration, product inquiries, orders, or customer support, please contact us at {$email}. Distributed by {$co}" ),
+		array( 'How can I contact your team?', "For account registration, product inquiries, orders, or customer support, please contact us at {$email}. We typically respond within 1–2 business days." ),
 	);
 }
 
@@ -102,18 +102,18 @@ function oneam_setup_pages() {
 			'content'  => oneam_b_h( 'Made for Canadian retail.' )
 				. oneam_b_p( "1AM is a Canadian vape brand serving licensed retailers across Canada. Our products are distributed by {$co} and sold exclusively to verified, approved retail partners — never directly to consumers." )
 				. oneam_b_h( 'What we make', 3 )
-				. oneam_b_p( 'Our first line, <strong>Slim HYBRID</strong>, is a slim disposable with a crystal-clear body, 2ml of e-liquid and 15 flavours across three families: <em>Fruit Ice</em>, <em>Mint</em> and <em>Classic Ice</em>. HYBRID Max and HYBRID Refill are in development.' )
+				. oneam_b_p( 'Our first line, <strong>Slim HYBRID</strong>, is a slim disposable with a crystal-clear body, 2ml of e-liquid and 15 flavours across three families: <em>Fruit Ice</em>, <em>Mint</em> and <em>Classic Ice</em>. 20ml MAX and 2+20ml MAX are coming soon.' )
 				. oneam_b_h( 'How we work', 3 )
 				. oneam_b_list(
 					array(
-						'<strong>Licensed retailers only.</strong> Every account is reviewed and verified before it can see pricing or place orders.',
-						'<strong>Compliance first.</strong> Products are supplied for sale in line with Canadian excise stamp and provincial requirements.',
+						'<strong>Licensed retailers only.</strong> Every account is reviewed and verified before it can view pricing or place orders.',
+						'<strong>Compliance first.</strong> Our products are supplied in accordance with applicable Canadian excise stamping requirements and provincial regulations.',
 						'<strong>Product integrity.</strong> Original packaging, warning labels and regulatory markings stay intact from our warehouse to your shelf.',
 						'<strong>Fast, tracked shipping.</strong> Orders ship by Purolator, UPS or Canpar Ground within ' . oneam_opt( 'oneam_dispatch_time' ) . ' of payment and typically arrive ' . oneam_opt( 'oneam_transit_time' ) . ' after shipping.',
 					)
 				)
 				. oneam_b_h( 'Work with us', 3 )
-				. oneam_b_p( "Run an adult-only vape store in " . oneam_regions_phrase() . "? Become a retailer, or reach our sales team at {$mail}." ),
+				. oneam_b_p( "Run an vape store in " . oneam_regions_phrase() . "? Become a retailer, or reach our sales team at {$mail}." ),
 		),
 		'faq'           => array(
 			'title'    => 'FAQ',
@@ -288,7 +288,7 @@ function oneam_orderinfo_defaults() {
 		array(
 			'icon'  => 'check',
 			'title' => 'Before you order',
-			'lines' => "We ship only products stamped for your store's province.\nWe supply stores in " . oneam_regions_phrase() . ".\nMinimum order quantities may vary by product.\nConfirm Vaping Product Compliance at checkout.",
+			'lines' => "All products carry the correct excise stamp for their intended province of sale.\n" . ( function_exists( 'oneam_min_order_line' ) && oneam_min_order_line() ? oneam_min_order_line() . "\n" : '' ) . "Confirm Vaping Product Compliance at checkout.",
 		),
 		array(
 			'icon'  => 'card',
@@ -303,7 +303,7 @@ function oneam_orderinfo_defaults() {
 		array(
 			'icon'  => 'mail',
 			'title' => 'Need help?',
-			'lines' => "Stores in more than one province? Ask us to add them to your account.\nDamaged or incorrect items: send your order number and photos.\n{$email}",
+			'lines' => "Have questions or need assistance? Feel free to contact us at {$email}.\nWe typically respond within 1–2 business days.",
 		),
 	);
 }

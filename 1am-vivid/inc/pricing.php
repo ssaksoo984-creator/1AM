@@ -313,30 +313,39 @@ add_action(
 		if ( ! current_user_can( 'manage_woocommerce' ) || ! class_exists( 'WC_Tax' ) ) {
 			wp_die( 'Not allowed.' );
 		}
-		update_option( 'woocommerce_calc_taxes', 'yes' );
-		update_option( 'woocommerce_prices_include_tax', 'no' );
-		update_option( 'woocommerce_tax_display_shop', 'excl' );
-		update_option( 'woocommerce_tax_display_cart', 'excl' );
-		update_option( 'woocommerce_tax_based_on', 'shipping' );
-		if ( ! oneam_has_gst() ) {
-			WC_Tax::_insert_tax_rate(
-				array(
-					'tax_rate_country'  => 'CA',
-					'tax_rate_state'    => '',
-					'tax_rate'          => '5.0000',
-					'tax_rate_name'     => 'GST',
-					'tax_rate_priority' => 1,
-					'tax_rate_compound' => 0,
-					'tax_rate_shipping' => 1,
-					'tax_rate_order'    => 0,
-					'tax_rate_class'    => '',
-				)
-			);
-		}
+		oneam_setup_gst_rates();
 		wp_safe_redirect( admin_url( 'admin.php?page=wc-settings&tab=tax&section=standard' ) );
 		exit;
 	}
 );
+
+/** 세금 켜기 + 캐나다 GST 5% (가격은 세전, 결제 화면에서 GST 별도 표시) */
+function oneam_setup_gst_rates() {
+	if ( ! class_exists( 'WC_Tax' ) ) {
+		return false;
+	}
+	update_option( 'woocommerce_calc_taxes', 'yes' );
+	update_option( 'woocommerce_prices_include_tax', 'no' );
+	update_option( 'woocommerce_tax_display_shop', 'excl' );
+	update_option( 'woocommerce_tax_display_cart', 'excl' );
+	update_option( 'woocommerce_tax_based_on', 'shipping' );
+	if ( ! oneam_has_gst() ) {
+		WC_Tax::_insert_tax_rate(
+			array(
+				'tax_rate_country'  => 'CA',
+				'tax_rate_state'    => '',
+				'tax_rate'          => '5.0000',
+				'tax_rate_name'     => 'GST',
+				'tax_rate_priority' => 1,
+				'tax_rate_compound' => 0,
+				'tax_rate_shipping' => 1,
+				'tax_rate_order'    => 0,
+				'tax_rate_class'    => '',
+			)
+		);
+	}
+	return true;
+}
 add_action(
 	'admin_notices',
 	function () {

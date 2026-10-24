@@ -12,16 +12,15 @@ $email = oneam_ctx( 'email', oneam_opt( 'oneam_email' ) );
 	<div class="work__cards">
 		<article class="work__card work__card--apply">
 			<span class="work__badge"><?php echo esc_html( oneam_ctx( 'apply_label', 'Retail account' ) ); ?></span>
-			<h3><?php echo esc_html( oneam_ctx( 'apply_title', 'Run an adult-only vape store in ' . oneam_regions_phrase() . '?' ) ); ?></h3>
-			<p><?php echo esc_html( oneam_ctx( 'apply_text', 'Become a retailer. Once your business is verified, you can see pricing and order online.' ) ); ?></p>
-			<?php oneam_member_cta( 'btn--light' ); ?>
+			<h3><?php echo esc_html( oneam_ctx( 'apply_title', 'Own or operate a vape store?' ) ); ?></h3>
+			<p><?php echo esc_html( oneam_ctx( 'apply_text', 'Apply for a 1AM retailer account. Once your business is verified and approved, you can view pricing and place orders online.' ) ); ?></p>
+			<?php oneam_member_cta( 'btn--light', 'Apply for a retailer account' ); ?>
 		</article>
 		<a class="work__card work__card--mail" href="mailto:<?php echo esc_attr( $email ); ?>">
 			<span class="work__icon"><?php echo oneam_icon( 'mail' ); // phpcs:ignore ?></span>
 			<h3><?php echo esc_html( oneam_ctx( 'mail_title', 'Talk to our sales team' ) ); ?></h3>
 			<p><?php echo esc_html( oneam_ctx( 'mail_text', 'Questions about accounts, products, excise stamps or orders? We are happy to help.' ) ); ?></p>
 			<span class="work__email"><?php echo esc_html( $email ); ?> <?php echo oneam_icon( 'arrow' ); // phpcs:ignore ?></span>
-			<span class="work__note">Distributed by <?php echo esc_html( oneam_opt( 'oneam_company' ) ); ?></span>
 		</a>
 	</div>
 </section>

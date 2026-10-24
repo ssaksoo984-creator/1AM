@@ -394,3 +394,12 @@
 /* v1.19.4 — 스펙 값: 칸 너비에 맞춰 글자 크기 자동 축소 (긴 단어가 칸 끝에 붙지 않게) */
 .spdp__specs div, .pinfo__specs div { min-width: 0; }
 .spdp__specs dd { font-size: 20px; white-space: nowrap; overflow: hidden; }
+
+/* v1.20 — 최소 주문 안내 */
+.spdp__min { margin: 0 0 16px; padding: 12px 16px; border-radius: 14px; background: var(--paper); font-size: 13px; font-weight: 700; line-height: 1.4; }
+.oneam-minorder { margin: 0 0 24px; padding: 16px 20px; border-radius: 18px; background: var(--white); box-shadow: inset 0 0 0 1.5px rgba(13, 11, 18, .08); }
+.oneam-minorder p { margin: 0; font-size: 14px; font-weight: 700; }
+.oneam-minorder__alert { margin-top: 8px !important; color: #b3261e; }
+.wc-block-cart__submit-button.is-blocked { opacity: .35; cursor: not-allowed; }
+.oneam-minorder.is-low { box-shadow: inset 0 0 0 1.5px #b3261e; }
+.oneam-minorder.is-low .oneam-minorder__line { color: #b3261e; }
