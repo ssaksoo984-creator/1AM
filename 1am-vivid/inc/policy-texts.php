@@ -114,7 +114,7 @@ Orders must be shipped to a registered store address associated with your approv
 
 3. Processing & Delivery
 
-* Processing Time: Orders typically ship within 1–3 business days after payment confirmation or order approval for authorized credit accounts.
+* Processing Time: Orders typically ship within 1–3 business days after payment confirmation.
 * Delivery Time: Typically 1–5 business days after dispatch, depending on location.
 * Carriers: Purolator Ground, UPS Ground or Canpar Ground.
 
