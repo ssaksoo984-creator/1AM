@@ -1990,3 +1990,16 @@ body.home.nav-open .site-header { background: var(--white); }
 .card__img img, .elementor .card__img img { filter: none !important; backface-visibility: hidden; }
 .pinfo__specs div { min-width: 0; }
 .pinfo__specs dd { white-space: nowrap; overflow: hidden; }
+
+/* v1.21 — 홈이 아닌 페이지: 헤더는 항상 흰 바탕 + 검은 글씨 (드롭다운도 흰 바탕 검은 글씨) */
+body:not(.home) .site-header { background: var(--white); backdrop-filter: none; -webkit-backdrop-filter: none; color: var(--ink); }
+body:not(.home) .site-header .site-header__logo img { filter: none; }
+.site-nav ul ul, .site-nav .sub-menu { background: var(--white) !important; }
+.site-nav ul ul a, .site-nav .sub-menu a { color: var(--ink) !important; }
+
+/* v1.21 — 가입 폼: 제출 버튼 + 로그인 안내를 가운데 정렬, 아래 여백 */
+.apply__actions { display: flex; flex-direction: column; align-items: center; gap: 18px; margin: 8px 0 clamp(72px, 10vw, 120px); text-align: center; }
+.apply__form .apply__actions .btn { width: 100%; max-width: 440px; justify-content: center; margin-top: 0; }
+.apply__actions .apply__login { margin: 0 !important; font-size: 15px; color: rgba(13, 11, 18, .7); }
+.apply__actions .apply__login a { margin-left: 4px; color: var(--ink); font-weight: 800; text-decoration: none; border-bottom: 2px solid #8a3ffc; padding-bottom: 1px; }
+.apply__actions .apply__login a:hover { color: #8a3ffc; }

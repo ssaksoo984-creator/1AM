@@ -10,7 +10,9 @@ while ( have_posts() ) :
 	// (Elementor 페이지 설정의 "Hide Title" 을 켜면 컬러 제목 영역도 숨김)
 	if ( oneam_is_builder_page() || oneam_is_builder_preview() ) {
 		$oneam_ps = get_post_meta( get_the_ID(), '_elementor_page_settings', true );
-		if ( empty( $oneam_ps['hide_title'] ) || 'yes' !== $oneam_ps['hide_title'] ) {
+		if ( function_exists( 'is_account_page' ) && is_account_page() && is_user_logged_in() ) {
+			get_template_part( 'template-parts/account-head' );
+		} elseif ( empty( $oneam_ps['hide_title'] ) || 'yes' !== $oneam_ps['hide_title'] ) {
 			get_template_part( 'template-parts/page-head' );
 		}
 		echo '<div class="builder-content">';
@@ -18,7 +20,11 @@ while ( have_posts() ) :
 		echo '</div>';
 		continue;
 	}
-	get_template_part( 'template-parts/page-head' );
+	if ( function_exists( 'is_account_page' ) && is_account_page() && is_user_logged_in() ) {
+		get_template_part( 'template-parts/account-head' ); // 내 계정: 작은 상단
+	} else {
+		get_template_part( 'template-parts/page-head' );
+	}
 	?>
 	<div class="page-body entry__content">
 		<?php the_content(); ?>

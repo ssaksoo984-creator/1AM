@@ -419,7 +419,7 @@ function oneam_gst_line() {
 
 function oneam_payment_terms() {
 	$days = (int) oneam_opt( 'oneam_pay_due_days' );
-	return 'Interac e-Transfer due within ' . ( $days ?: 2 ) . ' business days of the order date. Unpaid orders are cancelled automatically.';
+	return 'Interac e-Transfer due within ' . ( $days ?: 2 ) . ' business days of the order date.';
 }
 
 // 주문에 매장 PST 번호 저장 (블록 · 클래식 결제)
@@ -492,6 +492,10 @@ add_action(
 		if ( 'invoice' !== $type || ! $order ) {
 			return;
 		}
+		$bn = $order->get_meta( '_wc_other/oneam/business-number' );
+		if ( $bn ) {
+			echo '<tr class="oneam-bn"><th>Business number (BN):</th><td>' . esc_html( $bn ) . '</td></tr>';
+		}
 		if ( $order->get_meta( '_oneam_pst_number' ) ) {
 			echo '<tr class="oneam-pst"><th>PST exemption no.:</th><td>' . esc_html( $order->get_meta( '_oneam_pst_number' ) ) . '</td></tr>';
 		}
@@ -502,6 +506,40 @@ add_action(
 	},
 	10,
 	2
+);
+
+/**
+ * 인보이스 플러그인 기본 설정 (한 번만): 완료(Completed)된 주문만 내 계정에서 PDF 인보이스 다운로드,
+ * "주문 완료" 이메일에 인보이스 PDF 첨부, 상호는 회사명. 이후 플러그인 설정에서 바꾼 값은 그대로 둡니다.
+ */
+function oneam_setup_invoices() {
+	if ( ! function_exists( 'WPO_WCPDF' ) ) {
+		return false;
+	}
+	$inv                                                   = (array) get_option( 'wpo_wcpdf_documents_settings_invoice', array() );
+	$inv['enabled']                                        = 1;
+	$inv['my_account_buttons']                             = 'custom';
+	$inv['my_account_restrict']                            = array( 'completed' => 1 );
+	$inv['attach_to_email_ids']                            = (array) ( $inv['attach_to_email_ids'] ?? array() );
+	$inv['attach_to_email_ids']['customer_completed_order'] = 1;
+	$inv['display_number']                                 = $inv['display_number'] ?? 'invoice_number';
+	$inv['display_date']                                   = $inv['display_date'] ?? 'invoice_date';
+	update_option( 'wpo_wcpdf_documents_settings_invoice', $inv );
+	$gen = (array) get_option( 'wpo_wcpdf_settings_general', array() );
+	if ( empty( $gen['shop_name']['default'] ) ) {
+		$gen['shop_name'] = array( 'default' => oneam_opt( 'oneam_company' ) );
+		update_option( 'wpo_wcpdf_settings_general', $gen );
+	}
+	update_option( 'oneam_invoice_setup', 1 );
+	return true;
+}
+add_action(
+	'admin_init',
+	function () {
+		if ( ! get_option( 'oneam_invoice_setup' ) && current_user_can( 'manage_options' ) ) {
+			oneam_setup_invoices();
+		}
+	}
 );
 
 /** 출고 · 배송 소요일 한 문장 (출고 = 결제 후 발송까지, 배송 = 발송 후 도착까지) */

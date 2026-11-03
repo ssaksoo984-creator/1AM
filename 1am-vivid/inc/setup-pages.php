@@ -72,7 +72,7 @@ function oneam_faq_items() {
 	return array(
 		array( 'Who can purchase products from 1AM?', '1AM products are available exclusively to verified and approved vape retailers in ' . oneam_regions_phrase() . '. We do not sell directly to individual consumers.' ),
 		array( 'How do I open a retail account?', 'Click “Become a Retailer” and complete the application with your store information. Once your account is approved, you can view pricing and place orders online. Your Business Number (BN) is required before your first order.' ),
-		array( 'Do I need to upload documents to apply?', 'No. Just complete the application with your store information. We review every application and may contact you if we need anything else.' ),
+		array( 'What documents are required for account approval?', 'We require valid business information confirming that your business operates as an authorized vape retail store. No documents need to be uploaded to apply. Your Business Number (BN) is required before your first order, and additional documentation may be requested during the verification process.' ),
 		array( 'Can I view wholesale pricing without an approved account?', 'No. Wholesale pricing and online ordering are available only to verified and approved retail account holders.' ),
 		array( 'Which provinces do you supply?', 'We currently supply licensed vape stores in ' . oneam_regions_phrase() . '. Stores in other provinces and territories are not supported yet.' ),
 		array( 'Which excise stamp will my products have?', 'All products carry the correct excise stamp for their intended province of sale. Choose the province where the products will be sold when you order, and confirm the excise stamp statement at checkout.' ),

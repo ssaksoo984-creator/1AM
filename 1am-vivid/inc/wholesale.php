@@ -313,8 +313,10 @@ function oneam_wholesale_form() {
 			<p class="is-wide apply__check"><label><input type="checkbox" name="oneam_marketing" value="1"> <span>Optional: email me about new products and offers. I can unsubscribe at any time.</span></label></p>
 		</fieldset>
 
-		<button class="btn btn--solid btn--xl" type="submit"<?php disabled( $preview ); ?>><span>Submit application &rarr;</span></button>
-		<p class="apply__login">Already applied? <a href="<?php echo esc_url( oneam_login_url() ); ?>">Log in</a></p>
+		<div class="apply__actions">
+			<button class="btn btn--solid btn--xl" type="submit"<?php disabled( $preview ); ?>><span>Submit application &rarr;</span></button>
+			<p class="apply__login">Already have a retailer account? <a href="<?php echo esc_url( oneam_login_url() ); ?>">Log in &rarr;</a></p>
+		</div>
 	</form>
 	<script>
 	(function () {
@@ -357,6 +359,55 @@ add_action(
 		}
 	},
 	5
+);
+
+/** 내 계정 주소: 위 제목 설명과 겹치는 문장은 빼고, 버튼은 "Edit" / "Add" 로 짧게 */
+add_filter( 'woocommerce_my_account_my_address_description', '__return_empty_string' );
+add_filter(
+	'gettext_woocommerce',
+	function ( $t, $text ) {
+		if ( is_admin() && ! wp_doing_ajax() ) {
+			return $t;
+		}
+		if ( 'Edit %s' === $text ) {
+			return 'Edit';
+		}
+		if ( 'Add %s' === $text ) {
+			return 'Add';
+		}
+		return $t;
+	},
+	10,
+	2
+);
+
+/** 내 계정: 탭마다 내용 맨 위에 작은 제목 + 한 줄 설명 */
+add_action(
+	'woocommerce_account_content',
+	function () {
+		global $wp;
+		$ep    = WC()->query->get_current_endpoint();
+		$value = $ep && isset( $wp->query_vars[ $ep ] ) ? $wp->query_vars[ $ep ] : '';
+		$heads = array(
+			''             => array( 'Overview', 'Your retailer account at a glance.' ),
+			'orders'       => array( 'Orders', 'Track your orders and download invoices.' ),
+			'edit-address' => array( 'Addresses', 'These addresses are used by default at checkout.' ),
+			'edit-account' => array( 'Account details', 'Your name, email, Business Number (BN) and password.' ),
+		);
+		if ( 'edit-address' === $ep && $value ) {
+			$head = array( 'billing' === $value ? 'Billing address' : 'Shipping address', 'Update the address and save.' );
+		} elseif ( isset( $heads[ $ep ] ) ) {
+			$head = $heads[ $ep ];
+		} else {
+			$head = array( WC()->query->get_endpoint_title( $ep ), '' );
+		}
+		echo '<header class="acct__section-head"><h2 class="acct__title">' . esc_html( wp_strip_all_tags( $head[0] ) ) . '</h2>';
+		if ( $head[1] ) {
+			echo '<p class="acct__lead">' . esc_html( $head[1] ) . '</p>';
+		}
+		echo '</header>';
+	},
+	1
 );
 
 /* ---------------------------------------------------------------------------

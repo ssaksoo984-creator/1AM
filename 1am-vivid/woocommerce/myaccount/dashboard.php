@@ -2,7 +2,7 @@
 /**
  * 내 계정 첫 화면 (WooCommerce myaccount/dashboard.php 대체)
  *
- * 인사 · 도매 승인 상태 · 주 · 바로가기 카드 · 최근 주문
+ * 바로가기 카드 · 최근 주문 (인사 · 승인 상태는 위쪽 account-head)
  *
  * @package 1am-vivid
  */
@@ -11,9 +11,6 @@ defined( 'ABSPATH' ) || exit;
 
 $oneam_user  = wp_get_current_user();
 $oneam_state = oneam_member_state();
-$oneam_prov  = oneam_customer_province();
-$oneam_store = get_user_meta( $oneam_user->ID, 'oneam_business_name', true ) ?: get_user_meta( $oneam_user->ID, 'billing_company', true );
-$oneam_name  = $oneam_user->first_name ?: $oneam_user->display_name;
 $oneam_cards = array(
 	array( 'orders', 'cart', 'Orders', 'Track orders and invoices' ),
 	array( 'edit-address', 'truck', 'Addresses', 'Billing and shipping' ),
@@ -28,21 +25,6 @@ $oneam_recent = function_exists( 'wc_get_orders' ) ? wc_get_orders(
 	)
 ) : array();
 ?>
-<p class="acct__hello">Hi, <?php echo esc_html( $oneam_name ); ?></p>
-<p>Welcome to your 1AM retailer account<?php echo $oneam_store ? ' for <strong>' . esc_html( $oneam_store ) . '</strong>' : ''; ?>.</p>
-
-<div class="acct__meta">
-	<?php if ( 'approved' === $oneam_state ) : ?>
-		<span class="acct__pill is-ok">Approved retailer</span>
-	<?php else : ?>
-		<span class="acct__pill is-wait">Application under review</span>
-	<?php endif; ?>
-	<?php if ( $oneam_prov ) : ?>
-		<span class="acct__pill"><?php echo esc_html( oneam_provinces()[ $oneam_prov ] ?? $oneam_prov ); ?></span>
-	<?php endif; ?>
-	<span class="acct__pill"><?php echo esc_html( $oneam_user->user_email ); ?></span>
-</div>
-
 <div class="acct__grid">
 	<a class="acct__card acct__card--shop" href="<?php echo esc_url( oneam_shop_url() ); ?>">
 		<?php echo oneam_icon( 'arrow' ); // phpcs:ignore ?>

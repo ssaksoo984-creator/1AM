@@ -138,6 +138,8 @@
 	}
 	function headerTone() {
 		if (!header || toneRaf) return;
+		// 홈만 배경에 맞춰 글자색이 바뀜 · 다른 페이지는 항상 흰 바탕에 검은 글씨
+		if (!document.body.classList.contains('home')) { header.classList.remove('is-dark'); return; }
 		toneRaf = requestAnimationFrame(function () {
 			toneRaf = 0;
 			var r = header.getBoundingClientRect();

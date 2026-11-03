@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_COMPLIANCE_VERSION', '2026-10-24-client-c' );
+define( 'ONEAM_COMPLIANCE_VERSION', '2026-11-03-account' );
 
 /** 옛 문구 → 새 문구 (페이지 글 · Elementor 데이터) */
 function oneam_migrate_replacements() {
@@ -57,6 +57,10 @@ function oneam_migrate_replacements() {
 		'Damaged or incorrect items: send your order number and photos.' => 'We typically respond within 1–2 business days.',
 		"We typically respond within 1–2 business days.\n" . oneam_opt( 'oneam_email' ) => 'We typically respond within 1–2 business days.',
 		'Minimum order quantities may vary by product.' => function_exists( 'oneam_min_order_line' ) && oneam_min_order_line() ? oneam_min_order_line() : 'Minimum order quantities may vary by product.',
+		'Do I need to upload documents to apply?' => 'What documents are required for account approval?',
+		'No. Just complete the application with your store information. We review every application and may contact you if we need anything else.' => 'We require valid business information confirming that your business operates as an authorized vape retail store. No documents need to be uploaded to apply. Your Business Number (BN) is required before your first order, and additional documentation may be requested during the verification process.',
+		'We require valid business information and supporting documentation confirming that your business operates as an authorized vape retail store. Additional documentation may be requested during the verification process.' => 'We require valid business information confirming that your business operates as an authorized vape retail store. No documents need to be uploaded to apply. Your Business Number (BN) is required before your first order, and additional documentation may be requested during the verification process.',
+		'valid business information and supporting documentation confirming' => 'valid business information confirming',
 		'HYBRID Max'    => '20ml MAX',
 		'HYBRID Refill' => '2+20ml MAX',
 		'authorized adult-only vape' => 'authorized vape',
