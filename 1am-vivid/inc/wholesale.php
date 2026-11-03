@@ -955,6 +955,93 @@ add_action(
 	99
 );
 
+/** 새 가입 신청 알림: 관리자 화면 맨 위 안내 + 상단 막대(사이트 화면에서도) — 메일이 안 와도 놓치지 않게 */
+function oneam_waiting_applications() {
+	static $n = null;
+	if ( null === $n ) {
+		$n = count( get_users( array( 'meta_key' => 'oneam_wholesale_status', 'meta_value' => 'pending', 'fields' => 'ID' ) ) ) // phpcs:ignore WordPress.DB.SlowDBQuery
+			+ count( get_users( array( 'meta_key' => 'oneam_review_replied', 'meta_compare' => 'EXISTS', 'fields' => 'ID' ) ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
+	}
+	return $n;
+}
+add_action(
+	'admin_notices',
+	function () {
+		if ( ! current_user_can( 'edit_users' ) || isset( $_GET['oneam_wholesale'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			return;
+		}
+		$n = oneam_waiting_applications();
+		if ( $n ) {
+			printf(
+				'<div class="notice notice-warning" style="border-left-color:#8a3ffc"><p style="font-size:14px"><strong>🔔 %1$d retailer application%2$s waiting for review.</strong> <a class="button button-primary" style="margin-left:8px" href="%3$s">Review now</a></p></div>',
+				(int) $n,
+				1 === $n ? '' : 's',
+				esc_url( admin_url( 'users.php?oneam_wholesale=pending' ) )
+			);
+		}
+	}
+);
+add_action(
+	'admin_bar_menu',
+	function ( $bar ) {
+		if ( ! current_user_can( 'edit_users' ) ) {
+			return;
+		}
+		$n = oneam_waiting_applications();
+		if ( $n ) {
+			$bar->add_node(
+				array(
+					'id'    => 'oneam-applications',
+					'title' => '🔔 Applications (' . (int) $n . ')',
+					'href'  => admin_url( 'users.php?oneam_wholesale=pending' ),
+				)
+			);
+		}
+	},
+	80
+);
+
+/** 메일 발송 실패 기록: 관리자 화면에 빨간 안내 (원인 확인용 — WP Mail SMTP 설정 문제 등) */
+add_action(
+	'wp_mail_failed',
+	function ( $error ) {
+		$data = $error->get_error_data();
+		update_option(
+			'oneam_mail_error',
+			array(
+				'time'    => current_time( 'mysql' ),
+				'message' => $error->get_error_message(),
+				'to'      => is_array( $data ) && isset( $data['to'] ) ? implode( ', ', (array) $data['to'] ) : '',
+				'subject' => is_array( $data ) && isset( $data['subject'] ) ? $data['subject'] : '',
+			),
+			false
+		);
+	}
+);
+add_action(
+	'admin_notices',
+	function () {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		if ( isset( $_GET['oneam_mail_ok'] ) && check_admin_referer( 'oneam_mail_ok' ) ) {
+			delete_option( 'oneam_mail_error' );
+			return;
+		}
+		$e = get_option( 'oneam_mail_error' );
+		if ( $e ) {
+			printf(
+				'<div class="notice notice-error"><p><strong>An email could not be sent</strong> (%1$s): %2$s<br>To: %3$s · Subject: %4$s<br>Check <em>WP Mail SMTP → Tools → Email Test</em>. <a href="%5$s">Hide this</a></p></div>',
+				esc_html( $e['time'] ),
+				esc_html( $e['message'] ),
+				esc_html( $e['to'] ?: '—' ),
+				esc_html( $e['subject'] ?: '—' ),
+				esc_url( wp_nonce_url( add_query_arg( 'oneam_mail_ok', '1' ), 'oneam_mail_ok' ) )
+			);
+		}
+	}
+);
+
 /** 처리 완료 알림 */
 add_action(
 	'admin_notices',
