@@ -192,10 +192,7 @@ function oneam_order_reasons() {
 				'Please confirm the province where these products will be sold, so we can ship the correct excise stamp.',
 			),
 			'processing' => array(
-				'Payment received — thank you. Your order is being packed.',
-			),
-			'completed'  => array(
-				'Your order has shipped. Tracking number: ',
+				'Payment confirmed — thank you. We are preparing your shipment.',
 			),
 			'cancelled'  => array(
 				'We did not receive payment in time, so this order has been cancelled.',
@@ -224,7 +221,7 @@ function oneam_order_message_box( $post_or_order ) {
 	$statuses = array(
 		''           => 'Keep current status',
 		'on-hold'    => 'On hold',
-		'processing' => 'Processing',
+		'processing' => 'Payment confirmed · Preparing shipment',
 		'completed'  => 'Completed',
 		'cancelled'  => 'Cancelled',
 	);

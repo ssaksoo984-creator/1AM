@@ -519,7 +519,7 @@ function oneam_setup_invoices() {
 	$inv                                                   = (array) get_option( 'wpo_wcpdf_documents_settings_invoice', array() );
 	$inv['enabled']                                        = 1;
 	$inv['my_account_buttons']                             = 'custom';
-	$inv['my_account_restrict']                            = array( 'completed' => 1 );
+	$inv['my_account_restrict']                            = array( 'shipped' => 1, 'completed' => 1 );
 	$inv['attach_to_email_ids']                            = (array) ( $inv['attach_to_email_ids'] ?? array() );
 	$inv['attach_to_email_ids']['customer_completed_order'] = 1;
 	$inv['display_number']                                 = $inv['display_number'] ?? 'invoice_number';
@@ -530,13 +530,13 @@ function oneam_setup_invoices() {
 		$gen['shop_name'] = array( 'default' => oneam_opt( 'oneam_company' ) );
 		update_option( 'wpo_wcpdf_settings_general', $gen );
 	}
-	update_option( 'oneam_invoice_setup', 1 );
+	update_option( 'oneam_invoice_setup', 2 ); // 2 = 발송(Shipped) 주문도 인보이스 다운로드
 	return true;
 }
 add_action(
 	'admin_init',
 	function () {
-		if ( ! get_option( 'oneam_invoice_setup' ) && current_user_can( 'manage_options' ) ) {
+		if ( (int) get_option( 'oneam_invoice_setup' ) < 2 && current_user_can( 'manage_options' ) ) {
 			oneam_setup_invoices();
 		}
 	}
