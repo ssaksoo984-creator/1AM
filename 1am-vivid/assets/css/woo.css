@@ -468,19 +468,10 @@
 .woocommerce-account .woocommerce-Address-title .edit { float: none !important; margin: 0 !important; }
 .woocommerce-account .woocommerce-Address address { margin: 0; font-style: normal; line-height: 1.7; font-size: 15px; }
 
-/* 안내 상자: 글 위 · 버튼 아래 (겹치지 않게) */
-.woocommerce-account .woocommerce-MyAccount-content .woocommerce-info,
-.woocommerce-account .woocommerce-MyAccount-content .woocommerce-message,
-.woocommerce-account .woocommerce-MyAccount-content .woocommerce-error {
-	display: flex; flex-direction: column; align-items: flex-start; gap: 14px;
-	margin: 0 0 20px; padding: 22px 24px !important; border-radius: 18px; background: var(--paper); font-size: 15px; line-height: 1.55;
-}
-.woocommerce-account .woocommerce-MyAccount-content .woocommerce-info::before,
-.woocommerce-account .woocommerce-MyAccount-content .woocommerce-message::before { display: none !important; }
-.woocommerce-account .woocommerce-MyAccount-content .woocommerce-info .button,
-.woocommerce-account .woocommerce-MyAccount-content .woocommerce-message .button { order: 9; float: none !important; margin: 0 !important; height: 42px; padding: 0 20px !important; font-size: 13px !important; }
 /* 비회원 주문을 계정에 연결하는 이메일 확인 안내: 가입 회원만 주문하는 사이트라 숨김 */
 .woocommerce-account .woocommerce-info:has(a[href*="wc_send_verification"]) { display: none !important; }
+.woocommerce-account label[for="account_last_name"] .required,
+.woocommerce-account .woocommerce-EditAccountForm label[for*="business-number"] .required { display: none; }
 
 /* 주문 표 */
 .woocommerce-account .woocommerce-orders-table { width: 100%; border: 0; border-collapse: separate; border-spacing: 0; font-size: 15px; }
@@ -521,3 +512,66 @@
 	.woocommerce-account .woocommerce-Address { padding: 18px; }
 	.woocommerce-account .woocommerce-orders-table__cell-order-actions { text-align: left !important; }
 }
+
+/* v1.21.2 — 안내 상자 공통: 아이콘 · 글 · 버튼을 한 줄 가운데 높이로, 아이콘이 글자를 덮지 않게, 파란 포커스 테두리 없음 */
+.woocommerce-message, .woocommerce-info, .woocommerce-error,
+.woocommerce .woocommerce-message, .woocommerce .woocommerce-info, .woocommerce .woocommerce-error {
+	position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px;
+	margin: 0 0 20px; padding: 18px 22px 18px 58px !important; border: 0; border-radius: 18px;
+	font-size: 15px; line-height: 1.5; outline: none !important; box-shadow: none;
+}
+.woocommerce-message:focus, .woocommerce-info:focus, .woocommerce-error:focus { outline: none !important; }
+.woocommerce-message::before, .woocommerce-info::before, .woocommerce-error::before {
+	display: block !important; position: absolute; left: 22px; top: 50%; margin: 0; transform: translateY(-50%); font-size: 20px; line-height: 1;
+}
+.woocommerce-message { background: #eaf7ef; color: #14532d; }
+.woocommerce-message::before { color: #1d7a46; }
+.woocommerce-info { background: var(--white); }
+.woocommerce-error { display: block; background: #fdecec; color: #8a1c14; }
+.woocommerce-error::before { color: #b3261e; top: 29px; }
+.woocommerce-error li { margin: 0; padding: 2px 0; list-style: none; }
+.woocommerce-error li + li { margin-top: 4px; }
+.woocommerce-message .button, .woocommerce-info .button, .woocommerce-message a.button, .woocommerce-info a.button {
+	order: 9; float: none !important; margin: 0 0 0 auto !important; height: 44px; padding: 0 22px !important; font-size: 13px !important;
+}
+.woocommerce-account .woocommerce-MyAccount-content .woocommerce-message,
+.woocommerce-account .woocommerce-MyAccount-content .woocommerce-info,
+.woocommerce-account .woocommerce-MyAccount-content .woocommerce-error { margin-bottom: 24px; }
+@media (max-width: 700px) {
+	.woocommerce-message .button, .woocommerce-info .button, .woocommerce-message a.button, .woocommerce-info a.button { margin: 4px 0 0 !important; }
+	.woocommerce-message, .woocommerce-info, .woocommerce-error { padding-left: 52px !important; }
+	.woocommerce-message::before, .woocommerce-info::before { top: 22px; transform: none; left: 18px; }
+}
+
+/* v1.21.2 — 주문 완료 화면: 제목처럼 · 다음 행동 버튼 */
+.woocommerce-order .woocommerce-thankyou-order-received,
+.woocommerce-order .woocommerce-notice--success.woocommerce-thankyou-order-received {
+	display: flex; align-items: center; gap: 14px; margin: 0 0 28px; padding: 0 !important; background: none; color: var(--ink);
+	font-size: clamp(24px, 2.6vw, 32px); line-height: 1.15; font-weight: 900; text-transform: uppercase; font-variation-settings: "wdth" 78;
+}
+.woocommerce-order .woocommerce-thankyou-order-received::before {
+	content: ""; flex: 0 0 auto; width: 44px; height: 44px; border-radius: 14px;
+	background: linear-gradient(135deg, #8a3ffc, #16c75a) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center / 24px no-repeat;
+	position: static !important; transform: none !important; display: block !important;
+}
+.thanks-next { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 24px; margin: 20px 0 36px; padding: 22px 26px; border-radius: 22px; background: var(--white); }
+.thanks-next__text { display: grid; gap: 4px; flex: 1 1 320px; min-width: 0; }
+.thanks-next__text strong { font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+.thanks-next__text span { font-size: 15px; opacity: .7; line-height: 1.55; }
+.thanks-next__btns { display: flex; flex-wrap: wrap; gap: 10px; }
+.thanks-next .btn { height: 50px; padding: 0 24px; font-size: 14px; }
+@media (max-width: 600px) {
+	.thanks-next__btns, .thanks-next__btns .btn { width: 100%; }
+	.thanks-next__btns .btn { justify-content: center; }
+}
+
+/* v1.21.2 — 비밀번호 강도 안내: 저장 버튼이 잠긴 이유가 보이게 */
+.woocommerce-password-strength { display: block; margin-top: 8px; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 700; text-align: left; }
+.woocommerce-password-strength.short, .woocommerce-password-strength.bad { background: #fdecec; color: #8a1c14; }
+.woocommerce-password-strength.good { background: #fff4e0; color: #6b3f00; }
+.woocommerce-password-strength.strong { background: #eaf7ef; color: #14532d; }
+.woocommerce-password-hint { display: block; margin-top: 6px; font-size: 13px; opacity: .7; }
+.woocommerce-account .woocommerce-MyAccount-content button[disabled] { opacity: .45; cursor: not-allowed; }
+
+/* v1.21.2 — 버튼 글자 가운데 · 본문 링크 밑줄이 버튼에 붙지 않게 · 상태 카드 간격 */
+.woocommerce-message a.button, .woocommerce-info a.button, .woocommerce-message .button, .woocommerce-info .button { display: inline-flex !important; align-items: center; justify-content: center; line-height: 1 !important; padding-top: 0 !important; padding-bottom: 0 !important; }

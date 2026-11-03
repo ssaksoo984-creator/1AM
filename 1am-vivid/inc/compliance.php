@@ -257,7 +257,7 @@ add_filter(
 		}
 		// 상품 페이지는 테마 화면, 승인된 매장은 상점 · 장바구니 · 결제 · 내 계정 모두 이용 가능
 		// 약관 · 정책 페이지는 누구나 볼 수 있어야 함 (결제사 심사) — WooCommerce 는 Terms 페이지도 스토어 페이지로 취급
-		$policy = is_page() && ( in_array( get_post_field( 'post_name', get_queried_object_id() ), array( 'terms', 'return-policy', 'shipping-policy', 'privacy-policy' ), true ) || (int) get_queried_object_id() === (int) get_option( 'woocommerce_terms_page_id' ) );
+		$policy = oneam_is_policy_page();
 		if ( $policy || ( function_exists( 'is_product' ) && is_product() ) || 'approved' === oneam_member_state() ) {
 			return true;
 		}
@@ -582,6 +582,27 @@ add_filter(
 		return $res;
 	},
 	99
+);
+
+/** 약관 · 정책 페이지인지 (Terms · Privacy · Shipping · Return) */
+function oneam_is_policy_page() {
+	if ( ! is_page() ) {
+		return false;
+	}
+	$id = (int) get_queried_object_id();
+	return in_array( get_post_field( 'post_name', $id ), array( 'terms', 'return-policy', 'shipping-policy', 'privacy-policy' ), true )
+		|| $id === (int) get_option( 'woocommerce_terms_page_id' )
+		|| $id === (int) get_option( 'wp_page_for_privacy_policy' );
+}
+// 정책 페이지는 Elementor 로 만들었든 아니든 같은 좁은 읽기 폭으로
+add_filter(
+	'body_class',
+	function ( $classes ) {
+		if ( oneam_is_policy_page() ) {
+			$classes[] = 'oneam-policy';
+		}
+		return $classes;
+	}
 );
 
 /** 출고 · 배송 소요일 한 문장 (출고 = 결제 후 발송까지, 배송 = 발송 후 도착까지) */

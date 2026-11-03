@@ -2003,3 +2003,58 @@ body:not(.home) .site-header .site-header__logo img { filter: none; }
 .apply__actions .apply__login { margin: 0 !important; font-size: 15px; color: rgba(13, 11, 18, .7); }
 .apply__actions .apply__login a { margin-left: 4px; color: var(--ink); font-weight: 800; text-decoration: none; border-bottom: 2px solid #8a3ffc; padding-bottom: 1px; }
 .apply__actions .apply__login a:hover { color: #8a3ffc; }
+
+/* v1.21.2 — 가입 폼: 틀린 칸만 빨갛게 + 칸 아래 이유, 비밀번호 보기 */
+.apply__form [aria-invalid="true"] { border-color: #d93025 !important; background: #fff6f5 !important; box-shadow: 0 0 0 4px rgba(217, 48, 37, .12) !important; }
+.apply__form input[type="checkbox"][aria-invalid="true"] { outline: 2px solid #d93025; outline-offset: 2px; }
+.apply__err { display: block; margin-top: 6px; font-size: 13px; font-weight: 600; color: #c5221f; }
+.apply__form p.is-bad label { color: #c5221f; }
+.apply__pw { position: relative; display: block; }
+.apply__pw input { padding-right: 56px !important; }
+.apply__eye { position: absolute; top: 50%; right: 8px; transform: translateY(-50%); display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 10px; background: transparent; color: rgba(13, 11, 18, .55); cursor: pointer; }
+.apply__eye:hover, .apply__eye:focus-visible { color: var(--ink); background: rgba(13, 11, 18, .06); outline: none; }
+.apply__eye .icon { width: 20px; height: 20px; }
+
+/* v1.21.2 — 가입 후 상태 카드 (검토 중 · 승인 · 거절) */
+body.oneam-applied .builder-content .elementor-widget-text-editor,
+body.oneam-applied .builder-content .oneam-text { display: none; }
+.apply-status { display: grid; justify-items: center; gap: 14px; max-width: 720px; margin: clamp(32px, 6vw, 72px) auto clamp(72px, 10vw, 120px); padding: clamp(32px, 5vw, 56px) clamp(22px, 5vw, 56px); border-radius: 28px; background: var(--white); text-align: center; box-shadow: 0 1px 0 rgba(13, 11, 18, .04), 0 24px 60px -30px rgba(40, 20, 80, .25); }
+.apply-status__icon { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 20px; color: #fff; background: linear-gradient(135deg, var(--c1, #8a3ffc), var(--c2, #16c75a)); }
+.apply-status__icon .icon { width: 30px; height: 30px; }
+.apply-status--bad .apply-status__icon { background: #b3261e; }
+.apply-status__title { margin: 6px 0 0; font-size: clamp(26px, 3vw, 36px); line-height: 1.05; font-weight: 900; text-transform: uppercase; font-variation-settings: "wdth" 78; }
+.apply-status__text { max-width: 46ch; margin: 0; font-size: 17px; opacity: .75; }
+.apply-status__steps { display: grid; gap: 0; width: 100%; max-width: 480px; margin: 14px 0 6px; padding: 0; list-style: none; text-align: left; }
+.apply-status__steps li { position: relative; display: grid; gap: 2px; padding: 0 0 20px 40px; }
+.apply-status__steps li::before { content: ""; position: absolute; left: 0; top: 2px; width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(13, 11, 18, .18); background: var(--white); box-sizing: border-box; }
+.apply-status__steps li::after { content: ""; position: absolute; left: 10px; top: 26px; bottom: 2px; width: 2px; background: rgba(13, 11, 18, .1); }
+.apply-status__steps li:last-child { padding-bottom: 0; }
+.apply-status__steps li:last-child::after { display: none; }
+.apply-status__steps li.is-done::before { border-color: #1d7a46; background: #1d7a46 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center / 14px no-repeat; }
+.apply-status__steps li.is-now::before { border-color: #8a3ffc; box-shadow: 0 0 0 4px rgba(138, 63, 252, .15); }
+.apply-status__steps strong { font-size: 15px; font-weight: 800; }
+.apply-status__steps span { font-size: 14px; opacity: .65; line-height: 1.5; }
+.apply-status__btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
+.apply-status__help { margin: 4px 0 0; font-size: 13px; opacity: .55; }
+
+/* v1.21.2 — 본문 링크 밑줄이 버튼에 붙지 않게 · 상태 카드 제목 크기/간격 (본문 h2 규칙보다 우선) */
+.entry__content a.btn, .page-body a.btn { text-decoration: none !important; }
+.page-body .apply-status .apply-status__title, .apply-status .apply-status__title { margin: 4px 0 0; font-size: clamp(26px, 3vw, 36px); line-height: 1.05; }
+.page-body .apply-status > p, .page-body .apply-status > ol { margin-top: 0; margin-bottom: 0; }
+
+/* v1.21.2 — 약관 · 정책 페이지 4개: Elementor 페이지도 일반 페이지와 같은 좁은 읽기 폭(860px)과 같은 제목 크기 */
+body.oneam-policy .builder-content { max-width: 860px; margin: 0 auto; padding: clamp(60px, 7vw, 100px) var(--gutter); }
+body.oneam-policy .builder-content .elementor,
+body.oneam-policy .builder-content .e-con,
+body.oneam-policy .builder-content .e-con-inner,
+body.oneam-policy .builder-content .elementor-section .elementor-container {
+	--content-width: 100%; --container-max-width: 100%; --padding-left: 0px; --padding-right: 0px; --padding-top: 0px; --padding-bottom: 0px;
+	width: 100%; max-width: 100% !important; margin-left: 0; margin-right: 0; padding-left: 0 !important; padding-right: 0 !important;
+}
+body.oneam-policy .builder-content .elementor-widget-container > * + * { margin-top: 1.2em; }
+body.oneam-policy .builder-content h2 { font-size: clamp(30px, 3.4vw, 52px); line-height: .95; font-weight: 900; font-variation-settings: "wdth" 76; text-transform: uppercase; margin: 1.6em 0 .5em; }
+body.oneam-policy .builder-content h3 { font-size: 22px; font-weight: 900; text-transform: uppercase; margin: 1.4em 0 .4em; }
+body.oneam-policy .builder-content .elementor-widget-text-editor,
+body.oneam-policy .builder-content .elementor-widget-text-editor * { font-family: var(--f-display); color: var(--ink); }
+body.oneam-policy .builder-content .elementor-widget-text-editor { font-size: 18px; line-height: 1.6; }
+body.oneam-policy .builder-content .elementor-widget-text-editor em { font-family: var(--f-serif); }

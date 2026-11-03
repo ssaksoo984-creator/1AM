@@ -517,7 +517,41 @@ function oneam_etransfer_box( $order, $plain = false ) {
 add_action(
 	'woocommerce_thankyou_bacs',
 	function ( $order_id ) {
-		oneam_etransfer_box( wc_get_order( $order_id ) );
+		$order = wc_get_order( $order_id );
+		oneam_etransfer_box( $order );
+		// 카드에 같은 안내가 있으니 아래에 한 번 더 나오는 기본 안내문은 빼기
+		if ( $order && ! $order->is_paid() ) {
+			$gw = WC()->payment_gateways() ? ( WC()->payment_gateways()->payment_gateways()['bacs'] ?? null ) : null;
+			if ( $gw ) {
+				remove_action( 'woocommerce_thankyou_bacs', array( $gw, 'thankyou_page' ) );
+			}
+		}
+	},
+	5
+);
+/** 주문 완료 화면: 다음 행동 버튼 (내 주문 보기 · 쇼핑 계속하기) */
+add_action(
+	'woocommerce_thankyou',
+	function ( $order_id ) {
+		$order = wc_get_order( $order_id );
+		if ( ! $order ) {
+			return;
+		}
+		$orders = is_user_logged_in() ? wc_get_account_endpoint_url( 'orders' ) : '';
+		?>
+		<div class="thanks-next">
+			<div class="thanks-next__text">
+				<strong>What happens next</strong>
+				<span>We confirm your payment, pack your cartons and email tracking when it ships. You can follow the status in My account &rarr; Orders.</span>
+			</div>
+			<div class="thanks-next__btns">
+				<?php if ( $orders ) : ?>
+					<a class="btn btn--solid" href="<?php echo esc_url( $orders ); ?>"><span>View my orders &rarr;</span></a>
+				<?php endif; ?>
+				<a class="btn btn--ghost" href="<?php echo esc_url( oneam_shop_url() ); ?>"><span>Continue shopping</span></a>
+			</div>
+		</div>
+		<?php
 	},
 	5
 );

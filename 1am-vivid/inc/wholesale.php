@@ -123,7 +123,16 @@ add_action(
 		}
 		$back = wp_get_referer() ? wp_get_referer() : oneam_signup_url();
 		$fail = function ( $code ) use ( $back ) {
-			wp_safe_redirect( add_query_arg( 'apply_error', $code, remove_query_arg( array( 'apply_error', 'applied' ), $back ) ) . '#apply' );
+			// 입력한 내용은 그대로 돌려줌 (비밀번호 제외) — 하나 틀렸다고 전부 다시 쓰지 않게
+			$keep = array();
+			foreach ( array_merge( array_keys( oneam_wholesale_fields() ), array_keys( oneam_wholesale_optional_fields() ), array( 'oneam_email', 'oneam_agree', 'oneam_marketing' ) ) as $k ) {
+				if ( isset( $_POST[ $k ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+					$keep[ $k ] = sanitize_text_field( wp_unslash( $_POST[ $k ] ) ); // phpcs:ignore WordPress.Security.NonceVerification
+				}
+			}
+			$token = wp_generate_password( 12, false );
+			set_transient( 'oneam_apply_' . $token, $keep, 30 * MINUTE_IN_SECONDS );
+			wp_safe_redirect( add_query_arg( array( 'apply_error' => $code, 'apply_data' => $token ), remove_query_arg( array( 'apply_error', 'apply_data', 'applied' ), $back ) ) . '#apply' );
 			exit;
 		};
 
@@ -248,13 +257,34 @@ function oneam_wholesale_form() {
 
 	if ( is_user_logged_in() && ! $preview ) {
 		$status = oneam_wholesale_status( get_current_user_id() );
+		$mail = oneam_opt( 'oneam_email' );
 		if ( 'approved' === $status || 'approved' === oneam_member_state() ) {
-			printf( '<div class="apply__note is-ok"><strong>Your account is approved.</strong><p>You can order at wholesale prices.</p><a class="btn btn--solid" href="%s"><span>Shop wholesale &rarr;</span></a></div>', esc_url( oneam_shop_url() ) );
+			$card = array( 'ok', 'check', 'Your account is approved', 'You can view wholesale pricing and place orders online.', array( array( oneam_shop_url(), 'Shop wholesale', 'solid' ), array( wc_get_page_permalink( 'myaccount' ), 'My account', 'ghost' ) ), false );
 		} elseif ( 'rejected' === $status ) {
-			echo '<div class="apply__note is-bad"><strong>Your application was not approved.</strong><p>Please contact us if you think this is a mistake.</p></div>';
+			$card = array( 'bad', 'mail', 'Your application was not approved', 'If you think this is a mistake, contact us at ' . $mail . ' and we will take another look.', array( array( 'mailto:' . $mail, 'Contact us', 'solid' ) ), false );
 		} else {
-			echo '<div class="apply__note"><strong>Application received — under review.</strong><p>We review applications within 1–2 business days and will email you once your account is approved.</p></div>';
+			$card = array( 'wait', 'clock', 'Application received', 'Thanks for applying. We are reviewing your store information now.', array( array( home_url( '/#products' ), 'Browse products', 'solid' ), array( wc_get_page_permalink( 'myaccount' ), 'My account', 'ghost' ) ), true );
 		}
+		?>
+		<div class="apply-status apply-status--<?php echo esc_attr( $card[0] ); ?>">
+			<span class="apply-status__icon"><?php echo oneam_icon( $card[1] ); // phpcs:ignore ?></span>
+			<h2 class="apply-status__title"><?php echo esc_html( $card[2] ); ?></h2>
+			<p class="apply-status__text"><?php echo esc_html( $card[3] ); ?></p>
+			<?php if ( $card[5] ) : ?>
+				<ol class="apply-status__steps">
+					<li class="is-done"><strong>Application sent</strong><span>Your store details are with our team.</span></li>
+					<li class="is-now"><strong>Review</strong><span>Usually within 1–2 business days.</span></li>
+					<li><strong>Approved</strong><span>We email you, then you can view pricing and order online. Your Business Number (BN) is needed at your first checkout.</span></li>
+				</ol>
+			<?php endif; ?>
+			<div class="apply-status__btns">
+				<?php foreach ( $card[4] as $b ) : ?>
+					<a class="btn btn--<?php echo esc_attr( $b[2] ); ?>" href="<?php echo esc_url( $b[0] ); ?>"><span><?php echo esc_html( $b[1] ); ?> &rarr;</span></a>
+				<?php endforeach; ?>
+			</div>
+			<p class="apply-status__help">Questions? <?php echo esc_html( $mail ); ?></p>
+		</div>
+		<?php
 		echo '</div>';
 		return ob_get_clean();
 	}
@@ -265,7 +295,7 @@ function oneam_wholesale_form() {
 		'region'   => 'We currently supply stores in ' . oneam_regions_phrase() . ' only. Stores in other provinces and territories are not supported yet.',
 		'bn'       => 'Please enter your 9-digit Business Number (BN), e.g. 123456789.',
 		'postcode' => 'Please enter a valid Canadian postal code, e.g. V6B 1A1.',
-		'phone'    => 'Please enter a 10-digit phone number, e.g. 604-555-0100.',
+		'phone'    => 'Please enter a 10-digit phone number, e.g. 604 555 0100.',
 		'email'    => 'Please enter a valid email address.',
 		'exists'   => 'An account with this email already exists. Please log in instead.',
 		'password' => 'Your password must be at least 8 characters.',
@@ -274,43 +304,70 @@ function oneam_wholesale_form() {
 		'invalid'  => 'Something went wrong. Please try again.',
 	);
 	$err = isset( $_GET['apply_error'] ) ? sanitize_key( wp_unslash( $_GET['apply_error'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
+	$tok = isset( $_GET['apply_data'] ) ? sanitize_key( wp_unslash( $_GET['apply_data'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
+	$old = $tok ? (array) get_transient( 'oneam_apply_' . $tok ) : array();
+	$v   = function ( $k ) use ( $old ) {
+		return isset( $old[ $k ] ) ? (string) $old[ $k ] : '';
+	};
+	// 오류 코드 → 빨갛게 표시할 칸
+	$err_field = array(
+		'bn'       => 'oneam_business_number',
+		'postcode' => 'oneam_postcode',
+		'phone'    => 'oneam_phone',
+		'email'    => 'oneam_email',
+		'exists'   => 'oneam_email',
+		'password' => 'oneam_password',
+		'agree'    => 'oneam_agree',
+	);
+	if ( 'missing' === $err ) {
+		foreach ( oneam_wholesale_fields() as $k => $label ) {
+			if ( '' === $v( $k ) ) {
+				$err_field['missing'] = $k;
+				break;
+			}
+		}
+	}
+	$bad_field = $err_field[ $err ] ?? '';
+	$bad_attr  = function ( $k ) use ( $bad_field ) {
+		return $k === $bad_field ? ' aria-invalid="true"' : '';
+	};
 	if ( $err && isset( $errors[ $err ] ) ) {
-		printf( '<div class="apply__note is-bad" role="alert">%s</div>', esc_html( $errors[ $err ] ) );
+		printf( '<div class="apply__note is-bad" role="alert" data-field="%s">%s</div>', esc_attr( $bad_field ), esc_html( $errors[ $err ] ) );
 	}
 	?>
-	<form class="apply__form" method="post">
+	<form class="apply__form" method="post" novalidate>
 		<?php wp_nonce_field( 'oneam_apply', 'oneam_apply_nonce' ); ?>
 		<input type="hidden" name="oneam_wholesale_apply" value="1">
 		<div class="apply__hp" aria-hidden="true" hidden><label>Leave this field empty <input type="text" name="oneam_website" tabindex="-1" autocomplete="off"></label></div>
 
 		<fieldset>
 			<legend>Business</legend>
-			<p><label for="oneam_business_name">Business name</label><input id="oneam_business_name" name="oneam_business_name" required autocomplete="organization"></p>
-			<p><label for="oneam_business_number">Business number (BN) <small>(optional now — required before your first order)</small></label><input id="oneam_business_number" name="oneam_business_number" inputmode="numeric" title="9-digit Business Number, e.g. 123456789"></p>
-			<p class="is-wide"><label for="oneam_store_address">Store address</label><input id="oneam_store_address" name="oneam_store_address" required autocomplete="street-address"></p>
-			<p><label for="oneam_city">City</label><input id="oneam_city" name="oneam_city" required autocomplete="address-level2"></p>
-			<p><label for="oneam_province">Province</label><select id="oneam_province" name="oneam_province" required>
+			<p><label for="oneam_business_name">Business name</label><input id="oneam_business_name" name="oneam_business_name" required autocomplete="organization" value="<?php echo esc_attr( $v( 'oneam_business_name' ) ); ?>"<?php echo $bad_attr( 'oneam_business_name' ); // phpcs:ignore ?>></p>
+			<p><label for="oneam_business_number">Business number (BN) <small>(optional now — required before your first order)</small></label><input id="oneam_business_number" name="oneam_business_number" inputmode="numeric" placeholder="123456789" value="<?php echo esc_attr( $v( 'oneam_business_number' ) ); ?>"<?php echo $bad_attr( 'oneam_business_number' ); // phpcs:ignore ?>></p>
+			<p class="is-wide"><label for="oneam_store_address">Store address</label><input id="oneam_store_address" name="oneam_store_address" required autocomplete="street-address" value="<?php echo esc_attr( $v( 'oneam_store_address' ) ); ?>"<?php echo $bad_attr( 'oneam_store_address' ); // phpcs:ignore ?>></p>
+			<p><label for="oneam_city">City</label><input id="oneam_city" name="oneam_city" required autocomplete="address-level2" value="<?php echo esc_attr( $v( 'oneam_city' ) ); ?>"<?php echo $bad_attr( 'oneam_city' ); // phpcs:ignore ?>></p>
+			<p><label for="oneam_province">Province</label><select id="oneam_province" name="oneam_province" required<?php echo $bad_attr( 'oneam_province' ); // phpcs:ignore ?>>
 					<option value="">Choose…</option>
 					<?php foreach ( oneam_provinces() as $code => $label ) : ?>
-						<option value="<?php echo esc_attr( $code ); ?>"><?php echo esc_html( $label ); ?></option>
+						<option value="<?php echo esc_attr( $code ); ?>"<?php selected( $v( 'oneam_province' ), $code ); ?>><?php echo esc_html( $label ); ?></option>
 					<?php endforeach; ?>
 				</select></p>
-			<p><label for="oneam_postcode">Postal code</label><input id="oneam_postcode" name="oneam_postcode" required autocomplete="postal-code" title="Canadian postal code, e.g. V6B 1A1"></p>
-			<p class="apply__pst"><label for="oneam_pst_number">PST number <small>(optional — BC/SK, for resale exemption)</small></label><input id="oneam_pst_number" name="oneam_pst_number" autocomplete="off"></p>
+			<p><label for="oneam_postcode">Postal code</label><input id="oneam_postcode" name="oneam_postcode" required autocomplete="postal-code" placeholder="V6B 1A1" value="<?php echo esc_attr( $v( 'oneam_postcode' ) ); ?>"<?php echo $bad_attr( 'oneam_postcode' ); // phpcs:ignore ?>></p>
+			<p class="apply__pst"><label for="oneam_pst_number">PST number <small>(optional — BC/SK, for resale exemption)</small></label><input id="oneam_pst_number" name="oneam_pst_number" autocomplete="off" value="<?php echo esc_attr( $v( 'oneam_pst_number' ) ); ?>"></p>
 		</fieldset>
 
 		<fieldset>
 			<legend>Contact &amp; login</legend>
-			<p><label for="oneam_contact_name">Contact name</label><input id="oneam_contact_name" name="oneam_contact_name" required autocomplete="name"></p>
-			<p><label for="oneam_phone">Phone</label><input id="oneam_phone" name="oneam_phone" type="tel" required autocomplete="tel" title="10-digit phone number, e.g. 604-555-0100"></p>
-			<p><label for="oneam_email">Email</label><input id="oneam_email" name="oneam_email" type="email" required autocomplete="email"></p>
-			<p><label for="oneam_password">Password (8+ characters)</label><input id="oneam_password" name="oneam_password" type="password" minlength="8" required autocomplete="new-password"></p>
+			<p><label for="oneam_contact_name">Contact name</label><input id="oneam_contact_name" name="oneam_contact_name" required autocomplete="name" value="<?php echo esc_attr( $v( 'oneam_contact_name' ) ); ?>"<?php echo $bad_attr( 'oneam_contact_name' ); // phpcs:ignore ?>></p>
+			<p><label for="oneam_phone">Phone</label><input id="oneam_phone" name="oneam_phone" type="tel" inputmode="tel" required autocomplete="tel" placeholder="604 555 0100" value="<?php echo esc_attr( $v( 'oneam_phone' ) ); ?>"<?php echo $bad_attr( 'oneam_phone' ); // phpcs:ignore ?>></p>
+			<p><label for="oneam_email">Email</label><input id="oneam_email" name="oneam_email" type="email" required autocomplete="email" value="<?php echo esc_attr( $v( 'oneam_email' ) ); ?>"<?php echo $bad_attr( 'oneam_email' ); // phpcs:ignore ?>></p>
+			<p><label for="oneam_password">Password <small>(8+ characters)</small></label><span class="apply__pw"><input id="oneam_password" name="oneam_password" type="password" minlength="8" required autocomplete="new-password"<?php echo $bad_attr( 'oneam_password' ); // phpcs:ignore ?>><button type="button" class="apply__eye" aria-label="Show password" aria-pressed="false"><?php echo oneam_icon( 'eye' ); // phpcs:ignore ?></button></span></p>
 		</fieldset>
 
 		<fieldset>
 			<legend>Confirm</legend>
-			<p class="is-wide apply__check"><label><input type="checkbox" name="oneam_agree" value="1" required> <span>I confirm my business is an authorized vape retail store in Canada, legally permitted to purchase and resell vaping products, that the information provided is accurate, and that I am <?php echo (int) oneam_opt( 'oneam_min_age' ); ?> or older. I agree to the <a href="<?php echo esc_url( home_url( '/terms/' ) ); ?>" target="_blank">Terms &amp; Conditions</a>, including <a href="<?php echo esc_url( home_url( '/terms/#vape-compliance' ) ); ?>" target="_blank">Vaping Product Compliance</a>.</span></label></p>
-			<p class="is-wide apply__check"><label><input type="checkbox" name="oneam_marketing" value="1"> <span>Optional: email me about new products and offers. I can unsubscribe at any time.</span></label></p>
+			<p class="is-wide apply__check"><label><input type="checkbox" id="oneam_agree" name="oneam_agree" value="1" required<?php checked( '1', $v( 'oneam_agree' ) ); ?><?php echo $bad_attr( 'oneam_agree' ); // phpcs:ignore ?>> <span>I confirm my business is an authorized vape retail store in Canada, legally permitted to purchase and resell vaping products, that the information provided is accurate, and that I am <?php echo (int) oneam_opt( 'oneam_min_age' ); ?> or older. I agree to the <a href="<?php echo esc_url( home_url( '/terms/' ) ); ?>" target="_blank">Terms &amp; Conditions</a>, including <a href="<?php echo esc_url( home_url( '/terms/#vape-compliance' ) ); ?>" target="_blank">Vaping Product Compliance</a>.</span></label></p>
+			<p class="is-wide apply__check"><label><input type="checkbox" id="oneam_marketing" name="oneam_marketing" value="1"<?php checked( '1', $v( 'oneam_marketing' ) ); ?>> <span>Optional: email me about new products and offers. I can unsubscribe at any time.</span></label></p>
 		</fieldset>
 
 		<div class="apply__actions">
@@ -320,10 +377,69 @@ function oneam_wholesale_form() {
 	</form>
 	<script>
 	(function () {
+		var form = document.querySelector('.apply__form');
+		if (!form) return;
 		var p = document.getElementById('oneam_province'), box = document.querySelector('.apply__pst');
-		if (!p || !box) return;
-		function sync() { box.hidden = p.value !== '' && ['BC', 'SK', 'MB'].indexOf(p.value) < 0; if (box.hidden) box.querySelector('input').value = ''; }
-		p.addEventListener('change', sync); sync();
+		function sync() { if (!p || !box) return; box.hidden = p.value !== '' && ['BC', 'SK', 'MB'].indexOf(p.value) < 0; if (box.hidden) box.querySelector('input').value = ''; }
+		if (p) { p.addEventListener('change', sync); sync(); }
+
+		// 비밀번호 보기 (눈 아이콘)
+		var eye = form.querySelector('.apply__eye'), pw = document.getElementById('oneam_password');
+		var icons = { on: <?php echo wp_json_encode( oneam_icon( 'eye' ) ); ?>, off: <?php echo wp_json_encode( oneam_icon( 'eyeoff' ) ); ?> };
+		if (eye && pw) eye.addEventListener('click', function () {
+			var show = pw.type === 'password';
+			pw.type = show ? 'text' : 'password';
+			eye.innerHTML = show ? icons.off : icons.on;
+			eye.setAttribute('aria-pressed', show ? 'true' : 'false');
+			eye.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+			pw.focus();
+		});
+
+		// 칸마다 바로 확인: 틀린 칸만 빨갛게 + 아래에 이유 (입력한 내용은 그대로)
+		var rules = {
+			oneam_business_name: function (v) { return v ? '' : 'Enter your business name.'; },
+			oneam_business_number: function (v) { return !v || /^\d{9}([A-Z]{2}\d{4})?$/i.test(v.replace(/[\s-]/g, '')) ? '' : 'Enter the 9-digit Business Number, e.g. 123456789 — or leave it blank for now.'; },
+			oneam_store_address: function (v) { return v ? '' : 'Enter the store address.'; },
+			oneam_city: function (v) { return v ? '' : 'Enter the city.'; },
+			oneam_province: function (v) { return v ? '' : 'Choose the province.'; },
+			oneam_postcode: function (v) { return /^[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z][ -]?\d[ABCEGHJ-NPRSTV-Z]\d$/i.test(v) ? '' : 'Enter a Canadian postal code, e.g. V6B 1A1.'; },
+			oneam_contact_name: function (v) { return v ? '' : 'Enter a contact name.'; },
+			oneam_phone: function (v) { var d = v.replace(/\D/g, ''); if (d.length === 11 && d[0] === '1') d = d.slice(1); return d.length === 10 ? '' : 'Enter a 10-digit phone number, e.g. 604 555 0100.'; },
+			oneam_email: function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? '' : 'Enter a valid email address.'; },
+			oneam_password: function (v) { return v.length >= 8 ? '' : 'Use at least 8 characters.'; },
+			oneam_agree: function (v, el) { return el.checked ? '' : 'Please tick this box to continue.'; }
+		};
+		function holder(el) { return el.closest('p'); }
+		function show(el, msg) {
+			var h = holder(el), m = h.querySelector('.apply__err');
+			el.setAttribute('aria-invalid', msg ? 'true' : 'false');
+			h.classList.toggle('is-bad', !!msg);
+			if (msg) {
+				if (!m) { m = document.createElement('span'); m.className = 'apply__err'; m.id = el.id + '-err'; h.appendChild(m); el.setAttribute('aria-describedby', m.id); }
+				m.textContent = msg;
+			} else if (m) { m.remove(); el.removeAttribute('aria-describedby'); }
+		}
+		function check(el) { var r = rules[el.id]; if (!r) return ''; var msg = r(el.value.trim(), el); show(el, msg); return msg; }
+		Object.keys(rules).forEach(function (id) {
+			var el = document.getElementById(id); if (!el) return;
+			el.addEventListener('blur', function () { if (el.value || el.getAttribute('aria-invalid') === 'true') check(el); });
+			el.addEventListener(el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'input', function () { if (el.getAttribute('aria-invalid') === 'true') check(el); });
+		});
+		form.addEventListener('submit', function (e) {
+			var first = null;
+			Object.keys(rules).forEach(function (id) { var el = document.getElementById(id); if (el && check(el) && !first) first = el; });
+			if (first) {
+				e.preventDefault();
+				first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				first.focus({ preventScroll: true });
+			}
+		});
+		// 서버에서 돌아온 오류: 그 칸에 바로 표시
+		var note = document.querySelector('.apply__note.is-bad[data-field]');
+		if (note && note.dataset.field) {
+			var el = document.getElementById(note.dataset.field);
+			if (el) { show(el, note.textContent); setTimeout(function () { el.scrollIntoView({ block: 'center' }); el.focus({ preventScroll: true }); }, 60); }
+		}
 	})();
 	</script>
 	<?php
@@ -331,6 +447,17 @@ function oneam_wholesale_form() {
 	return ob_get_clean();
 }
 add_shortcode( 'oneam_wholesale_signup', 'oneam_wholesale_form' );
+
+/** 이미 신청한 사람에게는 가입 페이지 안내 문장(“Apply for…”) 대신 상태 카드만 */
+add_filter(
+	'body_class',
+	function ( $classes ) {
+		if ( is_user_logged_in() && is_page() && get_queried_object_id() === oneam_signup_page_id() && ! current_user_can( 'edit_users' ) ) {
+			$classes[] = 'oneam-applied';
+		}
+		return $classes;
+	}
+);
 
 /** 가입 페이지 본문에 숏코드가 없으면 자동으로 폼을 붙임 */
 add_filter(
@@ -379,6 +506,52 @@ add_filter(
 	},
 	10,
 	2
+);
+
+/** 계정 정보 수정: 성(Last name)은 선택 — 이름 하나만 있어도 저장되게 */
+add_filter(
+	'woocommerce_save_account_details_required_fields',
+	function ( $fields ) {
+		unset( $fields['account_last_name'] );
+		return $fields;
+	}
+);
+
+/**
+ * 계정 정보 수정: BN 이 비어 있어도 저장되게 (BN 은 결제할 때만 필수).
+ * Woo 가 이름 · 비밀번호를 먼저 저장한 뒤 "BN is required" 오류를 남기면 성공 안내가 안 나오므로, 그 오류만 지웁니다.
+ */
+add_action(
+	'woocommerce_save_account_details',
+	function () {
+		$keep = array();
+		$drop = false;
+		foreach ( wc_get_notices( 'error' ) as $n ) {
+			$msg = is_array( $n ) ? ( $n['notice'] ?? '' ) : (string) $n;
+			if ( false !== stripos( wp_strip_all_tags( $msg ), 'Business Number (BN) is required' ) ) {
+				$drop = true;
+				continue;
+			}
+			$keep[] = $n;
+		}
+		if ( $drop ) {
+			$all          = wc_get_notices();
+			$all['error'] = $keep;
+			if ( ! $keep ) {
+				unset( $all['error'] );
+			}
+			wc_set_notices( $all );
+		}
+	},
+	20
+);
+
+/** 비밀번호 바꾸기: 가입 때처럼 8자 이상이면 되게 (아주 약한 비밀번호만 막음 — 저장 버튼이 이유 없이 잠기지 않게) */
+add_filter(
+	'woocommerce_min_password_strength',
+	function () {
+		return 1;
+	}
 );
 
 /** 내 계정: 탭마다 내용 맨 위에 작은 제목 + 한 줄 설명 */
