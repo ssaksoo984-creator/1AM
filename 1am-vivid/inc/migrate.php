@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_COMPLIANCE_VERSION', '2026-11-03-account' );
+define( 'ONEAM_COMPLIANCE_VERSION', '2026-11-03-emails' );
 
 /** 옛 문구 → 새 문구 (페이지 글 · Elementor 데이터) */
 function oneam_migrate_replacements() {
@@ -61,6 +61,7 @@ function oneam_migrate_replacements() {
 		'No. Just complete the application with your store information. We review every application and may contact you if we need anything else.' => 'We require valid business information confirming that your business operates as an authorized vape retail store. No documents need to be uploaded to apply. Your Business Number (BN) is required before your first order, and additional documentation may be requested during the verification process.',
 		'We require valid business information and supporting documentation confirming that your business operates as an authorized vape retail store. Additional documentation may be requested during the verification process.' => 'We require valid business information confirming that your business operates as an authorized vape retail store. No documents need to be uploaded to apply. Your Business Number (BN) is required before your first order, and additional documentation may be requested during the verification process.',
 		'valid business information and supporting documentation confirming' => 'valid business information confirming',
+		'skaitradingllc@gmail.com' => oneam_opt( 'oneam_email' ),
 		'HYBRID Max'    => '20ml MAX',
 		'HYBRID Refill' => '2+20ml MAX',
 		'authorized adult-only vape' => 'authorized vape',
@@ -180,6 +181,26 @@ function oneam_apply_client_info() {
 	return $report;
 }
 
+/** 내부 이메일 정리 (2026-11-03) — 한 번만: 숨김 목록에 등록, e-Transfer 설정 · 결제 안내 다시 쓰기 */
+function oneam_apply_private_emails() {
+	if ( get_option( 'oneam_private_emails_v' ) ) {
+		return array();
+	}
+	$old = 'skaitradingllc@gmail.com'; // 회사 내부용 (손님에게 보이면 안 됨)
+	$cur = (string) get_theme_mod( 'oneam_private_emails', '' );
+	if ( false === stripos( $cur, $old ) ) {
+		set_theme_mod( 'oneam_private_emails', trim( $cur . "\n" . $old ) );
+	}
+	if ( 0 === strcasecmp( (string) get_theme_mod( 'oneam_etransfer', '' ), $old ) ) {
+		set_theme_mod( 'oneam_etransfer', '' );
+	}
+	if ( function_exists( 'oneam_setup_etransfer' ) ) {
+		oneam_setup_etransfer();
+	}
+	update_option( 'oneam_private_emails_v', 1 );
+	return array( 'Internal email hidden everywhere on the site and replaced with ' . oneam_opt( 'oneam_email' ) );
+}
+
 /** 대표님 피드백 2차 (2026-10-24) — 한 번만 */
 function oneam_apply_client_round2() {
 	if ( '2026-10-24' === get_option( 'oneam_client_round2' ) ) {
@@ -219,7 +240,7 @@ function oneam_apply_client_round2() {
 }
 
 function oneam_run_compliance_migration() {
-	$report = array_merge( oneam_apply_client_info(), oneam_apply_client_round2() );
+	$report = array_merge( oneam_apply_client_info(), oneam_apply_client_round2(), oneam_apply_private_emails() );
 	update_option( 'oneam_policy_updated', wp_date( 'F j, Y' ) );
 	if ( ! get_theme_mod( 'oneam_terms_effective' ) ) {
 		set_theme_mod( 'oneam_terms_effective', wp_date( 'F j, Y' ) );

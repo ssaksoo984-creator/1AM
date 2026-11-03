@@ -56,6 +56,7 @@ function oneam_defaults() {
 		'oneam_gst_number'      => '767692510 RT0001',
 		'oneam_licence'         => '52-VAL-288',
 		'oneam_min_order'       => '1000',
+		'oneam_private_emails'  => '',
 		'oneam_dispatch_time'   => '1–3 business days',
 		'oneam_transit_time'    => '1–5 business days',
 		'oneam_shipping_rates'  => 'Free ground shipping on orders of $1,000 CAD or more before tax.',
@@ -134,6 +135,7 @@ add_action(
 				'oneam_retention'       => array( 'Privacy — how long records are kept', 'textarea' ),
 				'oneam_hosting'         => array( 'Privacy — where data is stored (hosting)', 'textarea' ),
 				'oneam_meta_desc'       => array( 'Search description for the home page (empty = automatic)', 'textarea' ),
+				'oneam_private_emails'  => array( 'Internal emails — never shown on the site; replaced with the contact email (one per line)', 'textarea' ),
 			) ),
 			'oneam_checkout' => array( 'Checkout confirmation', array(
 				'oneam_etransfer'     => array( 'Interac e-Transfer email (customers send payment here)', 'text' ),

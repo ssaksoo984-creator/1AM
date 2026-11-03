@@ -542,6 +542,48 @@ add_action(
 	}
 );
 
+/**
+ * 내부용 이메일은 손님 화면에 절대 보이지 않게: 설정(1AM Settings → Business & legal)에 적은 주소를
+ * 화면에 나가기 직전에 연락처 이메일(sales@…)로 바꿉니다. 페이지 · Elementor · 설정 어디에 남아 있어도 안전.
+ */
+function oneam_private_emails() {
+	$list = preg_split( '/[\s,]+/', strtolower( (string) oneam_opt( 'oneam_private_emails' ) ) );
+	$own  = strtolower( (string) oneam_opt( 'oneam_email' ) );
+	return array_values( array_filter( array_unique( $list ), function ( $e ) use ( $own ) {
+		return $e && is_email( $e ) && $e !== $own;
+	} ) );
+}
+function oneam_hide_private_emails( $html ) {
+	$list = oneam_private_emails();
+	return $list ? str_ireplace( $list, oneam_opt( 'oneam_email' ), $html ) : $html;
+}
+add_action(
+	'template_redirect',
+	function () {
+		if ( oneam_private_emails() && ! is_admin() && ! wp_doing_ajax() ) {
+			ob_start( 'oneam_hide_private_emails' );
+		}
+	},
+	0
+);
+// 결제 안내 · 이메일 본문 · Store API 응답에도
+add_filter( 'woocommerce_gateway_description', 'oneam_hide_private_emails', 99 );
+add_filter( 'woocommerce_mail_content', 'oneam_hide_private_emails', 99 );
+add_filter(
+	'rest_post_dispatch',
+	function ( $res ) {
+		if ( $res instanceof WP_REST_Response && oneam_private_emails() ) {
+			$data = wp_json_encode( $res->get_data() );
+			$new  = oneam_hide_private_emails( $data );
+			if ( $new !== $data ) {
+				$res->set_data( json_decode( $new, true ) );
+			}
+		}
+		return $res;
+	},
+	99
+);
+
 /** 출고 · 배송 소요일 한 문장 (출고 = 결제 후 발송까지, 배송 = 발송 후 도착까지) */
 function oneam_shipping_time_sentence() {
 	return 'Orders ship within ' . oneam_opt( 'oneam_dispatch_time' ) . ' of payment. Delivery typically takes ' . oneam_opt( 'oneam_transit_time' ) . ' after shipping, to stores in ' . oneam_regions_phrase() . '.';

@@ -4,7 +4,7 @@
 넣은 뒤 Pages 화면 알림의 "run the update again" 을 누르면 정책 페이지에 반영됩니다.
 
 ## 꼭 필요 (오픈 · 결제사 심사 전)
-- [x] e-Transfer 받을 이메일 — skaitradingllc@gmail.com (Checkout confirmation)
+- [x] e-Transfer 받을 이메일 — sales@1amvape.com (skaitradingllc@gmail.com 은 내부용: 사이트에 절대 노출 안 됨, 1AM Settings → Business & legal → Internal emails)
 - [x] GST 767692510 RT0001 (사이트에 반영)
 - [x] 회사명 VANSKAI TRADING LTD. · 주소/전화는 표시 안 함(주거지) → 면허 번호 52-VAL-288 표시
 - [x] 출고: 결제 후 1–3 business days
