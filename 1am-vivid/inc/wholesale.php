@@ -270,6 +270,8 @@ function oneam_wholesale_form() {
 			$card = array( 'ok', 'check', 'Your account is approved', 'You can view wholesale pricing and place orders online.', array( array( oneam_shop_url(), 'Shop wholesale', 'solid' ), array( wc_get_page_permalink( 'myaccount' ), 'My account', 'ghost' ) ), false );
 		} elseif ( 'rejected' === $status ) {
 			$card = array( 'bad', 'mail', 'Your application was not approved', 'If you think this is a mistake, contact us at ' . $mail . ' and we will take another look.', array( array( 'mailto:' . $mail, 'Contact us', 'solid' ) ), false );
+		} elseif ( 'info' === $status ) {
+			$card = array( 'info', 'mail', 'We need a little more information', 'To finish reviewing your application, please answer the request below.', array(), false );
 		} else {
 			$card = array( 'wait', 'clock', 'Application received', 'Thanks for applying. We are reviewing your store information now.', array( array( home_url( '/#products' ), 'Browse products', 'solid' ), array( wc_get_page_permalink( 'myaccount' ), 'My account', 'ghost' ) ), true );
 		}
@@ -285,6 +287,22 @@ function oneam_wholesale_form() {
 			<span class="apply-status__icon"><?php echo oneam_icon( $card[1] ); // phpcs:ignore ?></span>
 			<h2 class="apply-status__title"><?php echo esc_html( $card[2] ); ?></h2>
 			<p class="apply-status__text"><?php echo esc_html( $card[3] ); ?></p>
+			<?php $reason = function_exists( 'oneam_review_last_message' ) && in_array( $status, array( 'rejected', 'info' ), true ) ? oneam_review_last_message( $uid, $status ) : ''; ?>
+			<?php if ( $reason ) : ?>
+				<div class="apply-status__reason"><span><?php echo 'info' === $status ? 'What we need' : 'Reason'; ?></span><p><?php echo nl2br( esc_html( $reason ) ); // phpcs:ignore ?></p></div>
+			<?php endif; ?>
+			<?php if ( 'info' === $status ) : ?>
+				<?php if ( isset( $_GET['replied'] ) && '1' === $_GET['replied'] ) : // phpcs:ignore WordPress.Security.NonceVerification ?>
+					<p class="apply-status__flash is-ok">Thanks — we received your reply and will continue the review.</p>
+				<?php endif; ?>
+				<form method="post" class="apply-status__reply">
+					<?php wp_nonce_field( 'oneam_review_reply' ); ?>
+					<input type="hidden" name="oneam_review_reply" value="1">
+					<label for="oneam_reply_text">Your reply</label>
+					<textarea id="oneam_reply_text" name="oneam_reply_text" rows="4" maxlength="2000" required placeholder="Type your answer here. You can also reply to our email with attachments."></textarea>
+					<button type="submit" class="btn btn--solid"><span>Send reply &rarr;</span></button>
+				</form>
+			<?php endif; ?>
 			<?php if ( $card[5] ) : ?>
 				<?php if ( isset( $_GET['email_verified'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification ?>
 					<p class="apply-status__flash <?php echo '1' === $_GET['email_verified'] ? 'is-ok' : 'is-bad'; // phpcs:ignore ?>"><?php echo '1' === $_GET['email_verified'] ? 'Thanks — your email is confirmed.' : 'That link has expired or was already used. Send a new one below.'; // phpcs:ignore ?></p>
@@ -597,7 +615,9 @@ add_action(
 		if ( 'pending' === $status ) {
 			echo '<div class="apply__note"><strong>Retailer application under review.</strong><p>We will email you once your account is approved.</p></div>';
 		} elseif ( 'rejected' === $status ) {
-			echo '<div class="apply__note is-bad"><strong>Your retailer application was not approved.</strong></div>';
+			echo '<div class="apply__note is-bad"><strong>Your retailer application was not approved.</strong><p><a href="' . esc_url( oneam_signup_url() ) . '">See the reason</a></p></div>';
+		} elseif ( 'info' === $status ) {
+			echo '<div class="apply__note"><strong>We need a little more information to approve your account.</strong><p><a href="' . esc_url( oneam_signup_url() ) . '">See what we need and reply &rarr;</a></p></div>';
 		}
 	},
 	5
@@ -702,29 +722,43 @@ add_action(
  * 관리자: Users 화면
  * ------------------------------------------------------------------------- */
 
-/** 승인 / 거절 (메일 발송 포함) */
-function oneam_set_wholesale_status( $user_id, $status ) {
-	$old = oneam_wholesale_status( $user_id );
+/**
+ * 승인 / 거절 / 추가 정보 요청 (메일 발송 포함)
+ * $message: 관리자가 고른 이유 · 직접 쓴 내용 — 메일과 고객 상태 화면에 그대로 보임
+ */
+function oneam_set_wholesale_status( $user_id, $status, $message = '', $send = true ) {
+	$old     = oneam_wholesale_status( $user_id );
+	$message = trim( (string) $message );
 	update_user_meta( $user_id, 'oneam_wholesale_status', $status );
-	if ( $old === $status ) {
+	if ( $old === $status && '' === $message ) {
 		return;
 	}
+	if ( function_exists( 'oneam_review_log' ) ) {
+		oneam_review_log( $user_id, 'staff', $status, $message );
+	}
 	$user = get_userdata( $user_id );
-	if ( ! $user ) {
+	if ( ! $user || ! $send ) {
 		return;
 	}
 	$name = get_user_meta( $user_id, 'oneam_contact_name', true ) ?: $user->display_name;
+	$note = '' !== $message ? "\n\n" . $message : '';
 	if ( 'approved' === $status ) {
 		oneam_mail(
 			$user->user_email,
 			'Your 1AM retail account is approved',
-			"Hi {$name},\n\nGood news — your business has been verified and your 1AM retail account is approved. Log in to view wholesale pricing and place your first order:\n" . oneam_login_url() . "\n\nAll products carry the correct excise stamp for their intended province of sale: choose the province where the products will be sold on the product page or at checkout. Your Business Number (BN) is required at checkout.\n\nOrders are subject to our Terms & Conditions, including Vaping Product Compliance:\n" . home_url( '/terms/#vape-compliance' ) . "\n\nWelcome aboard."
+			"Hi {$name},\n\nGood news — your business has been verified and your 1AM retail account is approved. Log in to view wholesale pricing and place your first order:\n" . oneam_login_url() . $note . "\n\nAll products carry the correct excise stamp for their intended province of sale: choose the province where the products will be sold on the product page or at checkout. Your Business Number (BN) is required at checkout.\n\nOrders are subject to our Terms & Conditions, including Vaping Product Compliance:\n" . home_url( '/terms/#vape-compliance' ) . "\n\nWelcome aboard."
 		);
 	} elseif ( 'rejected' === $status ) {
 		oneam_mail(
 			$user->user_email,
 			'Your 1AM retail account application',
-			"Hi {$name},\n\nThank you for your interest in 1AM. Unfortunately we are unable to approve your retail account at this time. 1AM products are sold only to verified, authorized vape retailers.\n\nIf you believe this is a mistake or can provide additional documentation, please reply to this email."
+			"Hi {$name},\n\nThank you for your interest in 1AM. Unfortunately we are unable to approve your retail account at this time." . ( '' !== $message ? "\n\nReason: " . $message : '' ) . "\n\n1AM products are sold only to verified, authorized vape retailers. If you believe this is a mistake or can provide more information, please reply to this email."
+		);
+	} elseif ( 'info' === $status ) {
+		oneam_mail(
+			$user->user_email,
+			'We need a little more information for your 1AM application',
+			"Hi {$name},\n\nThanks for applying for a 1AM retail account. To finish reviewing your application, we need the following:" . $note . "\n\nYou can reply to this email, or log in and answer here:\n" . oneam_signup_url() . "\n\nThank you."
 		);
 	}
 }
@@ -735,6 +769,7 @@ function oneam_status_badge( $status ) {
 		'pending'  => array( 'Pending', '#b26a00', '#fff4e0' ),
 		'approved' => array( 'Approved', '#0a7a3d', '#e3f8ec' ),
 		'rejected' => array( 'Rejected', '#b3261e', '#fde7e7' ),
+		'info'     => array( 'Needs info', '#1e5bff', '#e8eeff' ),
 	);
 	if ( ! isset( $map[ $status ] ) ) {
 		return '—';
@@ -755,7 +790,8 @@ add_filter(
 	function ( $out, $col, $user_id ) {
 		if ( 'oneam_wholesale' === $col ) {
 			$mail = '0' === (string) get_user_meta( $user_id, 'oneam_email_verified', true ) ? '<br><small style="color:#b26a00">Email not confirmed</small>' : ( get_user_meta( $user_id, 'oneam_email_verified', true ) ? '<br><small style="color:#0a7a3d">Email confirmed</small>' : '' );
-			return oneam_status_badge( oneam_wholesale_status( $user_id ) ) . $mail;
+			$reply = 'info' === oneam_wholesale_status( $user_id ) && get_user_meta( $user_id, 'oneam_review_replied', true ) ? '<br><small style="color:#1e5bff;font-weight:600">Applicant replied</small>' : '';
+			return oneam_status_badge( oneam_wholesale_status( $user_id ) ) . $mail . $reply;
 		}
 		if ( 'oneam_business' === $col ) {
 			$b = get_user_meta( $user_id, 'oneam_business_name', true );
@@ -783,8 +819,13 @@ add_filter(
 		if ( 'approved' !== $status ) {
 			$actions['oneam_approve'] = $link( 'approved', 'Approve' );
 		}
+		// 거절 · 추가 정보 요청은 이유를 쓰도록 사용자 화면의 검토 칸으로
+		$review = admin_url( 'user-edit.php?user_id=' . $user->ID . '#oneam-review' );
 		if ( 'rejected' !== $status ) {
-			$actions['oneam_reject'] = $link( 'rejected', 'Reject' );
+			$actions['oneam_reject'] = sprintf( '<a href="%s">Reject with reason</a>', esc_url( add_query_arg( 'oneam_to', 'rejected', $review ) ) );
+		}
+		if ( 'approved' !== $status ) {
+			$actions['oneam_info'] = sprintf( '<a href="%s">Ask for info</a>', esc_url( add_query_arg( 'oneam_to', 'info', $review ) ) );
 		}
 		if ( get_user_meta( $user->ID, 'oneam_document', true ) ) {
 			$actions['oneam_doc'] = sprintf( '<a href="%s" target="_blank">View document</a>', esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=oneam_doc&user=' . $user->ID ), 'oneam_doc_' . $user->ID ) ) );
@@ -801,7 +842,7 @@ add_action(
 		$uid = isset( $_GET['user'] ) ? absint( $_GET['user'] ) : 0;
 		$to  = isset( $_GET['to'] ) ? sanitize_key( wp_unslash( $_GET['to'] ) ) : '';
 		check_admin_referer( 'oneam_wholesale_' . $uid );
-		if ( ! current_user_can( 'edit_user', $uid ) || ! in_array( $to, array( 'approved', 'rejected', 'pending' ), true ) ) {
+		if ( ! current_user_can( 'edit_user', $uid ) || ! in_array( $to, array( 'approved', 'rejected', 'pending', 'info' ), true ) ) {
 			wp_die( 'Not allowed.' );
 		}
 		oneam_set_wholesale_status( $uid, $to );
@@ -841,7 +882,7 @@ add_action(
 add_filter(
 	'views_users',
 	function ( $views ) {
-		$count = count( get_users( array( 'meta_key' => 'oneam_wholesale_status', 'meta_value' => 'pending', 'fields' => 'ID' ) ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
+		$count = count( get_users( array( 'meta_key' => 'oneam_wholesale_status', 'meta_value' => array( 'pending', 'info' ), 'meta_compare' => 'IN', 'fields' => 'ID' ) ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
 		$cur   = isset( $_GET['oneam_wholesale'] ) && 'pending' === $_GET['oneam_wholesale']; // phpcs:ignore WordPress.Security.NonceVerification
 		$views['oneam_pending'] = sprintf( '<a href="%s"%s>Pending wholesale <span class="count">(%d)</span></a>', esc_url( admin_url( 'users.php?oneam_wholesale=pending' ) ), $cur ? ' class="current" aria-current="page"' : '', $count );
 		return $views;
@@ -852,7 +893,8 @@ add_action(
 	function ( $q ) {
 		if ( is_admin() && isset( $_GET['oneam_wholesale'] ) && 'pending' === $_GET['oneam_wholesale'] ) { // phpcs:ignore WordPress.Security.NonceVerification
 			$q->set( 'meta_key', 'oneam_wholesale_status' );
-			$q->set( 'meta_value', 'pending' );
+			$q->set( 'meta_value', array( 'pending', 'info' ) ); // 검토 중 + 추가 정보 요청
+			$q->set( 'meta_compare', 'IN' );
 		}
 	}
 );
@@ -862,7 +904,8 @@ add_action(
 	'admin_menu',
 	function () {
 		global $menu;
-		$count = count( get_users( array( 'meta_key' => 'oneam_wholesale_status', 'meta_value' => 'pending', 'fields' => 'ID' ) ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
+		$count = count( get_users( array( 'meta_key' => 'oneam_wholesale_status', 'meta_value' => 'pending', 'fields' => 'ID' ) ) ) // phpcs:ignore WordPress.DB.SlowDBQuery
+			+ count( get_users( array( 'meta_key' => 'oneam_review_replied', 'meta_compare' => 'EXISTS', 'fields' => 'ID' ) ) ); // 답장한 신청자 phpcs:ignore WordPress.DB.SlowDBQuery
 		if ( ! $count ) {
 			return;
 		}
@@ -893,17 +936,9 @@ function oneam_wholesale_profile( $user ) {
 	}
 	$status = oneam_wholesale_status( $user->ID );
 	?>
-	<h2>1AM wholesale</h2>
+	<h2 id="oneam-review">1AM wholesale</h2>
 	<table class="form-table" role="presentation">
-		<tr><th>Status</th><td>
-			<select name="oneam_wholesale_status">
-				<option value="" <?php selected( $status, '' ); ?>>Not a wholesale applicant</option>
-				<option value="pending" <?php selected( $status, 'pending' ); ?>>Pending</option>
-				<option value="approved" <?php selected( $status, 'approved' ); ?>>Approved</option>
-				<option value="rejected" <?php selected( $status, 'rejected' ); ?>>Rejected</option>
-			</select>
-			<p class="description">Changing to Approved or Rejected emails the applicant.</p>
-		</td></tr>
+		<tr><th>Review</th><td><?php oneam_review_panel( $user ); ?></td></tr>
 		<?php foreach ( oneam_wholesale_fields() + oneam_wholesale_optional_fields() as $key => $label ) : ?>
 			<tr><th><?php echo esc_html( $label ); ?></th><td><input type="text" class="regular-text" name="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( get_user_meta( $user->ID, $key, true ) ); ?>"></td></tr>
 		<?php endforeach; ?>
@@ -936,11 +971,13 @@ function oneam_wholesale_profile_save( $user_id ) {
 	}
 	do_action( 'oneam_wholesale_profile_save', $user_id );
 	if ( isset( $_POST['oneam_wholesale_status'] ) ) {
-		$to = sanitize_key( wp_unslash( $_POST['oneam_wholesale_status'] ) );
+		$to   = sanitize_key( wp_unslash( $_POST['oneam_wholesale_status'] ) );
+		$msg  = isset( $_POST['oneam_review_message'] ) ? sanitize_textarea_field( wp_unslash( $_POST['oneam_review_message'] ) ) : '';
+		$send = ! empty( $_POST['oneam_review_send'] );
 		if ( '' === $to ) {
 			delete_user_meta( $user_id, 'oneam_wholesale_status' );
-		} elseif ( in_array( $to, array( 'pending', 'approved', 'rejected' ), true ) ) {
-			oneam_set_wholesale_status( $user_id, $to );
+		} elseif ( in_array( $to, array( 'pending', 'info', 'approved', 'rejected' ), true ) ) {
+			oneam_set_wholesale_status( $user_id, $to, $msg, $send );
 		}
 	}
 	// phpcs:enable

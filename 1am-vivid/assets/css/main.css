@@ -2065,3 +2065,15 @@ body.oneam-policy .builder-content .elementor-widget-text-editor em { font-famil
 .apply-status__flash.is-bad { background: #fdecec; color: #8a1c14; }
 .apply-status__resend { margin: 6px 0 0; }
 .apply-status__resend button { padding: 0; border: 0; background: none; color: #8a3ffc; font: inherit; font-size: 14px; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+/* v1.22 — 신청 상태 카드: 이유 · 답장 */
+.apply-status--info .apply-status__icon { background: #1e5bff; }
+.apply-status__reason { width: 100%; max-width: 520px; margin: 4px 0 0; padding: 16px 18px; border-radius: 16px; background: #f4f2ee; text-align: left; }
+.apply-status--bad .apply-status__reason { background: #fdecec; }
+.apply-status__reason span { display: block; margin-bottom: 4px; font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; opacity: .6; }
+.page-body .apply-status__reason p, .apply-status__reason p { margin: 0; font-size: 16px; line-height: 1.55; }
+.apply-status__reply { display: grid; gap: 10px; width: 100%; max-width: 520px; text-align: left; }
+.apply-status__reply label { font-size: 14px; font-weight: 700; }
+.apply-status__reply textarea { width: 100%; min-height: 110px; padding: 14px 16px; border: 1.5px solid rgba(13, 11, 18, .14); border-radius: 14px; background: #fbf8f2; font: inherit; font-size: 15px; resize: vertical; box-sizing: border-box; }
+.apply-status__reply textarea:focus { outline: none; border-color: #8a3ffc; box-shadow: 0 0 0 4px rgba(138, 63, 252, .15); }
+.apply-status__reply .btn { justify-self: start; border: 0; cursor: pointer; }

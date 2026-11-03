@@ -575,3 +575,22 @@
 
 /* v1.21.2 — 버튼 글자 가운데 · 본문 링크 밑줄이 버튼에 붙지 않게 · 상태 카드 간격 */
 .woocommerce-message a.button, .woocommerce-info a.button, .woocommerce-message .button, .woocommerce-info .button { display: inline-flex !important; align-items: center; justify-content: center; line-height: 1 !important; padding-top: 0 !important; padding-bottom: 0 !important; }
+
+/* v1.22 — 주문 보기: 고객 메시지 · 답장 */
+.woocommerce-account .woocommerce-OrderUpdates { margin: 0 0 28px; padding: 0; list-style: none; }
+.woocommerce-account .woocommerce-OrderUpdate { margin: 0 0 10px; padding: 16px 18px; border-radius: 16px; background: #eef2ff; }
+.woocommerce-account .woocommerce-OrderUpdate-meta { margin: 0 0 4px; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; opacity: .6; }
+.woocommerce-account .woocommerce-OrderUpdate-description p { margin: 0; }
+.order-reply { margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(13, 11, 18, .08); }
+.woocommerce-account .woocommerce-MyAccount-content h2.order-reply__title { margin: 0 0 14px; }
+.order-reply__flash { margin: 0 0 14px; padding: 12px 16px; border-radius: 14px; background: #eaf7ef; color: #14532d; font-size: 14px; font-weight: 600; }
+.order-reply__list { margin: 0 0 16px; padding: 0; list-style: none; display: grid; gap: 8px; }
+.order-reply__list li { padding: 14px 16px; border-radius: 16px; background: var(--paper); }
+.order-reply__list span { display: block; font-size: 12px; font-weight: 700; opacity: .55; }
+.order-reply__list p { margin: 4px 0 0; }
+.order-reply__form { display: grid; gap: 10px; max-width: 640px; }
+.order-reply__form label { font-size: 14px; font-weight: 700; }
+.order-reply__form textarea { width: 100%; min-height: 110px; padding: 14px 16px; border: 1.5px solid rgba(13, 11, 18, .14); border-radius: 14px; background: var(--paper); font: inherit; font-size: 15px; resize: vertical; box-sizing: border-box; }
+.order-reply__form textarea:focus { outline: none; border-color: #8a3ffc; box-shadow: 0 0 0 4px rgba(138, 63, 252, .15); }
+.order-reply__form .btn { justify-self: start; border: 0; cursor: pointer; }
+.woocommerce-account .woocommerce-OrderUpdate-description p { font-size: 15px; line-height: 1.55; color: var(--ink); }
