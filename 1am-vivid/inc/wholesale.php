@@ -181,7 +181,11 @@ add_action(
 		}
 
 		// 계정 생성 (WooCommerce 고객, 승인 대기)
-		$login   = sanitize_user( current( explode( '@', $email ) ) . '-' . wp_generate_password( 4, false ), true );
+		// 이메일이 곧 아이디 (로그인할 때 이메일만 입력)
+		$login = sanitize_user( strtolower( $email ), true );
+		if ( '' === $login || username_exists( $login ) ) {
+			$fail( 'exists' );
+		}
 		$user_id = wp_insert_user(
 			array(
 				'user_login'   => $login,
@@ -199,6 +203,10 @@ add_action(
 			update_user_meta( $user_id, $key, $value );
 		}
 		update_user_meta( $user_id, 'oneam_wholesale_status', 'pending' );
+		if ( oneam_verify_required() ) {
+			update_user_meta( $user_id, 'oneam_email_verified', '0' );
+			oneam_send_verify_email( $user_id );
+		}
 		update_user_meta( $user_id, 'oneam_applied_at', current_time( 'mysql' ) );
 		update_user_meta( $user_id, 'oneam_terms_accepted', current_time( 'mysql' ) );
 		update_user_meta( $user_id, 'oneam_terms_version', function_exists( 'oneam_terms_version' ) ? oneam_terms_version() : '' );
@@ -265,15 +273,34 @@ function oneam_wholesale_form() {
 		} else {
 			$card = array( 'wait', 'clock', 'Application received', 'Thanks for applying. We are reviewing your store information now.', array( array( home_url( '/#products' ), 'Browse products', 'solid' ), array( wc_get_page_permalink( 'myaccount' ), 'My account', 'ghost' ) ), true );
 		}
+		$uid        = get_current_user_id();
+		$unverified = 'wait' === $card[0] && ! oneam_email_verified( $uid );
+		if ( $unverified ) {
+			$card[1] = 'mail';
+			$card[2] = 'Confirm your email';
+			$card[3] = 'We sent a confirmation link to ' . wp_get_current_user()->user_email . '. Click it to continue — we review your application once your email is confirmed.';
+		}
 		?>
 		<div class="apply-status apply-status--<?php echo esc_attr( $card[0] ); ?>">
 			<span class="apply-status__icon"><?php echo oneam_icon( $card[1] ); // phpcs:ignore ?></span>
 			<h2 class="apply-status__title"><?php echo esc_html( $card[2] ); ?></h2>
 			<p class="apply-status__text"><?php echo esc_html( $card[3] ); ?></p>
 			<?php if ( $card[5] ) : ?>
+				<?php if ( isset( $_GET['email_verified'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification ?>
+					<p class="apply-status__flash <?php echo '1' === $_GET['email_verified'] ? 'is-ok' : 'is-bad'; // phpcs:ignore ?>"><?php echo '1' === $_GET['email_verified'] ? 'Thanks — your email is confirmed.' : 'That link has expired or was already used. Send a new one below.'; // phpcs:ignore ?></p>
+				<?php elseif ( isset( $_GET['verify_sent'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification ?>
+					<p class="apply-status__flash is-ok"><?php echo '1' === $_GET['verify_sent'] ? 'We sent a new confirmation link. Please check your inbox (and spam folder).' : 'We just sent you a link. Please wait a minute before asking for another one, and check your spam folder.'; // phpcs:ignore ?></p>
+				<?php endif; ?>
 				<ol class="apply-status__steps">
 					<li class="is-done"><strong>Application sent</strong><span>Your store details are with our team.</span></li>
-					<li class="is-now"><strong>Review</strong><span>Usually within 1–2 business days.</span></li>
+					<?php if ( oneam_verify_required() || get_user_meta( $uid, 'oneam_email_verified', true ) ) : ?>
+						<li class="<?php echo $unverified ? 'is-now' : 'is-done'; ?>"><strong>Confirm your email</strong><span><?php echo $unverified ? 'Click the link we emailed you.' : 'Email confirmed.'; ?></span>
+							<?php if ( $unverified ) : ?>
+								<form method="post" class="apply-status__resend"><?php wp_nonce_field( 'oneam_resend_verify' ); ?><input type="hidden" name="oneam_resend_verify" value="1"><button type="submit">Resend the email</button></form>
+							<?php endif; ?>
+						</li>
+					<?php endif; ?>
+					<li class="<?php echo $unverified ? '' : 'is-now'; ?>"><strong>Review</strong><span>Usually within 1–2 business days.</span></li>
 					<li><strong>Approved</strong><span>We email you, then you can view pricing and order online. Your Business Number (BN) is needed at your first checkout.</span></li>
 				</ol>
 			<?php endif; ?>
@@ -447,6 +474,94 @@ function oneam_wholesale_form() {
 	return ob_get_clean();
 }
 add_shortcode( 'oneam_wholesale_signup', 'oneam_wholesale_form' );
+
+/* ---------------------------------------------------------------------------
+ * 가입 이메일 인증 (설정: 1AM Settings → Business & legal → "Require email confirmation")
+ * 메일 연동 후에 켜세요. 꺼져 있으면 아무 영향 없음. 예전 계정은 인증된 것으로 봄.
+ * ------------------------------------------------------------------------- */
+function oneam_verify_required() {
+	return (bool) get_theme_mod( 'oneam_verify_email', false );
+}
+
+/** 이메일 인증을 마쳤는지 (인증이 필요 없던 계정 · 예전 계정은 true) */
+function oneam_email_verified( $user_id ) {
+	return '0' !== (string) get_user_meta( $user_id, 'oneam_email_verified', true );
+}
+
+/** 인증 링크 메일 보내기 (링크는 7일 동안 유효) */
+function oneam_send_verify_email( $user_id ) {
+	$user = get_userdata( $user_id );
+	if ( ! $user ) {
+		return false;
+	}
+	$token = wp_generate_password( 32, false );
+	update_user_meta( $user_id, 'oneam_verify_hash', hash_hmac( 'sha256', $token, wp_salt( 'auth' ) ) );
+	update_user_meta( $user_id, 'oneam_verify_sent', time() );
+	$link = add_query_arg( 'oneam_verify', $user_id . '.' . $token, home_url( '/' ) );
+	$name = get_user_meta( $user_id, 'oneam_contact_name', true ) ?: $user->first_name;
+	return oneam_mail(
+		$user->user_email,
+		'Confirm your email for your 1AM retailer account',
+		"Hi {$name},\n\nPlease confirm your email address to complete your 1AM retail account application:\n\n{$link}\n\nThis link works for 7 days. If you did not apply for a 1AM account, you can ignore this email."
+	);
+}
+
+// 메일의 링크를 눌렀을 때
+add_action(
+	'init',
+	function () {
+		if ( empty( $_GET['oneam_verify'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			return;
+		}
+		list( $uid, $token ) = array_pad( explode( '.', sanitize_text_field( wp_unslash( $_GET['oneam_verify'] ) ), 2 ), 2, '' ); // phpcs:ignore WordPress.Security.NonceVerification
+		$uid  = (int) $uid;
+		$hash = (string) get_user_meta( $uid, 'oneam_verify_hash', true );
+		$sent = (int) get_user_meta( $uid, 'oneam_verify_sent', true );
+		$ok   = $uid && $hash && $token && hash_equals( $hash, hash_hmac( 'sha256', $token, wp_salt( 'auth' ) ) ) && ( time() - $sent ) < 7 * DAY_IN_SECONDS;
+		if ( $ok ) {
+			update_user_meta( $uid, 'oneam_email_verified', current_time( 'mysql' ) );
+			delete_user_meta( $uid, 'oneam_verify_hash' );
+		}
+		wp_safe_redirect( add_query_arg( 'email_verified', $ok || oneam_email_verified( $uid ) ? '1' : '0', oneam_signup_url() ) . '#apply' );
+		exit;
+	}
+);
+
+// "인증 메일 다시 보내기" (1분에 한 번)
+add_action(
+	'init',
+	function () {
+		if ( empty( $_POST['oneam_resend_verify'] ) || ! is_user_logged_in() ) {
+			return;
+		}
+		$uid  = get_current_user_id();
+		$sent = 'wait';
+		if ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'oneam_resend_verify' ) && ! oneam_email_verified( $uid ) && time() - (int) get_user_meta( $uid, 'oneam_verify_sent', true ) > MINUTE_IN_SECONDS ) {
+			oneam_send_verify_email( $uid );
+			$sent = '1';
+		}
+		wp_safe_redirect( add_query_arg( 'verify_sent', $sent, oneam_signup_url() ) . '#apply' );
+		exit;
+	}
+);
+
+/** 로그인 칸 이름: "Username or email" → "Email address" (이메일이 곧 아이디) */
+add_filter(
+	'gettext',
+	function ( $t, $text, $domain ) {
+		if ( is_admin() && ! wp_doing_ajax() ) {
+			return $t;
+		}
+		$map = array(
+			'Username or email address' => 'Email address',
+			'Username or Email Address' => 'Email address',
+			'Username or email'         => 'Email address',
+		);
+		return isset( $map[ $text ] ) && in_array( $domain, array( 'woocommerce', 'default' ), true ) ? $map[ $text ] : $t;
+	},
+	10,
+	3
+);
 
 /** 이미 신청한 사람에게는 가입 페이지 안내 문장(“Apply for…”) 대신 상태 카드만 */
 add_filter(
@@ -639,7 +754,8 @@ add_filter(
 	'manage_users_custom_column',
 	function ( $out, $col, $user_id ) {
 		if ( 'oneam_wholesale' === $col ) {
-			return oneam_status_badge( oneam_wholesale_status( $user_id ) );
+			$mail = '0' === (string) get_user_meta( $user_id, 'oneam_email_verified', true ) ? '<br><small style="color:#b26a00">Email not confirmed</small>' : ( get_user_meta( $user_id, 'oneam_email_verified', true ) ? '<br><small style="color:#0a7a3d">Email confirmed</small>' : '' );
+			return oneam_status_badge( oneam_wholesale_status( $user_id ) ) . $mail;
 		}
 		if ( 'oneam_business' === $col ) {
 			$b = get_user_meta( $user_id, 'oneam_business_name', true );

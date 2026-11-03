@@ -210,6 +210,8 @@ add_action(
 			}
 		}
 
+		$wp_customize->add_setting( 'oneam_verify_email', array( 'default' => false, 'sanitize_callback' => 'wp_validate_boolean' ) );
+		$wp_customize->add_control( 'oneam_verify_email', array( 'label' => 'Require email confirmation for new retailer applications (turn on only after the store email is connected)', 'section' => 'oneam_business', 'type' => 'checkbox' ) );
 		$wp_customize->add_setting( 'oneam_restrict_provinces', array( 'default' => false, 'sanitize_callback' => 'wp_validate_boolean' ) );
 		$wp_customize->add_control( 'oneam_restrict_provinces', array( 'label' => 'Only allow orders to the store provinces registered on each account (off = any sales province can be chosen)', 'section' => 'oneam_business', 'type' => 'checkbox' ) );
 

@@ -2058,3 +2058,10 @@ body.oneam-policy .builder-content .elementor-widget-text-editor,
 body.oneam-policy .builder-content .elementor-widget-text-editor * { font-family: var(--f-display); color: var(--ink); }
 body.oneam-policy .builder-content .elementor-widget-text-editor { font-size: 18px; line-height: 1.6; }
 body.oneam-policy .builder-content .elementor-widget-text-editor em { font-family: var(--f-serif); }
+
+/* v1.21.3 — 이메일 인증 안내 */
+.apply-status__flash { width: 100%; max-width: 480px; margin: 4px 0 0 !important; padding: 12px 16px; border-radius: 14px; font-size: 14px; font-weight: 600; }
+.apply-status__flash.is-ok { background: #eaf7ef; color: #14532d; }
+.apply-status__flash.is-bad { background: #fdecec; color: #8a1c14; }
+.apply-status__resend { margin: 6px 0 0; }
+.apply-status__resend button { padding: 0; border: 0; background: none; color: #8a3ffc; font: inherit; font-size: 14px; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
