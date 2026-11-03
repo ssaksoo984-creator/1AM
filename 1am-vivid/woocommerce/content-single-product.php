@@ -52,8 +52,15 @@ foreach ( $oneam_flavors as $f ) {
 	$oneam_swatch[ strtolower( $f['name'] ) ] = array( $f['c1'], $f['c2'] );
 }
 
-$oneam_lines = function ( $key ) {
-	return array_filter( array_map( 'trim', preg_split( '/\r?\n/', (string) oneam_opt( $key ) ) ) );
+// 아코디언 문구: 상품마다 쓴 글(1AM product setup → 5) 이 있으면 그것, 없으면 사이트 공통 (1AM Settings)
+$oneam_lines = function ( $key ) use ( $product ) {
+	$own  = array(
+		'oneam_shop_regions'    => '_oneam_acc_regions',
+		'oneam_shop_shipping'   => '_oneam_acc_shipping',
+		'oneam_shop_compliance' => '_oneam_acc_compliance',
+	);
+	$text = isset( $own[ $key ] ) ? trim( (string) $product->get_meta( $own[ $key ] ) ) : '';
+	return array_filter( array_map( 'trim', preg_split( '/\r?\n/', '' !== $text ? $text : (string) oneam_opt( $key ) ) ) );
 };
 ?>
 <div id="product-<?php the_ID(); ?>" <?php wc_product_class( 'spdp', $product ); ?> style="<?php echo oneam_flavor_style( $oneam_first ); // phpcs:ignore ?>;--img-bg:<?php echo esc_attr( oneam_opt( 'oneam_shop_img_bg' ) ?: '#ffffff' ); ?>">

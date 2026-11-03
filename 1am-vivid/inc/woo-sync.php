@@ -219,6 +219,9 @@ function oneam_products_from_woo() {
 add_action(
 	'woocommerce_product_options_general_product_data',
 	function () {
+		if ( function_exists( 'oneam_pe_active' ) && oneam_pe_active() ) {
+			return; // "1AM product setup" 칸에서 입력
+		}
 		global $post;
 		$p = wc_get_product( $post->ID );
 		echo '<div class="options_group"><p style="margin:12px 12px 0;font-weight:600">1AM homepage</p>';

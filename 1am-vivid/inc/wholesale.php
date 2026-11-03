@@ -171,6 +171,14 @@ add_action(
 			$fail( 'email' );
 		}
 		if ( email_exists( $email ) ) {
+			// 같은 이메일 · 비밀번호로 다시 제출한 경우 (첫 제출은 이미 성공): 오류 대신 로그인해서 신청 상태 화면으로
+			$existing = get_user_by( 'email', $email );
+			if ( $existing && wp_check_password( $password, $existing->user_pass, $existing->ID ) && oneam_wholesale_status( $existing->ID ) ) {
+				wp_set_current_user( $existing->ID );
+				wp_set_auth_cookie( $existing->ID );
+				wp_safe_redirect( add_query_arg( array( 'applied' => '1', 't' => wp_generate_password( 6, false ) ), remove_query_arg( array( 'apply_error', 'apply_data' ), $back ) ) . '#apply' );
+				exit;
+			}
 			$fail( 'exists' );
 		}
 		if ( strlen( $password ) < 8 ) {
@@ -245,7 +253,8 @@ add_action(
 		// 바로 로그인 → 승인 대기 안내
 		wp_set_current_user( $user_id );
 		wp_set_auth_cookie( $user_id );
-		wp_safe_redirect( add_query_arg( 'applied', '1', remove_query_arg( 'apply_error', $back ) ) . '#apply' );
+		// 주소를 매번 다르게 (CDN 이 예전 가입 폼 화면을 다시 보여주지 않게)
+		wp_safe_redirect( add_query_arg( array( 'applied' => '1', 't' => wp_generate_password( 6, false ) ), remove_query_arg( array( 'apply_error', 'apply_data' ), $back ) ) . '#apply' );
 		exit;
 	}
 );
@@ -342,7 +351,7 @@ function oneam_wholesale_form() {
 		'postcode' => 'Please enter a valid Canadian postal code, e.g. V6B 1A1.',
 		'phone'    => 'Please enter a 10-digit phone number, e.g. 604 555 0100.',
 		'email'    => 'Please enter a valid email address.',
-		'exists'   => 'An account with this email already exists. Please log in instead.',
+		'exists'   => 'An account with this email already exists. If you already applied, log in to see your application status — or use “Lost your password?” on the login page.',
 		'password' => 'Your password must be at least 8 characters.',
 		'agree'    => 'Please confirm your business is an authorized vape retailer and accept the Terms & Conditions.',
 		'file'     => 'Please upload your business document as a PDF, JPG or PNG under 10 MB.',
@@ -477,7 +486,13 @@ function oneam_wholesale_form() {
 				e.preventDefault();
 				first.scrollIntoView({ behavior: 'smooth', block: 'center' });
 				first.focus({ preventScroll: true });
+				return;
 			}
+			// 두 번 눌러도 한 번만 제출
+			var btn = form.querySelector('.apply__actions button[type=submit]');
+			if (form.dataset.sent) { e.preventDefault(); return; }
+			form.dataset.sent = '1';
+			if (btn) { btn.disabled = true; btn.querySelector('span').textContent = 'Sending…'; }
 		});
 		// 서버에서 돌아온 오류: 그 칸에 바로 표시
 		var note = document.querySelector('.apply__note.is-bad[data-field]');
@@ -579,6 +594,28 @@ add_filter(
 	},
 	10,
 	3
+);
+
+/**
+ * 가입 페이지는 캐시하지 않음: 보안 토큰(nonce)이 들어 있고, 로그인 후에는 사람마다 다른 상태 화면이 보이기 때문.
+ * (GoDaddy CDN 이 31일 동안 저장해 두면 가입 직후 예전 폼이 다시 떠서 "이미 있는 계정" 오류가 남)
+ */
+add_action(
+	'template_redirect',
+	function () {
+		$id = get_queried_object_id();
+		// phpcs:ignore WordPress.Security.NonceVerification
+		if ( ( $id && $id === oneam_signup_page_id() ) || isset( $_GET['applied'] ) || isset( $_GET['apply_error'] ) || isset( $_GET['email_verified'] ) ) {
+			if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+				define( 'DONOTCACHEPAGE', true );
+			}
+			nocache_headers();
+			header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0, private', true );
+			header( 'CDN-Cache-Control: no-store', true );
+			header( 'Cloudflare-CDN-Cache-Control: no-store', true );
+		}
+	},
+	1
 );
 
 /** 이미 신청한 사람에게는 가입 페이지 안내 문장(“Apply for…”) 대신 상태 카드만 */
@@ -922,6 +959,11 @@ add_action(
 add_action(
 	'admin_notices',
 	function () {
+		$saved = get_transient( 'oneam_review_saved_' . get_current_user_id() );
+		if ( $saved ) {
+			delete_transient( 'oneam_review_saved_' . get_current_user_id() );
+			printf( '<div class="notice notice-success is-dismissible"><p><strong>Retailer status: %s</strong></p></div>', esc_html( $saved ) );
+		}
 		if ( isset( $_GET['oneam_updated'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			$to = sanitize_key( wp_unslash( $_GET['oneam_updated'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
 			printf( '<div class="notice notice-success is-dismissible"><p>Wholesale status updated: <strong>%s</strong>. The applicant has been emailed.</p></div>', esc_html( ucfirst( $to ) ) );
@@ -929,30 +971,79 @@ add_action(
 	}
 );
 
-/** 사용자 프로필 화면: 사업자 정보 · 서류 · 상태 */
+/** 사용자 프로필 화면: 맨 위 카드 — 왼쪽 검토(상태 · 이유 · 메일), 오른쪽 매장 정보 */
 function oneam_wholesale_profile( $user ) {
 	if ( ! current_user_can( 'edit_users' ) ) {
 		return;
 	}
-	$status = oneam_wholesale_status( $user->ID );
+	$fields = oneam_wholesale_fields() + oneam_wholesale_optional_fields();
+	$prov   = get_user_meta( $user->ID, 'oneam_province', true );
 	?>
-	<h2 id="oneam-review">1AM wholesale</h2>
-	<table class="form-table" role="presentation">
-		<tr><th>Review</th><td><?php oneam_review_panel( $user ); ?></td></tr>
-		<?php foreach ( oneam_wholesale_fields() + oneam_wholesale_optional_fields() as $key => $label ) : ?>
-			<tr><th><?php echo esc_html( $label ); ?></th><td><input type="text" class="regular-text" name="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( get_user_meta( $user->ID, $key, true ) ); ?>"></td></tr>
-		<?php endforeach; ?>
-		<?php do_action( 'oneam_wholesale_profile_rows', $user ); ?>
-		<tr><th>Marketing emails</th><td><?php echo esc_html( get_user_meta( $user->ID, 'oneam_marketing_consent', true ) ? 'Opted in on ' . get_user_meta( $user->ID, 'oneam_marketing_consent', true ) : 'No consent — do not send marketing emails' ); ?></td></tr>
-		<tr><th>Document</th><td>
-			<?php if ( get_user_meta( $user->ID, 'oneam_document', true ) ) : ?>
-				<a class="button" target="_blank" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=oneam_doc&user=' . $user->ID ), 'oneam_doc_' . $user->ID ) ); ?>">View uploaded document</a>
-			<?php else : ?>
-				—
-			<?php endif; ?>
-		</td></tr>
-		<tr><th>Applied</th><td><?php echo esc_html( get_user_meta( $user->ID, 'oneam_applied_at', true ) ?: '—' ); ?></td></tr>
-	</table>
+	<div id="oneam-card" class="oneam-card">
+		<div class="oneam-card__head">
+			<h2 id="oneam-review">1AM retailer account</h2>
+			<?php echo oneam_status_badge( oneam_wholesale_status( $user->ID ) ); // phpcs:ignore ?>
+			<span class="oneam-card__meta">Applied: <?php echo esc_html( get_user_meta( $user->ID, 'oneam_applied_at', true ) ?: '—' ); ?></span>
+		</div>
+		<div class="oneam-card__grid">
+			<div class="oneam-card__col">
+				<h3>Review &amp; message</h3>
+				<?php oneam_review_panel( $user ); ?>
+				<p><button type="submit" class="button button-primary button-large" name="submit" value="Update User">Save &amp; send</button></p>
+			</div>
+			<div class="oneam-card__col">
+				<h3>Store details (from the application)</h3>
+				<table class="oneam-card__table">
+					<?php foreach ( $fields as $key => $label ) : ?>
+						<tr>
+							<th><label for="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></label></th>
+							<td>
+								<?php if ( 'oneam_province' === $key ) : ?>
+									<select name="oneam_province" id="oneam_province">
+										<option value="">—</option>
+										<?php foreach ( oneam_provinces() as $c => $l ) : ?>
+											<option value="<?php echo esc_attr( $c ); ?>" <?php selected( $prov, $c ); ?>><?php echo esc_html( $l ); ?></option>
+										<?php endforeach; ?>
+									</select>
+								<?php else : ?>
+									<input type="text" name="<?php echo esc_attr( $key ); ?>" id="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( get_user_meta( $user->ID, $key, true ) ); ?>">
+								<?php endif; ?>
+							</td>
+						</tr>
+					<?php endforeach; ?>
+					<?php do_action( 'oneam_wholesale_profile_rows', $user ); ?>
+					<tr><th>Marketing emails</th><td><?php echo esc_html( get_user_meta( $user->ID, 'oneam_marketing_consent', true ) ? 'Opted in on ' . get_user_meta( $user->ID, 'oneam_marketing_consent', true ) : 'No consent — do not send marketing emails' ); ?></td></tr>
+					<?php if ( get_user_meta( $user->ID, 'oneam_document', true ) ) : ?>
+						<tr><th>Document</th><td><a class="button" target="_blank" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=oneam_doc&user=' . $user->ID ), 'oneam_doc_' . $user->ID ) ); ?>">View uploaded document</a></td></tr>
+					<?php endif; ?>
+				</table>
+				<p class="description">The billing and shipping addresses further down are what WooCommerce uses at checkout. These store details are what the retailer entered when applying.</p>
+			</div>
+		</div>
+	</div>
+	<style>
+		.oneam-card { margin: 16px 0 24px; padding: 20px 24px; border: 1px solid #c3c4c7; border-radius: 8px; background: #fff; box-shadow: 0 1px 1px rgba(0,0,0,.04); }
+		.oneam-card__head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 8px; }
+		.oneam-card__head h2 { margin: 0; font-size: 18px; }
+		.oneam-card__meta { color: #646970; }
+		.oneam-card__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; }
+		.oneam-card__col h3 { margin: 12px 0 10px; font-size: 14px; }
+		.oneam-card__table { width: 100%; border-collapse: collapse; }
+		.oneam-card__table th { width: 40%; padding: 6px 10px 6px 0; text-align: left; font-weight: 600; vertical-align: middle; }
+		.oneam-card__table td { padding: 6px 0; }
+		.oneam-card__table input[type=text], .oneam-card__table select { width: 100%; }
+		.oneam-card .form-table, .oneam-card .form-table th, .oneam-card .form-table td { display: block; width: auto; padding: 0; }
+		@media (max-width: 1100px) { .oneam-card__grid { grid-template-columns: 1fr; } }
+	</style>
+	<script>
+	(function () {
+		var card = document.getElementById('oneam-card'), form = document.getElementById('your-profile');
+		if (!card || !form) return;
+		// 맨 위로 (폼 안에 있어야 저장됨)
+		var first = form.querySelector('h2, h3, table');
+		form.insertBefore(card, first || form.firstChild);
+	})();
+	</script>
 	<?php
 }
 add_action( 'show_user_profile', 'oneam_wholesale_profile' );
@@ -977,7 +1068,12 @@ function oneam_wholesale_profile_save( $user_id ) {
 		if ( '' === $to ) {
 			delete_user_meta( $user_id, 'oneam_wholesale_status' );
 		} elseif ( in_array( $to, array( 'pending', 'info', 'approved', 'rejected' ), true ) ) {
+			$changed = oneam_wholesale_status( $user_id ) !== $to;
 			oneam_set_wholesale_status( $user_id, $to, $msg, $send );
+			if ( $changed || '' !== $msg ) {
+				$mailed = $send && in_array( $to, array( 'info', 'approved', 'rejected' ), true );
+				set_transient( 'oneam_review_saved_' . get_current_user_id(), ucfirst( 'info' === $to ? 'need more information' : $to ) . ( $mailed ? ' — the applicant was emailed.' : ' — saved (no email sent).' ), 120 );
+			}
 		}
 	}
 	// phpcs:enable

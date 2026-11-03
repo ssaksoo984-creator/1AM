@@ -111,7 +111,7 @@ function oneam_review_panel( $user ) {
 			<textarea name="oneam_review_message" id="oneam_review_message" rows="4" class="large-text" placeholder="Shown in the email and on the applicant's status page."></textarea>
 		</p>
 		<p><label><input type="checkbox" name="oneam_review_send" value="1" checked> Email the applicant</label>
-			<br><span class="description">Click “Update User” at the bottom to save and send. Approved and Rejected always change what the store can see.</span></p>
+			<br><span class="description">Click <strong>Save &amp; send</strong> below. Approved and Rejected change what the store can see right away.</span></p>
 		<?php $hist = oneam_review_history( $user->ID ); ?>
 		<?php if ( $hist ) : ?>
 			<p><strong>History</strong></p>
@@ -254,7 +254,8 @@ function oneam_order_message_box( $post_or_order ) {
 	<p><label for="oneam_msg_text"><strong>Message</strong></label>
 		<textarea name="oneam_msg_text" id="oneam_msg_text" rows="5" style="width:100%" placeholder="Emailed to the customer and shown in My account → Orders."></textarea>
 	</p>
-	<p class="description">Click <strong>Update</strong> to save. The customer gets the message by email and can reply from their account.</p>
+	<p><button type="submit" class="button button-primary" name="save" value="Update" style="width:100%">Save &amp; send to customer</button></p>
+	<p class="description">The customer gets the message by email, sees it in My account → Orders, and can reply there. Replies appear in Order notes below.</p>
 	<?php wp_nonce_field( 'oneam_order_msg', 'oneam_order_msg_nonce' ); ?>
 	<script>
 	(function () {
