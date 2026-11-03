@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_COMPLIANCE_VERSION', '2026-11-03-emails' );
+define( 'ONEAM_COMPLIANCE_VERSION', '2026-11-03-orders' );
 
 /** 옛 문구 → 새 문구 (페이지 글 · Elementor 데이터) */
 function oneam_migrate_replacements() {
@@ -201,6 +201,18 @@ function oneam_apply_private_emails() {
 	return array( 'Internal email hidden everywhere on the site and replaced with ' . oneam_opt( 'oneam_email' ) );
 }
 
+/** 주문 상태 메일 (2026-11-03) — 한 번만: 주문이 취소되면 고객에게도 메일 (WooCommerce 기본값은 관리자에게만) */
+function oneam_apply_order_emails() {
+	if ( get_option( 'oneam_order_emails_v' ) ) {
+		return array();
+	}
+	$opt            = (array) get_option( 'woocommerce_customer_cancelled_order_settings', array() );
+	$opt['enabled'] = 'yes';
+	update_option( 'woocommerce_customer_cancelled_order_settings', $opt );
+	update_option( 'oneam_order_emails_v', 1 );
+	return array( 'Customers now get an email when their order is cancelled' );
+}
+
 /** 대표님 피드백 2차 (2026-10-24) — 한 번만 */
 function oneam_apply_client_round2() {
 	if ( '2026-10-24' === get_option( 'oneam_client_round2' ) ) {
@@ -240,7 +252,7 @@ function oneam_apply_client_round2() {
 }
 
 function oneam_run_compliance_migration() {
-	$report = array_merge( oneam_apply_client_info(), oneam_apply_client_round2(), oneam_apply_private_emails() );
+	$report = array_merge( oneam_apply_client_info(), oneam_apply_client_round2(), oneam_apply_private_emails(), oneam_apply_order_emails() );
 	update_option( 'oneam_policy_updated', wp_date( 'F j, Y' ) );
 	if ( ! get_theme_mod( 'oneam_terms_effective' ) ) {
 		set_theme_mod( 'oneam_terms_effective', wp_date( 'F j, Y' ) );
