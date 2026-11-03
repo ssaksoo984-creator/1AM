@@ -174,7 +174,26 @@ function oneam_pe_box( $post ) {
 					<button type="button" class="pe-img-btn pe-img-btn--tall" title="Choose image"><?php echo $lu ? '<img src="' . esc_url( wp_get_attachment_image_url( $lu, 'medium' ) ) . '" alt="">' : '<span>+ Image</span>'; ?></button>
 					<button type="button" class="button-link pe-img-clear"<?php echo $lu ? '' : ' hidden'; ?>>Remove</button>
 				</div>
-				<label class="pe-check"><input type="checkbox" name="_oneam_soon" value="yes" <?php checked( 'yes', $meta( '_oneam_soon' ) ); ?>> Coming soon (shown in the line-up, cannot be ordered)</label>
+				<div class="pe-checks">
+					<label class="pe-check"><input type="checkbox" name="oneam_pe_home" value="1" <?php checked( 'yes' !== $meta( '_oneam_hide_home' ) ); ?>> Show on the home line-up</label>
+					<label class="pe-check"><input type="checkbox" name="oneam_pe_menu" value="1" <?php checked( 'yes' !== $meta( '_oneam_hide_menu' ) ); ?>> Show in the Products menu</label>
+					<label class="pe-check"><input type="checkbox" name="_oneam_soon" value="yes" id="pe-soon" <?php checked( 'yes', $meta( '_oneam_soon' ) ); ?>> Coming soon — shows a “Launching soon” page, cannot be ordered</label>
+				</div>
+			</div>
+			<?php $shape = $meta( '_oneam_shape' ) ?: 'slim'; ?>
+			<div class="pe-soonlook" id="pe-soonlook"<?php echo 'yes' === $meta( '_oneam_soon' ) ? '' : ' hidden'; ?>>
+				<div>
+					<p class="pe-soonlook__title">Coming soon look <small>(used when there is no Home line-up image)</small></p>
+					<p class="pe-help">Pick the silhouette shape. Its colours are the <em>Product colours</em> above.</p>
+					<div class="pe-shapes">
+						<?php foreach ( array( 'slim' => 'Slim device', 'max' => 'MAX device', 'refill' => 'Refill pod' ) as $k => $l ) : ?>
+							<label><input type="radio" name="_oneam_shape" value="<?php echo esc_attr( $k ); ?>" <?php checked( $shape, $k ); ?>> <?php echo esc_html( $l ); ?></label>
+						<?php endforeach; ?>
+					</div>
+				</div>
+				<div class="pe-ghost" id="pe-ghost" data-shape="<?php echo esc_attr( $shape ); ?>" style="--c1:<?php echo esc_attr( $meta( '_oneam_c1' ) ?: '#8A3FFC' ); ?>;--c2:<?php echo esc_attr( $meta( '_oneam_c2' ) ?: '#16C75A' ); ?>">
+					<span class="pe-ghost__cap"></span><span class="pe-ghost__body"><b><?php echo esc_html( get_the_title( $post ) ?: 'NEW' ); ?></b></span><span class="pe-ghost__base"></span>
+				</div>
 			</div>
 		</section>
 
@@ -276,7 +295,20 @@ function oneam_pe_box( $post ) {
 		.pe-block { margin-top: 12px; }
 		.pe-block textarea { width: 100%; }
 		.pe-colorlbl span { display: flex; align-items: center; gap: 6px; font-weight: 400; }
-		.pe-check { display: flex !important; align-items: center; gap: 8px; font-weight: 400 !important; grid-column: 1 / -1; }
+		.pe-check { display: flex !important; align-items: center; gap: 8px; font-weight: 400 !important; }
+		.pe-checks { display: grid; gap: 6px; grid-column: 1 / -1; }
+		.pe-soonlook { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; margin-top: 14px; padding: 14px 16px; border-radius: 8px; background: #f6f7f7; }
+		.pe-soonlook[hidden] { display: none; }
+		.pe-soonlook__title { margin: 0 0 4px; font-weight: 600; }
+		.pe-shapes { display: flex; flex-wrap: wrap; gap: 14px; }
+		.pe-ghost { display: grid; grid-template-rows: 14% 1fr 7%; height: 170px; aspect-ratio: 300 / 1400; }
+		.pe-ghost[data-shape=max] { aspect-ratio: 420 / 1400; }
+		.pe-ghost[data-shape=refill] { aspect-ratio: 330 / 1400; grid-template-rows: 22% 1fr 0%; }
+		.pe-ghost__cap { border-radius: 40% 40% 4px 4px; background: #e3e3e6; box-shadow: inset 0 0 0 1px #c9c9cf; }
+		.pe-ghost__body { margin: 2px 0; display: grid; place-items: center; overflow: hidden; background: linear-gradient(180deg, var(--c1), var(--c2)); }
+		.pe-ghost__body b { writing-mode: vertical-rl; transform: rotate(180deg); color: #fff; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+		.pe-ghost__base { border-radius: 0 0 3px 3px; background: linear-gradient(90deg, #8d8f93, #d8d9dc 45%, #7c7e82); }
+		
 		.pe-help { margin: 0 0 10px; color: #646970; }
 		.pe-scroll { overflow-x: auto; }
 		.pe-table { width: 100%; border-collapse: collapse; margin: 0 0 10px; }
@@ -337,6 +369,14 @@ function oneam_pe_box( $post ) {
 				frame.open();
 			}
 		});
+		var soon = document.getElementById('pe-soon'), look = document.getElementById('pe-soonlook'), gh = document.getElementById('pe-ghost');
+		if (soon && look) soon.addEventListener('change', function () { look.hidden = !soon.checked; });
+		box.addEventListener('change', function (e) {
+			if (!gh) return;
+			if (e.target.name === '_oneam_shape') gh.dataset.shape = e.target.value;
+			if (e.target.name === '_oneam_c1' && e.target.value.toLowerCase() !== '#ffffff') gh.style.setProperty('--c1', e.target.value);
+			if (e.target.name === '_oneam_c2' && e.target.value.toLowerCase() !== '#ffffff') gh.style.setProperty('--c2', e.target.value);
+		});
 		if ($ && $.fn.sortable) $(box.querySelector('.pe-flavs tbody')).sortable({ handle: '.pe-drag', placeholder: 'pe-flav is-placeholder', axis: 'y' });
 	})(window.jQuery);
 	</script>
@@ -362,6 +402,10 @@ add_action(
 		}
 		$_POST['_oneam_prices'] = implode( "\n", $lines );
 		$product->update_meta_data( '_oneam_lineup_img', isset( $_POST['_oneam_lineup_img'] ) ? absint( $_POST['_oneam_lineup_img'] ) ?: '' : '' );
+		$product->update_meta_data( '_oneam_hide_home', empty( $_POST['oneam_pe_home'] ) ? 'yes' : '' );
+		$product->update_meta_data( '_oneam_hide_menu', empty( $_POST['oneam_pe_menu'] ) ? 'yes' : '' );
+		$shape = isset( $_POST['_oneam_shape'] ) ? sanitize_key( wp_unslash( $_POST['_oneam_shape'] ) ) : '';
+		$product->update_meta_data( '_oneam_shape', in_array( $shape, array( 'slim', 'max', 'refill' ), true ) ? $shape : '' );
 		foreach ( array( '_oneam_acc_regions', '_oneam_acc_shipping', '_oneam_acc_compliance' ) as $k ) {
 			$product->update_meta_data( $k, isset( $_POST[ $k ] ) ? sanitize_textarea_field( wp_unslash( $_POST[ $k ] ) ) : '' );
 		}

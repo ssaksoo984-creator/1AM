@@ -41,3 +41,29 @@ add_action(
 	},
 	99
 );
+
+/**
+ * 1AM 저장 버튼(Save & send · Save product)을 누를 때 "이 페이지를 나가시겠습니까?" 경고가 뜨지 않게.
+ * 다른 스크립트(비밀번호 · 주문 편집 등)가 걸어 둔 경고를 저장할 때만 건너뜀. 일찍 등록해야 먼저 실행됨.
+ */
+add_action(
+	'admin_head',
+	function () {
+		?>
+		<script>
+		(function () {
+			window.addEventListener('beforeunload', function (e) {
+				if (window.__oneamSaving) { e.stopImmediatePropagation(); }
+			});
+			document.addEventListener('click', function (e) {
+				if (!e.target.closest || !e.target.closest('#oneam-card button[type=submit], #oneam-order-message button[type=submit], .pe-save button, #publish, .save_order, #submit')) return;
+				window.__oneamSaving = true;
+				window.onbeforeunload = null;
+				if (window.jQuery) { window.jQuery(window).off('beforeunload'); }
+			}, true);
+		})();
+		</script>
+		<?php
+	},
+	1
+);

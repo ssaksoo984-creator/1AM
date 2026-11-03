@@ -17,6 +17,8 @@ foreach ( $products as $i => $p ) {
 		$products[ $i ]['img'] = $old_imgs[ $p['slug'] ];
 	}
 }
+// 상품 화면에서 "Show on the home line-up" 을 끈 상품은 빼기
+$products = array_values( array_filter( $products, function ( $p ) { return empty( $p['hide_home'] ); } ) );
 // 기본: WooCommerce 상품 그대로. "Use my own cards" 를 켰을 때만 Elementor 카드
 if ( $custom && 'yes' === oneam_ctx( 'custom_cards', '' ) ) {
 	$products = array();
@@ -74,7 +76,7 @@ if ( ! $products ) {
 						</dl>
 					<?php endif; ?>
 					<?php if ( 'soon' === $p['status'] ) : ?>
-						<a class="btn btn--solid" href="<?php echo esc_url( oneam_signup_url() ); ?>" data-magnetic><span>Get notified</span></a>
+						<a class="btn btn--solid" href="<?php echo esc_url( $p['url'] ?: oneam_signup_url() ); ?>" data-magnetic><span>See what&rsquo;s coming &rarr;</span></a>
 					<?php else : ?>
 						<a class="btn btn--solid" href="<?php echo esc_url( $p['url'] ); ?>" data-magnetic><span>View product &rarr;</span></a>
 					<?php endif; ?>

@@ -80,16 +80,29 @@ function oneam_get_products() {
 	return $cache;
 }
 
+/** 출시 예정 상품은 장바구니에 담을 수 없음 */
+add_filter(
+	'woocommerce_is_purchasable',
+	function ( $ok, $product ) {
+		$parent = $product && $product->is_type( 'variation' ) ? wc_get_product( $product->get_parent_id() ) : $product;
+		return ( $parent && 'yes' === $parent->get_meta( '_oneam_soon' ) ) ? false : $ok;
+	},
+	30,
+	2
+);
+
 /** 제품 이미지 또는 "출시 예정" 실루엣 */
 function oneam_product_visual( $p, $class = '' ) {
 	if ( ! empty( $p['img'] ) ) {
 		printf( '<img class="%s" src="%s" alt="%s" width="246" height="1400" loading="lazy">', esc_attr( $class ), esc_url( $p['img'] ), esc_attr( $p['name'] ) );
 		return;
 	}
+	// 출시 예정 실루엣: 상품 화면에서 고른 모양 (없으면 예전처럼 상품 주소로)
+	$shape = ! empty( $p['shape'] ) ? 'shape-' . $p['shape'] : $p['slug'];
 	printf(
 		'<div class="ghost %s ghost--%s" role="img" aria-label="%s"><span class="ghost__cap"></span><span class="ghost__body"><span class="ghost__txt">%s</span></span><span class="ghost__base"></span></div>',
 		esc_attr( $class ),
-		esc_attr( $p['slug'] ),
+		esc_attr( $shape ),
 		esc_attr( $p['name'] . ' — coming soon' ),
 		esc_html( $p['name'] )
 	);

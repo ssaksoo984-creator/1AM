@@ -62,6 +62,11 @@ $oneam_lines = function ( $key ) use ( $product ) {
 	$text = isset( $own[ $key ] ) ? trim( (string) $product->get_meta( $own[ $key ] ) ) : '';
 	return array_filter( array_map( 'trim', preg_split( '/\r?\n/', '' !== $text ? $text : (string) oneam_opt( $key ) ) ) );
 };
+// 출시 예정: 빈 상세 화면 대신 "Launching soon" 화면
+if ( $oneam_soon ) {
+	get_template_part( 'template-parts/soon-product', null, array( 'product' => $product, 'specs' => $oneam_specs ) );
+	return;
+}
 ?>
 <div id="product-<?php the_ID(); ?>" <?php wc_product_class( 'spdp', $product ); ?> style="<?php echo oneam_flavor_style( $oneam_first ); // phpcs:ignore ?>;--img-bg:<?php echo esc_attr( oneam_opt( 'oneam_shop_img_bg' ) ?: '#ffffff' ); ?>">
 

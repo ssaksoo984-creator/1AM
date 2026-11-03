@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_VERSION', '1.23.1' );
+define( 'ONEAM_VERSION', '1.24.0' );
 
 function oneam_asset( $path ) {
 	return get_template_directory_uri() . '/assets/' . ltrim( $path, '/' );
@@ -124,6 +124,9 @@ function oneam_logo( $variant = 'black', $class = '' ) {
 function oneam_menu_items() {
 	$products = array();
 	foreach ( oneam_get_products() as $p ) {
+		if ( ! empty( $p['hide_menu'] ) ) {
+			continue; // 상품 화면에서 "Show in the Products menu" 를 끈 상품
+		}
 		$products[] = array( $p['name'] . ( 'soon' === $p['status'] ? ' (coming soon)' : '' ), $p['url'] );
 	}
 	return array(
