@@ -136,6 +136,11 @@ function oneam_tracking_box( $post_or_order ) {
 	if ( ! $order ) {
 		return;
 	}
+	$ready = $order->has_status( array( 'processing', 'shipped', 'completed' ) );
+	?>
+	<p class="oneam-track-wait"<?php echo $ready ? ' hidden' : ''; ?>>Available after payment is confirmed: change the status to <strong>Payment confirmed · Preparing shipment</strong> and click Update.</p>
+	<div class="oneam-track-form"<?php echo $ready ? '' : ' hidden'; ?>>
+	<?php
 	$t       = oneam_order_tracking( $order );
 	$carrier = (string) $order->get_meta( '_oneam_carrier' ) ?: 'purolator';
 	$shipped = (string) $order->get_meta( '_oneam_shipped_at' );
@@ -162,9 +167,51 @@ function oneam_tracking_box( $post_or_order ) {
 		<p><button type="submit" class="button button-primary" name="oneam_mark_shipped" value="1" style="width:100%">Mark as shipped &amp; email customer</button></p>
 		<p class="description">Changes the status to <strong>Shipped</strong> and emails the customer the tracking number and link.<?php echo $days ? ' The order completes automatically ' . (int) $days . ' days later (completed email + invoice).' : ''; ?></p>
 	<?php endif; ?>
+	</div>
+	<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		// 상태를 "Payment confirmed" 나 "Shipped" 로 고르면 바로 보이게 (상태 칸은 이 칸보다 나중에 그려지므로 페이지가 다 뜬 뒤)
+		var sel = document.getElementById('order_status');
+		var box = document.querySelector('#oneam-tracking .oneam-track-form'), wait = document.querySelector('#oneam-tracking .oneam-track-wait');
+		if (!sel || !box || !wait) return;
+		var initial = box.hidden;
+		function sync() {
+			var on = !initial || ['wc-processing', 'wc-shipped', 'wc-completed'].indexOf(sel.value) > -1;
+			box.hidden = !on; wait.hidden = on;
+		}
+		(window.jQuery ? window.jQuery(sel).on('change', sync) : sel.addEventListener('change', sync));
+	});
+	</script>
 	<?php
 }
 
+add_action(
+	'woocommerce_process_shop_order_meta',
+	function ( $order_id ) {
+		if ( ! isset( $_POST['oneam_tracking_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['oneam_tracking_nonce'] ) ), 'oneam_tracking' ) ) {
+			return;
+		}
+		$order = wc_get_order( $order_id );
+		if ( ! $order ) {
+			return;
+		}
+		$carrier = isset( $_POST['oneam_carrier'] ) ? sanitize_key( wp_unslash( $_POST['oneam_carrier'] ) ) : '';
+		$num     = isset( $_POST['oneam_tracking'] ) ? trim( sanitize_text_field( wp_unslash( $_POST['oneam_tracking'] ) ) ) : '';
+		$order->update_meta_data( '_oneam_carrier', array_key_exists( $carrier, oneam_carriers() ) ? $carrier : 'other' );
+		$order->update_meta_data( '_oneam_tracking', $num );
+		$order->save_meta_data();
+		// 상태 목록에서 "Shipped" 를 골랐는데 운송장 번호가 없으면 상태는 그대로
+		if ( isset( $_POST['order_status'] ) && 'wc-shipped' === $_POST['order_status'] && '' === $num && ! $order->has_status( 'shipped' ) ) {
+			$_POST['order_status'] = 'wc-' . $order->get_status();
+			WC_Admin_Meta_Boxes::add_error( 'Enter the tracking number before marking the order as shipped.' );
+		}
+		// [Mark as shipped] 버튼: WooCommerce 가 상태를 저장할 때 Shipped 로 (같은 저장에서 한 번만 메일)
+		if ( ! empty( $_POST['oneam_mark_shipped'] ) && '' !== $num ) {
+			$_POST['order_status'] = 'wc-shipped';
+		}
+	},
+	5
+);
 add_action(
 	'woocommerce_process_shop_order_meta',
 	function ( $order_id ) {
@@ -185,7 +232,10 @@ add_action(
 				WC_Admin_Meta_Boxes::add_error( 'Enter the tracking number before marking the order as shipped.' );
 				return;
 			}
-			$order->update_status( 'shipped', 'Shipped with ' . ( oneam_carriers()[ $carrier ][0] ?? 'carrier' ) . ' ' . $num . '.' );
+			if ( ! $order->has_status( 'shipped' ) ) {
+				$order->update_status( 'shipped' );
+			}
+			$order->add_order_note( 'Shipped with ' . ( oneam_carriers()[ $carrier ][0] ?? 'carrier' ) . ' ' . $num . '.' );
 		} elseif ( ! empty( $_POST['oneam_tracking_resend'] ) && '' !== $num ) {
 			do_action( 'oneam_send_shipped_email', $order_id, $order );
 			$order->add_order_note( 'Tracking email sent again: ' . $num );
