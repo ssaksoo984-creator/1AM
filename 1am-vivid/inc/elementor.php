@@ -158,9 +158,10 @@ function oneam_elementor_widgets() {
 			'note'     => 'Full-screen product panels (01 / 02 / 03). Scrolling moves one panel at a time.',
 			'controls' => array(
 				'eyebrow' => array( 'label' => 'Small label', 'type' => 'text', 'default' => 'Product lineup' ),
+				'custom_cards' => array( 'label' => 'Use my own cards instead of WooCommerce products', 'type' => 'switch', 'default' => '', 'description' => 'Off (recommended) = cards come from Products in WooCommerce automatically: name, label, short description, specs, colours, Coming soon and the "Home line-up image" in 1AM product setup.' ),
 				'products' => array(
-					'label'       => 'Products',
-					'description' => 'Starts with your current WooCommerce products. Edit, reorder, delete or add cards here.',
+					'label'       => 'My own cards (only used when the switch above is on)',
+					'description' => 'Edit, reorder, delete or add cards here.',
 					'type'        => 'repeater',
 					'fields'      => array(
 						'name'  => array( 'label' => 'Name', 'type' => 'text' ),
@@ -456,6 +457,7 @@ function oneam_elementor_widgets() {
 			'note'     => 'Name, label, description and specs of a product. Approved retailers also see the price and Add to cart (from the WooCommerce product with the same slug).',
 			'controls' => array(
 				'slug'  => array( 'label' => 'Product (slug)', 'type' => 'text', 'default' => 'slim-hybrid' ),
+				'override' => array( 'label' => 'Use my own text instead of the WooCommerce product', 'type' => 'switch', 'default' => '', 'description' => 'Off (recommended) = label, name, description and specs come from the product in WooCommerce.' ),
 				'label' => array( 'label' => 'Small label', 'type' => 'text', 'default' => oneam_el_product_field( 'tag' ) ),
 				'title' => array( 'label' => 'Name', 'type' => 'text', 'default' => oneam_el_product_field( 'name' ) ),
 				'text'  => array( 'label' => 'Description', 'type' => 'textarea', 'default' => oneam_el_product_field( 'desc' ) ),

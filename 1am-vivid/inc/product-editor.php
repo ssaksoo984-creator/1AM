@@ -168,6 +168,12 @@ function oneam_pe_box( $post ) {
 				<label>Sold by (unit)<input type="text" name="_oneam_unit" value="<?php echo esc_attr( $meta( '_oneam_unit' ) ); ?>" placeholder="carton"></label>
 				<label>Pieces per unit<input type="number" min="0" name="_oneam_pack" value="<?php echo esc_attr( $meta( '_oneam_pack' ) ); ?>" placeholder="e.g. 10"></label>
 				<label class="pe-colorlbl">Product colours <span><input type="color" name="_oneam_c1" value="<?php echo esc_attr( $meta( '_oneam_c1' ) ?: '#ffffff' ); ?>"> <input type="color" name="_oneam_c2" value="<?php echo esc_attr( $meta( '_oneam_c2' ) ?: '#ffffff' ); ?>"> <small>white = automatic</small></span></label>
+				<?php $lu = (int) $meta( '_oneam_lineup_img' ); ?>
+				<div class="pe-imgwrap pe-lineup"><span>Home line-up image <small>(tall, transparent PNG/WebP — empty = product image)</small></span>
+					<input type="hidden" class="pe-img-id" name="_oneam_lineup_img" value="<?php echo esc_attr( $lu ?: '' ); ?>">
+					<button type="button" class="pe-img-btn pe-img-btn--tall" title="Choose image"><?php echo $lu ? '<img src="' . esc_url( wp_get_attachment_image_url( $lu, 'medium' ) ) . '" alt="">' : '<span>+ Image</span>'; ?></button>
+					<button type="button" class="button-link pe-img-clear"<?php echo $lu ? '' : ' hidden'; ?>>Remove</button>
+				</div>
 				<label class="pe-check"><input type="checkbox" name="_oneam_soon" value="yes" <?php checked( 'yes', $meta( '_oneam_soon' ) ); ?>> Coming soon (shown in the line-up, cannot be ordered)</label>
 			</div>
 		</section>
@@ -263,7 +269,8 @@ function oneam_pe_box( $post ) {
 		.pe-sec h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; font-size: 15px; }
 		.pe-sec h3 span { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: #2271b1; color: #fff; font-size: 12px; }
 		.pe-sec h3 small { padding: 1px 8px; border-radius: 99px; background: #f0f0f1; font-weight: 600; }
-		.pe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px 16px; }
+		.pe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px 16px; align-items: start; }
+		.pe-grid .pe-lineup { grid-row: span 2; }
 		.pe-grid label, .pe-block { display: grid; gap: 4px; font-weight: 600; }
 		.pe-grid input[type=text], .pe-grid input[type=number] { width: 100%; }
 		.pe-block { margin-top: 12px; }
@@ -281,9 +288,12 @@ function oneam_pe_box( $post ) {
 		.pe-center { text-align: center; }
 		.pe-drag { cursor: grab; color: #a7aaad; font-size: 16px; width: 18px; }
 		.pe-img-btn { display: grid; place-items: center; width: 52px; height: 52px; padding: 0; border: 1px dashed #c3c4c7; border-radius: 8px; background: #f6f7f7; cursor: pointer; overflow: hidden; }
-		.pe-img-btn img { width: 100%; height: 100%; object-fit: contain; }
+		.pe-img-btn img { width: 100%; height: 100%; object-fit: contain !important; }
 		.pe-img-btn span { font-size: 11px; color: #2271b1; }
 		.pe-colors { white-space: nowrap; }
+		.pe-imgwrap { display: grid; gap: 6px; justify-items: start; font-weight: 600; }
+		.pe-imgwrap small { font-weight: 400; color: #646970; }
+		.pe-img-btn--tall { width: 90px; height: 130px; }
 		.pe-colors input { width: 32px; height: 28px; padding: 0; border: 1px solid #dcdcde; }
 		.pe-switch { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
 		.pe-del { width: 28px; height: 28px; border: 0; border-radius: 6px; background: none; color: #b32d2e; cursor: pointer; }
@@ -313,12 +323,15 @@ function oneam_pe_box( $post ) {
 			if (t.closest('.pe-add-spec')) add('pe-spec-tpl', box.querySelector('.pe-specs tbody'));
 			if (t.closest('.pe-del')) { var tr = t.closest('tr'); var nm = tr.querySelector('.pe-name'); if (!nm || !nm.value || window.confirm('Remove “' + nm.value + '”? It disappears from the site when you click Update.')) { tr.remove(); count(); } }
 			if (t.closest('.pe-adv')) { e.preventDefault(); document.body.classList.toggle('oneam-pe-adv'); }
+			if (t.closest('.pe-img-clear')) { var w = t.closest('.pe-imgwrap'); w.querySelector('.pe-img-id').value = ''; w.querySelector('.pe-img-btn').innerHTML = '<span>+ Image</span>'; t.hidden = true; }
 			var ib = t.closest('.pe-img-btn');
 			if (ib && window.wp && wp.media) {
 				var frame = wp.media({ title: 'Choose flavour image', multiple: false, library: { type: 'image' } });
 				frame.on('select', function () {
 					var a = frame.state().get('selection').first().toJSON();
-					ib.closest('td').querySelector('.pe-img-id').value = a.id;
+					var wrap = ib.closest('.pe-imgwrap, td');
+					wrap.querySelector('.pe-img-id').value = a.id;
+					var clr = wrap.querySelector('.pe-img-clear'); if (clr) clr.hidden = false;
 					ib.innerHTML = '<img src="' + ((a.sizes && a.sizes.thumbnail) ? a.sizes.thumbnail.url : a.url) + '" alt="">';
 				});
 				frame.open();
@@ -348,6 +361,7 @@ add_action(
 			}
 		}
 		$_POST['_oneam_prices'] = implode( "\n", $lines );
+		$product->update_meta_data( '_oneam_lineup_img', isset( $_POST['_oneam_lineup_img'] ) ? absint( $_POST['_oneam_lineup_img'] ) ?: '' : '' );
 		foreach ( array( '_oneam_acc_regions', '_oneam_acc_shipping', '_oneam_acc_compliance' ) as $k ) {
 			$product->update_meta_data( $k, isset( $_POST[ $k ] ) ? sanitize_textarea_field( wp_unslash( $_POST[ $k ] ) ) : '' );
 		}

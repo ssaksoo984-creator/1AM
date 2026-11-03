@@ -10,7 +10,8 @@ if ( ! $p ) {
 	$p = array( 'name' => '', 'tag' => '', 'desc' => '', 'specs' => array(), 'c1' => '#8A3FFC', 'c2' => '#16C75A', 'slug' => $slug, 'status' => 'available' );
 }
 $specs = $p['specs'];
-$rows  = oneam_ctx( 'specs', array() );
+$own   = 'yes' === oneam_ctx( 'override', '' ); // 꺼져 있으면(기본) WooCommerce 상품 내용 그대로
+$rows  = $own ? oneam_ctx( 'specs', array() ) : array();
 if ( $rows ) {
 	$specs = array();
 	foreach ( $rows as $r ) {
@@ -24,12 +25,12 @@ $woo = ( $woo && 'publish' === $woo->post_status ) ? wc_get_product( $woo->ID ) 
 ?>
 <section class="pinfo" id="details" style="<?php echo oneam_flavor_style( $p ); // phpcs:ignore ?>">
 	<div class="pinfo__copy">
-		<?php $label = oneam_ctx( 'label', $p['tag'] ); ?>
+		<?php $label = $own ? oneam_ctx( 'label', $p['tag'] ) : $p['tag']; ?>
 		<?php if ( $label ) : ?>
 			<p class="eyebrow"><?php echo esc_html( $label ); ?></p>
 		<?php endif; ?>
-		<h1 class="pinfo__title"><?php echo esc_html( oneam_ctx( 'title', $p['name'] ) ); ?></h1>
-		<?php $text = oneam_ctx( 'text', $p['desc'] ); ?>
+		<h1 class="pinfo__title"><?php echo esc_html( $own ? oneam_ctx( 'title', $p['name'] ) : $p['name'] ); ?></h1>
+		<?php $text = $own ? oneam_ctx( 'text', $p['desc'] ) : $p['desc']; ?>
 		<?php if ( $text ) : ?>
 			<p class="pinfo__text"><?php echo esc_html( $text ); ?></p>
 		<?php endif; ?>

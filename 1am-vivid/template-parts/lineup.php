@@ -5,7 +5,20 @@
  */
 $products = oneam_get_products();
 $custom   = oneam_ctx( 'products', array() );
-if ( $custom ) {
+// 예전에 Elementor 카드에 넣어 둔 세로 이미지: 상품에 "Home line-up image" 가 없을 때 대신 사용 (이름이 같은 카드)
+$old_imgs = array();
+foreach ( (array) $custom as $r ) {
+	if ( ! empty( $r['name'] ) && ! empty( $r['image'] ) && oneam_media_url( $r['image'] ) ) {
+		$old_imgs[ sanitize_title( $r['name'] ) ] = oneam_media_url( $r['image'] );
+	}
+}
+foreach ( $products as $i => $p ) {
+	if ( empty( $p['lineup_img'] ) && isset( $old_imgs[ $p['slug'] ] ) ) {
+		$products[ $i ]['img'] = $old_imgs[ $p['slug'] ];
+	}
+}
+// 기본: WooCommerce 상품 그대로. "Use my own cards" 를 켰을 때만 Elementor 카드
+if ( $custom && 'yes' === oneam_ctx( 'custom_cards', '' ) ) {
 	$products = array();
 	foreach ( $custom as $i => $r ) {
 		$soon       = ! empty( $r['soon'] ) && 'yes' === $r['soon'];
