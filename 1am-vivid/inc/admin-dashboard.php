@@ -21,20 +21,19 @@ function oneam_count_orders( $args ) {
 	return count( wc_get_orders( array_merge( array( 'limit' => -1, 'return' => 'ids' ), $args ) ) );
 }
 
+// 대시보드 맨 위 · 전체 폭에 고정 (사용자가 저장한 상자 배치와 상관없이 항상 첫 화면 맨 위)
 add_action(
-	'wp_dashboard_setup',
+	'admin_notices',
 	function () {
-		if ( ! current_user_can( 'edit_shop_orders' ) || ! function_exists( 'wc_get_orders' ) ) {
+		$screen = get_current_screen();
+		if ( ! $screen || 'dashboard' !== $screen->id || ! current_user_can( 'edit_shop_orders' ) || ! function_exists( 'wc_get_orders' ) ) {
 			return;
 		}
-		wp_add_dashboard_widget( 'oneam_today', '1AM — today', 'oneam_dashboard_widget' );
-		// 맨 위로
-		global $wp_meta_boxes;
-		$normal = $wp_meta_boxes['dashboard']['normal']['core'] ?? array();
-		if ( isset( $normal['oneam_today'] ) ) {
-			$wp_meta_boxes['dashboard']['normal']['core'] = array( 'oneam_today' => $normal['oneam_today'] ) + $normal; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
-		}
-	}
+		echo '<div id="oneam_today" class="oneam-today-card"><h2 class="oneam-today-card__title">1AM — today</h2><div class="inside">';
+		oneam_dashboard_widget();
+		echo '</div></div>';
+	},
+	1
 );
 
 function oneam_dashboard_widget() {
@@ -100,7 +99,10 @@ function oneam_dashboard_widget() {
 		</p>
 	</div>
 	<style>
-		#oneam_today .inside { margin: 0; padding: 12px 14px 14px; }
+		.oneam-today-card { margin: 20px 20px 4px 0; border: 1px solid #c3c4c7; border-radius: 10px; background: #fff; box-shadow: 0 1px 1px rgba(0,0,0,.04); }
+		.oneam-today-card__title { margin: 0; padding: 12px 16px; border-bottom: 1px solid #f0f0f1; font-size: 15px; }
+		#oneam_today .inside { margin: 0; padding: 14px 16px 16px; }
+		.oneam-today__grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)) !important; }
 		.oneam-today__alert { margin: 0 0 12px; padding: 10px 12px; border-left: 4px solid #d63638; background: #fcf0f1; }
 		.oneam-today__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
 		.oneam-today__tile { display: grid; gap: 2px; padding: 14px 14px 12px; border: 1px solid #dcdcde; border-radius: 10px; background: #fff; color: #1d2327; text-decoration: none; transition: border-color .15s, box-shadow .15s; }

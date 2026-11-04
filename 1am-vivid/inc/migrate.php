@@ -379,12 +379,16 @@ add_action(
 		if ( ! $report || ! current_user_can( 'manage_options' ) || ! $screen || ! in_array( $screen->id, array( 'dashboard', 'edit-page' ), true ) ) {
 			return;
 		}
+		$key = md5( wp_json_encode( $report ) );
+		if ( get_user_meta( get_current_user_id(), 'oneam_hide_report', true ) === $key ) {
+			return; // "Got it" 을 누른 뒤에는 다음 업데이트 때까지 숨김
+		}
 		$again = wp_nonce_url( admin_url( 'admin-post.php?action=oneam_compliance_rerun' ), 'oneam_compliance_rerun' );
 		echo '<div class="notice notice-info"><p><strong>1AM compliance update applied.</strong> Previous page text is kept in each page’s Revisions.</p><ul style="list-style:disc;margin-left:20px">';
 		foreach ( (array) $report as $line ) {
 			echo '<li>' . esc_html( $line ) . '</li>';
 		}
-		echo '</ul><p>Values still to confirm with the owner are in <a href="' . esc_url( admin_url( 'customize.php?autofocus[section]=oneam_business' ) ) . '">Customize › 1AM Settings › Business &amp; legal</a>. After changing them, <a href="' . esc_url( $again ) . '">run the update again</a> to refresh the policy pages.</p></div>';
+		echo '</ul><p>Values still to confirm with the owner are in <a href="' . esc_url( admin_url( 'customize.php?autofocus[section]=oneam_business' ) ) . '">Customize › 1AM Settings › Business &amp; legal</a>. After changing them, <a href="' . esc_url( $again ) . '">run the update again</a> to refresh the policy pages. <a class="button button-small" href="' . esc_url( wp_nonce_url( add_query_arg( 'oneam_hide', 'report' ), 'oneam_hide' ) ) . '">Got it</a></p></div>';
 	}
 );
 
@@ -417,9 +421,28 @@ add_action(
 	'admin_notices',
 	function () {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-		if ( $screen && 'dashboard' === $screen->id && current_user_can( 'manage_options' ) ) {
-			echo '<div class="notice notice-success"><p><strong>1AM Vivid theme v' . esc_html( ONEAM_VERSION ) . '</strong> is active. If the site still looks old, clear the cache (GoDaddy: "Flush Cache" in the top admin bar or in Managed WordPress settings) and reload with Cmd/Ctrl + Shift + R.</p></div>';
+		if ( $screen && 'dashboard' === $screen->id && current_user_can( 'manage_options' ) && get_user_meta( get_current_user_id(), 'oneam_hide_version', true ) !== ONEAM_VERSION ) {
+			echo '<div class="notice notice-success"><p><strong>1AM Vivid theme v' . esc_html( ONEAM_VERSION ) . '</strong> is active. If the site still looks old, clear the cache (GoDaddy: "Flush Cache" in the top admin bar or in Managed WordPress settings) and reload with Cmd/Ctrl + Shift + R. <a class="button button-small" href="' . esc_url( wp_nonce_url( add_query_arg( 'oneam_hide', 'version' ), 'oneam_hide' ) ) . '">Got it</a></p></div>';
 		}
 	}
 );
 add_action( 'wp_head', function () { echo "<!-- 1AM Vivid v" . esc_html( ONEAM_VERSION ) . " -->\n"; }, 0 );
+
+// "Got it": 업데이트 안내 · 버전 안내 숨기기 (다음 업데이트 때 다시 보임)
+add_action(
+	'admin_init',
+	function () {
+		if ( empty( $_GET['oneam_hide'] ) || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		check_admin_referer( 'oneam_hide' );
+		$what = sanitize_key( wp_unslash( $_GET['oneam_hide'] ) );
+		if ( 'version' === $what ) {
+			update_user_meta( get_current_user_id(), 'oneam_hide_version', ONEAM_VERSION );
+		} elseif ( 'report' === $what ) {
+			update_user_meta( get_current_user_id(), 'oneam_hide_report', md5( wp_json_encode( get_option( 'oneam_compliance_report' ) ) ) );
+		}
+		wp_safe_redirect( remove_query_arg( array( 'oneam_hide', '_wpnonce' ) ) );
+		exit;
+	}
+);
