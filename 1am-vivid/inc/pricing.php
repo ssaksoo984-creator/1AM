@@ -378,6 +378,12 @@ function oneam_regions_html( $regions, $product = null ) {
 	$pp   = $product ? oneam_province_prices( $product ) : array();
 	$show = $pp && 'approved' === oneam_member_state();
 	$you  = oneam_customer_province();
+	if ( $show && function_exists( 'oneam_tier_price' ) ) {
+		foreach ( $pp as $c => $v ) {
+			$t        = oneam_tier_price( $product, $v ); // 등급 가격 (VIP 등)
+			$pp[ $c ] = null === $t ? $v : $t;
+		}
+	}
 	$pick = $show && is_product(); // 상품 페이지: 눌러서 주(배송지) 선택
 	$out  = '<ul class="pinfo__regions' . ( $pick ? ' is-pick' : '' ) . '" aria-label="Available in"' . ( $pick ? ' data-nonce="' . esc_attr( wp_create_nonce( 'oneam_prov' ) ) . '"' : '' ) . '>';
 	foreach ( $regions as $code ) {

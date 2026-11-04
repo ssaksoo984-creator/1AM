@@ -2080,3 +2080,10 @@ body.oneam-policy .builder-content .elementor-widget-text-editor em { font-famil
 .apply-status__reply textarea { width: 100%; min-height: 110px; padding: 14px 16px; border: 1.5px solid rgba(13, 11, 18, .14); border-radius: 14px; background: #fbf8f2; font: inherit; font-size: 15px; resize: vertical; box-sizing: border-box; }
 .apply-status__reply textarea:focus { outline: none; border-color: #8a3ffc; box-shadow: 0 0 0 4px rgba(138, 63, 252, .15); }
 .apply-status__reply .btn { justify-self: start; border: 0; cursor: pointer; }
+
+/* Retailer tiers (VIP · Gold …) */
+.tier-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 7px; border-radius: 999px; background: color-mix(in srgb, var(--tc, #8A3FFC) 14%, #fff); color: var(--tc, #8A3FFC); font-weight: 700; font-size: 12px; line-height: 1.4; letter-spacing: 0; text-transform: none; vertical-align: middle; white-space: nowrap; }
+.tier-badge .tier-ico { flex: none; }
+.tier-price-note { display: inline-flex; align-items: center; gap: 6px; margin-left: 6px; font-size: 13px; font-weight: 600; color: #555; vertical-align: middle; }
+.price del, .price del .amount { opacity: .55; font-weight: 500; }
+.price ins { text-decoration: none; }

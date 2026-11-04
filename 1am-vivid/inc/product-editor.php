@@ -217,6 +217,42 @@ function oneam_pe_box( $post ) {
 			</table>
 			<template id="pe-pp-tpl"><tr><td><select name="oneam_pe_pp_code[]"><?php foreach ( oneam_provinces() as $c => $l ) : ?><option value="<?php echo esc_attr( $c ); ?>"><?php echo esc_html( $l ); ?></option><?php endforeach; ?></select></td><td><input type="number" step="0.01" min="0" name="oneam_pe_pp_price[]"></td><td class="pe-center"><button type="button" class="pe-del">✕</button></td></tr></template>
 			<button type="button" class="button pe-add-pp">+ Add province price</button>
+			<?php if ( function_exists( 'oneam_tiers' ) ) : ?>
+				<?php
+				$tp    = $product ? oneam_product_tier_prices( $product ) : array();
+				$tiers = oneam_tiers();
+				$topts = function ( $sel ) use ( $tiers ) {
+					$o = '';
+					foreach ( $tiers as $id => $t ) {
+						$o .= '<option value="' . esc_attr( $id ) . '"' . selected( $sel, $id, false ) . '>' . esc_html( $t['name'] . ' (normally −' . (float) $t['discount'] . '%)' ) . '</option>';
+					}
+					return $o;
+				};
+				$trow  = function ( $id, $mode, $val ) use ( $topts ) {
+					return '<tr><td><select name="oneam_pe_tp_tier[]">' . $topts( $id ) . '</select></td><td><select name="oneam_pe_tp_mode[]"><option value="fixed"' . selected( $mode, 'fixed', false ) . '>Fixed price ($)</option><option value="pct"' . selected( $mode, 'pct', false ) . '>Discount (%)</option></select></td><td><input type="number" step="0.01" min="0" name="oneam_pe_tp_value[]" value="' . esc_attr( $val ) . '"></td><td class="pe-center"><button type="button" class="pe-del">✕</button></td></tr>';
+				};
+				?>
+				<h4 class="pe-subhead">Tier prices <small>(optional)</small></h4>
+				<p class="pe-help">Each tier already gets its own discount (<a href="<?php echo esc_url( admin_url( 'users.php?page=oneam-tiers' ) ); ?>" target="_blank">Users → Retailer tiers</a>). Add a row only when this product needs something different for a tier — a fixed price, or another discount. Stores only see their own price.</p>
+				<table class="pe-table pe-tp">
+					<thead><tr><th>Tier</th><th>Type</th><th>Value</th><th></th></tr></thead>
+					<tbody>
+						<?php
+						foreach ( $tp as $id => $r ) {
+							if ( isset( $tiers[ $id ] ) ) {
+								echo $trow( $id, $r['mode'], $r['value'] ); // phpcs:ignore
+							}
+						}
+						?>
+					</tbody>
+				</table>
+				<template id="pe-tp-tpl"><?php echo $trow( '', 'fixed', '' ); // phpcs:ignore ?></template>
+				<?php if ( $tiers ) : ?>
+					<button type="button" class="button pe-add-tp">+ Add tier price</button>
+				<?php else : ?>
+					<p class="pe-help">No tiers yet — add them in Users → Retailer tiers.</p>
+				<?php endif; ?>
+			<?php endif; ?>
 		</section>
 
 		<section class="pe-sec">
@@ -310,6 +346,8 @@ function oneam_pe_box( $post ) {
 		.pe-ghost__base { border-radius: 0 0 3px 3px; background: linear-gradient(90deg, #8d8f93, #d8d9dc 45%, #7c7e82); }
 		
 		.pe-help { margin: 0 0 10px; color: #646970; }
+		.pe-subhead { margin: 22px 0 6px; font-size: 13px; }
+		.pe-subhead small { font-weight: 400; color: #646970; }
 		.pe-scroll { overflow-x: auto; }
 		.pe-table { width: 100%; border-collapse: collapse; margin: 0 0 10px; }
 		.pe-table th { padding: 6px 8px; text-align: left; font-size: 12px; color: #646970; border-bottom: 1px solid #dcdcde; }
@@ -352,6 +390,7 @@ function oneam_pe_box( $post ) {
 			var t = e.target;
 			if (t.closest('.pe-add-flav')) { var r = add('pe-flav-tpl', box.querySelector('.pe-flavs tbody')); r.querySelector('.pe-name').focus(); count(); }
 			if (t.closest('.pe-add-pp')) add('pe-pp-tpl', box.querySelector('.pe-pp tbody'));
+			if (t.closest('.pe-add-tp')) add('pe-tp-tpl', box.querySelector('.pe-tp tbody'));
 			if (t.closest('.pe-add-spec')) add('pe-spec-tpl', box.querySelector('.pe-specs tbody'));
 			if (t.closest('.pe-del')) { var tr = t.closest('tr'); var nm = tr.querySelector('.pe-name'); if (!nm || !nm.value || window.confirm('Remove “' + nm.value + '”? It disappears from the site when you click Update.')) { tr.remove(); count(); } }
 			if (t.closest('.pe-adv')) { e.preventDefault(); document.body.classList.toggle('oneam-pe-adv'); }
@@ -401,6 +440,19 @@ add_action(
 			}
 		}
 		$_POST['_oneam_prices'] = implode( "\n", $lines );
+		// 등급별 예외 가격
+		$tt  = isset( $_POST['oneam_pe_tp_tier'] ) ? array_map( 'sanitize_key', (array) wp_unslash( $_POST['oneam_pe_tp_tier'] ) ) : array();
+		$tm  = isset( $_POST['oneam_pe_tp_mode'] ) ? array_map( 'sanitize_key', (array) wp_unslash( $_POST['oneam_pe_tp_mode'] ) ) : array();
+		$tv  = isset( $_POST['oneam_pe_tp_value'] ) ? (array) wp_unslash( $_POST['oneam_pe_tp_value'] ) : array();
+		$tps = array();
+		foreach ( $tt as $i => $id ) {
+			$v = isset( $tv[ $i ] ) ? (float) $tv[ $i ] : 0;
+			if ( $id && $v > 0 && function_exists( 'oneam_tiers' ) && isset( oneam_tiers()[ $id ] ) ) {
+				$mode       = ( $tm[ $i ] ?? '' ) === 'pct' ? 'pct' : 'fixed';
+				$tps[ $id ] = array( 'mode' => $mode, 'value' => 'pct' === $mode ? min( $v, 90 ) : $v );
+			}
+		}
+		$product->update_meta_data( '_oneam_tier_prices', $tps );
 		$product->update_meta_data( '_oneam_lineup_img', isset( $_POST['_oneam_lineup_img'] ) ? absint( $_POST['_oneam_lineup_img'] ) ?: '' : '' );
 		$product->update_meta_data( '_oneam_hide_home', empty( $_POST['oneam_pe_home'] ) ? 'yes' : '' );
 		$product->update_meta_data( '_oneam_hide_menu', empty( $_POST['oneam_pe_menu'] ) ? 'yes' : '' );

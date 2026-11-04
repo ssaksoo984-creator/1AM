@@ -19,6 +19,9 @@ $oneam_name  = $oneam_user->first_name ?: $oneam_user->display_name;
 	<div class="acct-head__meta">
 		<?php if ( 'approved' === $oneam_state ) : ?>
 			<span class="acct__pill is-ok">Approved retailer</span>
+			<?php if ( function_exists( 'oneam_user_tier' ) && oneam_user_tier() ) : ?>
+				<?php echo oneam_tier_badge( oneam_user_tier(), true ); // phpcs:ignore ?>
+			<?php endif; ?>
 		<?php else : ?>
 			<span class="acct__pill is-wait">Application under review</span>
 		<?php endif; ?>
