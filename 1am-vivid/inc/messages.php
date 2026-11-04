@@ -369,6 +369,7 @@ add_action(
 				'text' => $text,
 			);
 			$order->update_meta_data( '_oneam_replies', array_slice( $replies, -30 ) );
+			$order->update_meta_data( '_oneam_reply_unread', current_time( 'mysql' ) ); // 대시보드 "Customer messages"
 			$order->add_order_note( 'Customer replied: ' . $text, 0, false ); // 관리자 주문 화면 메모에 보임
 			$order->save();
 			oneam_mail(
