@@ -228,36 +228,41 @@ function oneam_pe_box( $post ) {
 					}
 					return $o;
 				};
-				$popts = function ( $sel ) use ( $pp ) {
-					$o = '<option value="*">All provinces</option>';
-					foreach ( oneam_provinces() as $c => $l ) {
-						if ( ! $pp || isset( $pp[ $c ] ) || $sel === $c ) {
-							$o .= '<option value="' . esc_attr( $c ) . '"' . selected( $sel, $c, false ) . '>' . esc_html( $l ) . '</option>';
-						}
+				$plist = $pp ? array_keys( $pp ) : ( function_exists( 'oneam_sales_regions' ) ? oneam_sales_regions() : array() );
+				$trow  = function ( $i, $id, $rules ) use ( $topts, $plist, $pp ) {
+					$all   = $rules['*'] ?? null;
+					$each  = array_diff_key( $rules, array( '*' => 1 ) );
+					$scope = $each ? 'each' : 'all';
+					$first = $all ?: ( $each ? reset( $each ) : null );
+					$mode  = $first['mode'] ?? 'fixed';
+					$n     = 'oneam_pe_tp[' . $i . ']';
+					$h     = '<tr class="tp-row" data-scope="' . $scope . '"><td><select name="' . $n . '[tier]">' . $topts( $id ) . '</select></td>';
+					$h    .= '<td><select class="tp-mode" name="' . $n . '[mode]"><option value="fixed"' . selected( $mode, 'fixed', false ) . '>Fixed price ($)</option><option value="pct"' . selected( $mode, 'pct', false ) . '>Discount (%)</option></select></td>';
+					$h    .= '<td><select class="tp-scope" name="' . $n . '[scope]"><option value="all"' . selected( $scope, 'all', false ) . '>All provinces (one value)</option><option value="each"' . selected( $scope, 'each', false ) . '>By province</option></select></td>';
+					$h    .= '<td><div class="tp-all"><input type="number" step="0.01" min="0" name="' . $n . '[all]" value="' . esc_attr( $all['value'] ?? '' ) . '"></div><div class="tp-each">';
+					foreach ( $plist as $c ) {
+						$h .= '<label><span>' . esc_html( $c ) . '</span><input type="number" step="0.01" min="0" data-prov="' . esc_attr( $c ) . '" name="' . $n . '[prov][' . esc_attr( $c ) . ']" value="' . esc_attr( $each[ $c ]['value'] ?? '' ) . '" placeholder="' . esc_attr( isset( $pp[ $c ] ) ? $pp[ $c ] : '' ) . '"></label>';
 					}
-					return $o;
-				};
-				$trow  = function ( $id, $prov, $mode, $val ) use ( $topts, $popts ) {
-					return '<tr><td><select name="oneam_pe_tp_tier[]">' . $topts( $id ) . '</select></td><td><select name="oneam_pe_tp_prov[]">' . $popts( $prov ) . '</select></td><td><select name="oneam_pe_tp_mode[]"><option value="fixed"' . selected( $mode, 'fixed', false ) . '>Fixed price ($)</option><option value="pct"' . selected( $mode, 'pct', false ) . '>Discount (%)</option></select></td><td><input type="number" step="0.01" min="0" name="oneam_pe_tp_value[]" value="' . esc_attr( $val ) . '"></td><td class="pe-center"><button type="button" class="pe-del">✕</button></td></tr>';
+					$h .= '</div></td><td class="pe-center"><button type="button" class="pe-del">✕</button></td></tr>';
+					return $h;
 				};
 				?>
 				<h4 class="pe-subhead">Tier prices <small>(optional)</small></h4>
-				<p class="pe-help">Tiers with a discount get it on every product automatically; tiers set to 0% only get the prices you add here (<a href="<?php echo esc_url( admin_url( 'users.php?page=oneam-tiers' ) ); ?>" target="_blank">Users → Retailer tiers</a>). Add a row only when this product needs something different for a tier — a fixed price, or another discount. Choose <em>All provinces</em>, or one province for a different price there (a province row wins over <em>All provinces</em>). Stores only see their own price.</p>
-				<table class="pe-table pe-tp">
-					<thead><tr><th>Tier</th><th>Province</th><th>Type</th><th>Value</th><th></th></tr></thead>
+				<p class="pe-help">Tiers with a discount get it on every product automatically; tiers set to 0% only get the prices you add here (<a href="<?php echo esc_url( admin_url( 'users.php?page=oneam-tiers' ) ); ?>" target="_blank">Users → Retailer tiers</a>). Add a tier only when this product needs something different for it. <strong>All provinces</strong> = one value; <strong>By province</strong> = a value for each province (leave a box empty to use the regular price there). Stores only see their own price.</p>
+				<table class="pe-table pe-tp" data-regions="<?php echo esc_attr( wp_json_encode( array_values( $plist ) ) ); ?>">
+					<thead><tr><th>Tier</th><th>Type</th><th>Provinces</th><th>Value</th><th></th></tr></thead>
 					<tbody>
 						<?php
-						foreach ( $tp as $id => $byprov ) {
+						$ti = 0;
+						foreach ( $tp as $id => $rules ) {
 							if ( isset( $tiers[ $id ] ) ) {
-								foreach ( $byprov as $pv => $r ) {
-									echo $trow( $id, $pv, $r['mode'], $r['value'] ); // phpcs:ignore
-								}
+								echo $trow( $ti++, $id, $rules ); // phpcs:ignore
 							}
 						}
 						?>
 					</tbody>
 				</table>
-				<template id="pe-tp-tpl"><?php echo $trow( '', '*', 'fixed', '' ); // phpcs:ignore ?></template>
+				<template id="pe-tp-tpl"><?php echo $trow( '__i__', '', array() ); // phpcs:ignore ?></template>
 				<?php if ( $tiers ) : ?>
 					<button type="button" class="button pe-add-tp">+ Add tier price</button>
 				<?php else : ?>
@@ -358,6 +363,13 @@ function oneam_pe_box( $post ) {
 		
 		.pe-help { margin: 0 0 10px; color: #646970; }
 		.pe-subhead { margin: 22px 0 6px; font-size: 13px; }
+		.pe-tp .tp-row[data-scope=all] .tp-each, .pe-tp .tp-row[data-scope=each] .tp-all { display: none; }
+		.pe-tp select { width: auto !important; min-width: 0; max-width: 100%; }
+		.pe-tp td:nth-child(4) { width: 46%; }
+		.pe-tp .tp-row[data-scope=each] .tp-each { display: flex !important; flex-wrap: wrap; gap: 6px 14px; }
+		.pe-tp .tp-each label { display: inline-flex !important; align-items: center; gap: 6px; margin: 0; }
+		.pe-tp .tp-each span { min-width: 24px; font-weight: 600; }
+		.pe-tp .tp-each input { width: 84px !important; min-width: 0 !important; }
 		.pe-subhead small { font-weight: 400; color: #646970; }
 		.pe-scroll { overflow-x: auto; }
 		.pe-table { width: 100%; border-collapse: collapse; margin: 0 0 10px; }
@@ -401,7 +413,7 @@ function oneam_pe_box( $post ) {
 			var t = e.target;
 			if (t.closest('.pe-add-flav')) { var r = add('pe-flav-tpl', box.querySelector('.pe-flavs tbody')); r.querySelector('.pe-name').focus(); count(); }
 			if (t.closest('.pe-add-pp')) add('pe-pp-tpl', box.querySelector('.pe-pp tbody'));
-			if (t.closest('.pe-add-tp')) add('pe-tp-tpl', box.querySelector('.pe-tp tbody'));
+			if (t.closest('.pe-add-tp')) { var tpr = add('pe-tp-tpl', box.querySelector('.pe-tp tbody')); tpEach(tpr); }
 			if (t.closest('.pe-add-spec')) add('pe-spec-tpl', box.querySelector('.pe-specs tbody'));
 			if (t.closest('.pe-del')) { var tr = t.closest('tr'); var nm = tr.querySelector('.pe-name'); if (!nm || !nm.value || window.confirm('Remove “' + nm.value + '”? It disappears from the site when you click Update.')) { tr.remove(); count(); } }
 			if (t.closest('.pe-adv')) { e.preventDefault(); document.body.classList.toggle('oneam-pe-adv'); }
@@ -419,6 +431,31 @@ function oneam_pe_box( $post ) {
 				frame.open();
 			}
 		});
+		// 등급 가격: "Different by province" 칸을 위 주별 가격 표에 맞춤
+		function tpProvs() {
+			var rows = box.querySelectorAll('.pe-pp tbody tr'), out = [];
+			rows.forEach(function (r) { var c = r.querySelector('select').value, p = r.querySelector('input').value; if (c && !out.some(function (x) { return x[0] === c; })) out.push([c, p]); });
+			if (!out.length) { try { JSON.parse(box.querySelector('.pe-tp').dataset.regions || '[]').forEach(function (c) { out.push([c, '']); }); } catch (e) {} }
+			return out;
+		}
+		function tpEach(row) {
+			var wrap = row.querySelector('.tp-each'), base = row.querySelector('.tp-all input').name.replace('[all]', ''), keep = {};
+			wrap.querySelectorAll('input').forEach(function (i) { keep[i.dataset.prov] = i.value; });
+			wrap.innerHTML = '';
+			tpProvs().forEach(function (x) {
+				var l = document.createElement('label'), sp = document.createElement('span'), inp = document.createElement('input');
+				sp.textContent = x[0]; inp.type = 'number'; inp.step = '0.01'; inp.min = '0'; inp.dataset.prov = x[0];
+				inp.name = base + '[prov][' + x[0] + ']'; inp.value = keep[x[0]] || ''; inp.placeholder = x[1] || ''; inp.title = x[1] ? 'Regular price ' + x[1] : '';
+				l.appendChild(sp); l.appendChild(inp); wrap.appendChild(l);
+			});
+		}
+		function tpAll() { box.querySelectorAll('.pe-tp .tp-row').forEach(tpEach); }
+		box.addEventListener('change', function (e) {
+			var sc = e.target.closest('.tp-scope'); if (sc) sc.closest('tr').dataset.scope = sc.value;
+			if (e.target.closest('.pe-pp')) tpAll();
+		});
+		box.addEventListener('input', function (e) { if (e.target.closest('.pe-pp')) tpAll(); });
+		box.addEventListener('click', function (e) { if (e.target.closest('.pe-pp .pe-del')) setTimeout(tpAll, 0); });
 		var soon = document.getElementById('pe-soon'), look = document.getElementById('pe-soonlook'), gh = document.getElementById('pe-ghost');
 		if (soon && look) soon.addEventListener('change', function () { look.hidden = !soon.checked; });
 		box.addEventListener('change', function (e) {
@@ -452,18 +489,20 @@ add_action(
 		}
 		$_POST['_oneam_prices'] = implode( "\n", $lines );
 		// 등급별 예외 가격
-		$tt  = isset( $_POST['oneam_pe_tp_tier'] ) ? array_map( 'sanitize_key', (array) wp_unslash( $_POST['oneam_pe_tp_tier'] ) ) : array();
-		$tm  = isset( $_POST['oneam_pe_tp_mode'] ) ? array_map( 'sanitize_key', (array) wp_unslash( $_POST['oneam_pe_tp_mode'] ) ) : array();
-		$tv  = isset( $_POST['oneam_pe_tp_value'] ) ? (array) wp_unslash( $_POST['oneam_pe_tp_value'] ) : array();
-		$tpv = isset( $_POST['oneam_pe_tp_prov'] ) ? array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['oneam_pe_tp_prov'] ) ) : array();
 		$tps = array();
-		foreach ( $tt as $i => $id ) {
-			$v = isset( $tv[ $i ] ) ? (float) $tv[ $i ] : 0;
-			if ( $id && $v > 0 && function_exists( 'oneam_tiers' ) && isset( oneam_tiers()[ $id ] ) ) {
-				$mode       = ( $tm[ $i ] ?? '' ) === 'pct' ? 'pct' : 'fixed';
-				$pv         = strtoupper( $tpv[ $i ] ?? '*' );
-				$pv         = isset( oneam_provinces()[ $pv ] ) ? $pv : '*';
-				$tps[ $id ][ $pv ] = array( 'mode' => $mode, 'value' => 'pct' === $mode ? min( $v, 90 ) : $v );
+		foreach ( isset( $_POST['oneam_pe_tp'] ) ? (array) wp_unslash( $_POST['oneam_pe_tp'] ) : array() as $r ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$id = sanitize_key( $r['tier'] ?? '' );
+			if ( ! $id || ! function_exists( 'oneam_tiers' ) || ! isset( oneam_tiers()[ $id ] ) ) {
+				continue;
+			}
+			$mode = 'pct' === ( $r['mode'] ?? '' ) ? 'pct' : 'fixed';
+			$vals = 'each' === ( $r['scope'] ?? '' ) ? (array) ( $r['prov'] ?? array() ) : array( '*' => $r['all'] ?? '' );
+			foreach ( $vals as $pv => $v ) {
+				$pv = '*' === $pv ? '*' : strtoupper( sanitize_key( $pv ) );
+				$v  = (float) $v;
+				if ( $v > 0 && ( '*' === $pv || isset( oneam_provinces()[ $pv ] ) ) ) {
+					$tps[ $id ][ $pv ] = array( 'mode' => $mode, 'value' => 'pct' === $mode ? min( $v, 90 ) : $v );
+				}
 			}
 		}
 		$product->update_meta_data( '_oneam_tier_prices', $tps );

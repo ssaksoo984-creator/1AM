@@ -424,3 +424,24 @@ add_action(
 		echo '<style>.tier-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px 3px 7px;border-radius:999px;background:color-mix(in srgb,var(--tc,#8A3FFC) 14%,#fff);color:var(--tc,#8A3FFC);font-weight:700;font-size:12px;line-height:1.4}</style>';
 	}
 );
+
+// 등급 가격은 "세일"이 아님 → 상품 목록의 SALE 배지 숨김
+add_filter(
+	'woocommerce_sale_flash',
+	function ( $html, $post, $product ) {
+		if ( $product && oneam_user_tier() && null !== oneam_tier_price( $product, $product->get_regular_price() ) ) {
+			return '';
+		}
+		if ( $product && $product->is_type( 'variable' ) && oneam_user_tier() ) {
+			foreach ( $product->get_children() as $vid ) {
+				$v = wc_get_product( $vid );
+				if ( $v && null !== oneam_tier_price( $v, $v->get_regular_price() ) ) {
+					return '';
+				}
+			}
+		}
+		return $html;
+	},
+	10,
+	3
+);
