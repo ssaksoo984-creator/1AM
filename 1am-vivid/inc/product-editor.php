@@ -224,29 +224,40 @@ function oneam_pe_box( $post ) {
 				$topts = function ( $sel ) use ( $tiers ) {
 					$o = '';
 					foreach ( $tiers as $id => $t ) {
-						$o .= '<option value="' . esc_attr( $id ) . '"' . selected( $sel, $id, false ) . '>' . esc_html( $t['name'] . ( oneam_tier_pct_label( $t ) ? ' (normally ' . oneam_tier_pct_label( $t ) . ')' : ' (regular price unless set here)' ) ) . '</option>';
+						$o .= '<option value="' . esc_attr( $id ) . '"' . selected( $sel, $id, false ) . '>' . esc_html( $t['name'] . ( oneam_tier_pct_label( $t ) ? ' (normally ' . oneam_tier_pct_label( $t ) . ')' : '' ) ) . '</option>';
 					}
 					return $o;
 				};
-				$trow  = function ( $id, $mode, $val ) use ( $topts ) {
-					return '<tr><td><select name="oneam_pe_tp_tier[]">' . $topts( $id ) . '</select></td><td><select name="oneam_pe_tp_mode[]"><option value="fixed"' . selected( $mode, 'fixed', false ) . '>Fixed price ($)</option><option value="pct"' . selected( $mode, 'pct', false ) . '>Discount (%)</option></select></td><td><input type="number" step="0.01" min="0" name="oneam_pe_tp_value[]" value="' . esc_attr( $val ) . '"></td><td class="pe-center"><button type="button" class="pe-del">✕</button></td></tr>';
+				$popts = function ( $sel ) use ( $pp ) {
+					$o = '<option value="*">All provinces</option>';
+					foreach ( oneam_provinces() as $c => $l ) {
+						if ( ! $pp || isset( $pp[ $c ] ) || $sel === $c ) {
+							$o .= '<option value="' . esc_attr( $c ) . '"' . selected( $sel, $c, false ) . '>' . esc_html( $l ) . '</option>';
+						}
+					}
+					return $o;
+				};
+				$trow  = function ( $id, $prov, $mode, $val ) use ( $topts, $popts ) {
+					return '<tr><td><select name="oneam_pe_tp_tier[]">' . $topts( $id ) . '</select></td><td><select name="oneam_pe_tp_prov[]">' . $popts( $prov ) . '</select></td><td><select name="oneam_pe_tp_mode[]"><option value="fixed"' . selected( $mode, 'fixed', false ) . '>Fixed price ($)</option><option value="pct"' . selected( $mode, 'pct', false ) . '>Discount (%)</option></select></td><td><input type="number" step="0.01" min="0" name="oneam_pe_tp_value[]" value="' . esc_attr( $val ) . '"></td><td class="pe-center"><button type="button" class="pe-del">✕</button></td></tr>';
 				};
 				?>
 				<h4 class="pe-subhead">Tier prices <small>(optional)</small></h4>
-				<p class="pe-help">Tiers with a discount get it on every product automatically; tiers set to 0% only get the prices you add here (<a href="<?php echo esc_url( admin_url( 'users.php?page=oneam-tiers' ) ); ?>" target="_blank">Users → Retailer tiers</a>). Add a row only when this product needs something different for a tier — a fixed price, or another discount. Stores only see their own price.</p>
+				<p class="pe-help">Tiers with a discount get it on every product automatically; tiers set to 0% only get the prices you add here (<a href="<?php echo esc_url( admin_url( 'users.php?page=oneam-tiers' ) ); ?>" target="_blank">Users → Retailer tiers</a>). Add a row only when this product needs something different for a tier — a fixed price, or another discount. Choose <em>All provinces</em>, or one province for a different price there (a province row wins over <em>All provinces</em>). Stores only see their own price.</p>
 				<table class="pe-table pe-tp">
-					<thead><tr><th>Tier</th><th>Type</th><th>Value</th><th></th></tr></thead>
+					<thead><tr><th>Tier</th><th>Province</th><th>Type</th><th>Value</th><th></th></tr></thead>
 					<tbody>
 						<?php
-						foreach ( $tp as $id => $r ) {
+						foreach ( $tp as $id => $byprov ) {
 							if ( isset( $tiers[ $id ] ) ) {
-								echo $trow( $id, $r['mode'], $r['value'] ); // phpcs:ignore
+								foreach ( $byprov as $pv => $r ) {
+									echo $trow( $id, $pv, $r['mode'], $r['value'] ); // phpcs:ignore
+								}
 							}
 						}
 						?>
 					</tbody>
 				</table>
-				<template id="pe-tp-tpl"><?php echo $trow( '', 'fixed', '' ); // phpcs:ignore ?></template>
+				<template id="pe-tp-tpl"><?php echo $trow( '', '*', 'fixed', '' ); // phpcs:ignore ?></template>
 				<?php if ( $tiers ) : ?>
 					<button type="button" class="button pe-add-tp">+ Add tier price</button>
 				<?php else : ?>
@@ -444,12 +455,15 @@ add_action(
 		$tt  = isset( $_POST['oneam_pe_tp_tier'] ) ? array_map( 'sanitize_key', (array) wp_unslash( $_POST['oneam_pe_tp_tier'] ) ) : array();
 		$tm  = isset( $_POST['oneam_pe_tp_mode'] ) ? array_map( 'sanitize_key', (array) wp_unslash( $_POST['oneam_pe_tp_mode'] ) ) : array();
 		$tv  = isset( $_POST['oneam_pe_tp_value'] ) ? (array) wp_unslash( $_POST['oneam_pe_tp_value'] ) : array();
+		$tpv = isset( $_POST['oneam_pe_tp_prov'] ) ? array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['oneam_pe_tp_prov'] ) ) : array();
 		$tps = array();
 		foreach ( $tt as $i => $id ) {
 			$v = isset( $tv[ $i ] ) ? (float) $tv[ $i ] : 0;
 			if ( $id && $v > 0 && function_exists( 'oneam_tiers' ) && isset( oneam_tiers()[ $id ] ) ) {
 				$mode       = ( $tm[ $i ] ?? '' ) === 'pct' ? 'pct' : 'fixed';
-				$tps[ $id ] = array( 'mode' => $mode, 'value' => 'pct' === $mode ? min( $v, 90 ) : $v );
+				$pv         = strtoupper( $tpv[ $i ] ?? '*' );
+				$pv         = isset( oneam_provinces()[ $pv ] ) ? $pv : '*';
+				$tps[ $id ][ $pv ] = array( 'mode' => $mode, 'value' => 'pct' === $mode ? min( $v, 90 ) : $v );
 			}
 		}
 		$product->update_meta_data( '_oneam_tier_prices', $tps );

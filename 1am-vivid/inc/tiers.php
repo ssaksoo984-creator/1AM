@@ -86,15 +86,25 @@ function oneam_tier_badge( $id, $with_discount = false ) {
  * 가격 계산
  * ------------------------------------------------------------------------- */
 
-/** 상품의 등급 예외: [ tier_id => [ 'mode' => 'fixed'|'pct', 'value' => float ] ] */
+/**
+ * 상품의 등급 예외: [ tier_id => [ '*' | 'BC' … => [ 'mode' => 'fixed'|'pct', 'value' => float ] ] ]
+ * '*' = 모든 주, 'BC' 등 = 그 주만 (주별이 '*' 보다 우선)
+ */
 function oneam_product_tier_prices( $product ) {
 	$parent = $product && $product->is_type( 'variation' ) ? wc_get_product( $product->get_parent_id() ) : $product;
 	$v      = $parent ? $parent->get_meta( '_oneam_tier_prices' ) : array();
-	return is_array( $v ) ? $v : array();
+	$out    = array();
+	foreach ( is_array( $v ) ? $v : array() as $tier => $r ) {
+		if ( ! is_array( $r ) ) {
+			continue;
+		}
+		$out[ $tier ] = isset( $r['mode'] ) ? array( '*' => $r ) : $r; // 예전 형식 (주 구분 없음)
+	}
+	return $out;
 }
 
-/** 지금 손님 등급의 가격 (등급이 없거나 승인 전이면 null) */
-function oneam_tier_price( $product, $base ) {
+/** 지금 손님 등급의 가격 (등급이 없거나 승인 전이면 null). $prov 를 주면 그 주의 가격 */
+function oneam_tier_price( $product, $base, $prov = null ) {
 	if ( '' === $base || null === $base || ! is_numeric( $base ) ) {
 		return null;
 	}
@@ -102,7 +112,9 @@ function oneam_tier_price( $product, $base ) {
 	if ( '' === $tier || 'approved' !== oneam_member_state() ) {
 		return null;
 	}
-	$rule = oneam_product_tier_prices( $product )[ $tier ] ?? null;
+	$prov  = null === $prov ? ( function_exists( 'oneam_customer_province' ) ? oneam_customer_province() : '' ) : $prov;
+	$rules = oneam_product_tier_prices( $product )[ $tier ] ?? array();
+	$rule  = ( $prov && isset( $rules[ $prov ] ) ) ? $rules[ $prov ] : ( $rules['*'] ?? null );
 	if ( $rule && 'fixed' === $rule['mode'] && (float) $rule['value'] > 0 ) {
 		$p = (float) $rule['value'];
 	} else {

@@ -380,7 +380,7 @@ function oneam_regions_html( $regions, $product = null ) {
 	$you  = oneam_customer_province();
 	if ( $show && function_exists( 'oneam_tier_price' ) ) {
 		foreach ( $pp as $c => $v ) {
-			$t        = oneam_tier_price( $product, $v ); // 등급 가격 (VIP 등)
+			$t        = oneam_tier_price( $product, $v, $c ); // 그 주의 등급 가격 (VIP 등)
 			$pp[ $c ] = null === $t ? $v : $t;
 		}
 	}
