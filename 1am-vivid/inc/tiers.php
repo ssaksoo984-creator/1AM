@@ -61,6 +61,12 @@ function oneam_user_tier( $user_id = 0 ) {
 	return isset( oneam_tiers()[ $id ] ) ? $id : '';
 }
 
+/** 할인율 글자: 5 → "−5%", 0 → '' (상품별 가격만 쓰는 등급) */
+function oneam_tier_pct_label( $t ) {
+	$d = (float) ( $t['discount'] ?? 0 );
+	return $d > 0 ? '−' . rtrim( rtrim( number_format( $d, 2, '.', '' ), '0' ), '.' ) . '%' : '';
+}
+
 /** 등급 배지 HTML */
 function oneam_tier_badge( $id, $with_discount = false ) {
 	$t = oneam_tiers()[ $id ] ?? null;
@@ -72,7 +78,7 @@ function oneam_tier_badge( $id, $with_discount = false ) {
 		esc_attr( $t['color'] ),
 		oneam_tier_icon_svg( $t['icon'] ),
 		esc_html( $t['name'] ),
-		$with_discount ? ' · −' . esc_html( rtrim( rtrim( number_format( (float) $t['discount'], 2, '.', '' ), '0' ), '.' ) ) . '%' : ''
+		$with_discount && oneam_tier_pct_label( $t ) ? ' · ' . esc_html( oneam_tier_pct_label( $t ) ) : ''
 	);
 }
 
@@ -170,7 +176,7 @@ add_action(
 		$tier = oneam_user_tier( $order->get_customer_id() );
 		if ( $tier ) {
 			$t = oneam_tiers()[ $tier ];
-			$order->update_meta_data( '_oneam_tier', $t['name'] . ' (−' . (float) $t['discount'] . '%)' );
+			$order->update_meta_data( '_oneam_tier', $t['name'] . ( oneam_tier_pct_label( $t ) ? ' (' . oneam_tier_pct_label( $t ) . ')' : '' ) );
 		}
 	}
 );
@@ -180,7 +186,7 @@ add_action(
 		$tier = oneam_user_tier( $order->get_customer_id() );
 		if ( $tier ) {
 			$t = oneam_tiers()[ $tier ];
-			$order->update_meta_data( '_oneam_tier', $t['name'] . ' (−' . (float) $t['discount'] . '%)' );
+			$order->update_meta_data( '_oneam_tier', $t['name'] . ( oneam_tier_pct_label( $t ) ? ' (' . oneam_tier_pct_label( $t ) . ')' : '' ) );
 		}
 	}
 );
@@ -274,12 +280,12 @@ function oneam_tiers_page() {
 		<?php if ( isset( $_GET['saved'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification ?>
 			<div class="notice notice-success is-dismissible"><p>Tiers saved.</p></div>
 		<?php endif; ?>
-		<p style="max-width:760px">Each tier gets one discount off the regular price (or the province price). Give a store its tier in <strong>Users → the store → 1AM retailer account → Tier</strong>. For an exception on one product, use <strong>1AM product setup → Price → Tier prices</strong>. Stores only see their own price.</p>
+		<p style="max-width:760px">A tier can have a discount on everything (off the regular or province price), or <strong>0%</strong> so it only gets the tier prices you set on each product — every other product stays at the regular price. Give a store its tier in <strong>Users → the store → 1AM retailer account → Tier</strong>. For an exception on one product, use <strong>1AM product setup → Price → Tier prices</strong>. Stores only see their own price.</p>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 			<input type="hidden" name="action" value="oneam_save_tiers">
 			<?php wp_nonce_field( 'oneam_save_tiers' ); ?>
 			<table class="widefat oneam-tiers">
-				<thead><tr><th>Preview</th><th>Name</th><th>Discount</th><th>Icon</th><th>Colour</th><th></th></tr></thead>
+				<thead><tr><th>Preview</th><th>Name</th><th>Discount on everything <small class="tr-zero">(0 = only product tier prices)</small></th><th>Icon</th><th>Colour</th><th></th></tr></thead>
 				<tbody>
 					<tr class="tr-basic"><td><span class="tier-badge tier-badge--basic"><span>Basic</span></span></td><td colspan="5">Stores without a tier pay the regular price.</td></tr>
 					<?php
@@ -310,6 +316,7 @@ function oneam_tiers_page() {
 		.tr-icons span { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid #dcdcde; border-radius: 8px; color: #50575e; }
 		.tr-icons input:checked + span { border-color: #2271b1; background: #f0f6fc; color: #2271b1; box-shadow: 0 0 0 1px #2271b1; }
 		.tr-icons input:focus-visible + span { outline: 2px solid #2271b1; }
+		.tr-zero { color: #646970; font-weight: 400; }
 		.tr-count td { padding-top: 0; color: #646970; font-size: 12px; }
 		.tier-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 7px; border-radius: 999px; background: color-mix(in srgb, var(--tc, #8A3FFC) 14%, #fff); color: var(--tc, #8A3FFC); font-weight: 700; font-size: 12px; line-height: 1.4; }
 		.tier-badge--basic { background: #f0f0f1; color: #50575e; padding-left: 10px; }
@@ -357,7 +364,7 @@ add_action(
 				<select name="oneam_tier" id="oneam_tier">
 					<option value="">Basic (regular price)</option>
 					<?php foreach ( oneam_tiers() as $id => $t ) : ?>
-						<option value="<?php echo esc_attr( $id ); ?>" <?php selected( $cur, $id ); ?>><?php echo esc_html( $t['name'] . ' — ' . (float) $t['discount'] . '% off' ); ?></option>
+						<option value="<?php echo esc_attr( $id ); ?>" <?php selected( $cur, $id ); ?>><?php echo esc_html( $t['name'] . ' — ' . ( oneam_tier_pct_label( $t ) ? oneam_tier_pct_label( $t ) . ' on everything' : 'product tier prices only' ) ); ?></option>
 					<?php endforeach; ?>
 				</select>
 				<a href="<?php echo esc_url( admin_url( 'users.php?page=oneam-tiers' ) ); ?>" style="display:inline-block;margin-top:4px">Manage tiers</a>

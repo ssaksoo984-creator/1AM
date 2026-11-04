@@ -224,7 +224,7 @@ function oneam_pe_box( $post ) {
 				$topts = function ( $sel ) use ( $tiers ) {
 					$o = '';
 					foreach ( $tiers as $id => $t ) {
-						$o .= '<option value="' . esc_attr( $id ) . '"' . selected( $sel, $id, false ) . '>' . esc_html( $t['name'] . ' (normally −' . (float) $t['discount'] . '%)' ) . '</option>';
+						$o .= '<option value="' . esc_attr( $id ) . '"' . selected( $sel, $id, false ) . '>' . esc_html( $t['name'] . ( oneam_tier_pct_label( $t ) ? ' (normally ' . oneam_tier_pct_label( $t ) . ')' : ' (regular price unless set here)' ) ) . '</option>';
 					}
 					return $o;
 				};
@@ -233,7 +233,7 @@ function oneam_pe_box( $post ) {
 				};
 				?>
 				<h4 class="pe-subhead">Tier prices <small>(optional)</small></h4>
-				<p class="pe-help">Each tier already gets its own discount (<a href="<?php echo esc_url( admin_url( 'users.php?page=oneam-tiers' ) ); ?>" target="_blank">Users → Retailer tiers</a>). Add a row only when this product needs something different for a tier — a fixed price, or another discount. Stores only see their own price.</p>
+				<p class="pe-help">Tiers with a discount get it on every product automatically; tiers set to 0% only get the prices you add here (<a href="<?php echo esc_url( admin_url( 'users.php?page=oneam-tiers' ) ); ?>" target="_blank">Users → Retailer tiers</a>). Add a row only when this product needs something different for a tier — a fixed price, or another discount. Stores only see their own price.</p>
 				<table class="pe-table pe-tp">
 					<thead><tr><th>Tier</th><th>Type</th><th>Value</th><th></th></tr></thead>
 					<tbody>
