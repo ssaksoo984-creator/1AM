@@ -53,11 +53,34 @@ class OneAM_Email_Shipped extends WC_Email {
 		$this->restore_locale();
 	}
 
+	/** 직접 배달이면 제목 · 머리말 · 문구를 "곧 직접 배달" 로 */
+	private function in_person() {
+		return function_exists( 'oneam_is_in_person' ) && oneam_is_in_person( $this->object );
+	}
+
+	public function get_subject() {
+		return $this->in_person() ? $this->format_string( 'Your 1AM order #{order_number} is out for delivery' ) : parent::get_subject();
+	}
+
+	public function get_heading() {
+		return $this->in_person() ? 'Your order is on its way' : parent::get_heading();
+	}
+
+	public function get_additional_content() {
+		return $this->in_person() ? 'Thank you for ordering with 1AM.' : parent::get_additional_content();
+	}
+
+	private function intro() {
+		return $this->in_person()
+			? 'Good news — your order #' . $this->object->get_order_number() . ' is on its way. Our team will deliver it to your store in person.'
+			: 'Good news — your order #' . $this->object->get_order_number() . ' has shipped. Please check the delivery status with the tracking number below.';
+	}
+
 	public function get_content_html() {
 		ob_start();
 		do_action( 'woocommerce_email_header', $this->get_heading(), $this );
 		echo '<p>Hi ' . esc_html( $this->object->get_billing_first_name() ?: $this->object->get_billing_company() ) . ',</p>';
-		echo '<p>Good news — your order #' . esc_html( $this->object->get_order_number() ) . ' has shipped. Please check the delivery status with the tracking number below.</p>';
+		echo '<p>' . esc_html( $this->intro() ) . '</p>';
 		do_action( 'woocommerce_email_order_details', $this->object, false, false, $this );
 		do_action( 'woocommerce_email_customer_details', $this->object, false, false, $this );
 		if ( $this->get_additional_content() ) {
@@ -70,8 +93,8 @@ class OneAM_Email_Shipped extends WC_Email {
 	public function get_content_plain() {
 		$t   = oneam_order_tracking( $this->object );
 		$out = $this->get_heading() . "\n\n";
-		$out .= 'Good news — your order #' . $this->object->get_order_number() . " has shipped. Please check the delivery status with the tracking number below.\n\n";
-		if ( $t ) {
+		$out .= $this->intro() . "\n\n";
+		if ( $t && ! $t['in_person'] ) {
 			$out .= $t['carrier'] . ': ' . $t['number'] . "\n" . ( $t['url'] ? $t['url'] . "\n" : '' ) . "\n";
 		}
 		$out .= $this->get_additional_content();

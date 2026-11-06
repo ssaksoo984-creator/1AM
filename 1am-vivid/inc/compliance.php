@@ -417,9 +417,10 @@ function oneam_gst_line() {
 	return $gst ? 'GST/HST Reg. No. ' . $gst : '';
 }
 
+/** 결제 조건 문구 (인보이스 · 주문 메일) — 1AM Settings → Business & legal 에서 수정 */
 function oneam_payment_terms() {
-	$days = (int) oneam_opt( 'oneam_pay_due_days' );
-	return 'Interac e-Transfer due within ' . ( $days ?: 2 ) . ' business days of the order date.';
+	$t = trim( (string) oneam_opt( 'oneam_payment_terms' ) );
+	return '' !== $t ? $t : 'Full payment is required before orders are processed or shipped.';
 }
 
 // 주문에 매장 PST 번호 저장 (블록 · 클래식 결제)
@@ -473,6 +474,24 @@ add_filter(
 		$lines = array_filter( array( oneam_opt( 'oneam_company' ), str_replace( "\n", ', ', trim( (string) oneam_opt( 'oneam_address' ) ) ), oneam_opt( 'oneam_phone' ), oneam_licence_line(), oneam_gst_line() ) );
 		return trim( $text . "\n" . implode( ' · ', $lines ) );
 	}
+);
+
+// 인보이스 상품 줄: 상품명 · 수량 · 가격만 (맛 · 주 · 소비세 스탬프 · 박스당 개수 · SKU · 무게 줄은 빼서 짧게)
+add_filter(
+	'wpo_wcpdf_order_items_data',
+	function ( $items, $order, $type ) {
+		if ( 'invoice' !== $type || ! is_array( $items ) ) {
+			return $items;
+		}
+		foreach ( $items as $k => $item ) {
+			$items[ $k ]['meta']   = '';
+			$items[ $k ]['sku']    = '';
+			$items[ $k ]['weight'] = '';
+		}
+		return $items;
+	},
+	20,
+	3
 );
 
 // PDF Invoices & Packing Slips (WP Overnight) 플러그인을 쓰면 인보이스에 자동 표시

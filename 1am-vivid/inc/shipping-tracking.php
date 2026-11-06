@@ -23,12 +23,26 @@ function oneam_carriers() {
 			'canpar'      => array( 'Canpar', 'https://www.canpar.com/en/tracking/track.htm?barcode={n}' ),
 			'canada-post' => array( 'Canada Post', 'https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={n}' ),
 			'other'       => array( 'Other', '' ),
+			'in-person'   => array( 'In-person delivery', '' ),
 		)
 	);
 }
 
-/** 주문의 택배 정보: [택배사 이름, 운송장 번호, 조회 주소] (없으면 null) */
+/** 직접 배달(운송장 없음)인지 */
+function oneam_is_in_person( $order ) {
+	return $order && 'in-person' === (string) $order->get_meta( '_oneam_carrier' );
+}
+
+/** 주문의 택배 정보: [택배사 이름, 운송장 번호, 조회 주소, 직접 배달 여부] (없으면 null) */
 function oneam_order_tracking( $order ) {
+	if ( oneam_is_in_person( $order ) ) {
+		return array(
+			'carrier'   => 'In-person delivery',
+			'number'    => '',
+			'url'       => '',
+			'in_person' => true,
+		);
+	}
 	$num = $order ? trim( (string) $order->get_meta( '_oneam_tracking' ) ) : '';
 	if ( '' === $num ) {
 		return null;
@@ -38,7 +52,8 @@ function oneam_order_tracking( $order ) {
 	return array(
 		'carrier' => $c[0],
 		'number'  => $num,
-		'url'     => $c[1] ? str_replace( '{n}', rawurlencode( $num ), $c[1] ) : '',
+		'url'       => $c[1] ? str_replace( '{n}', rawurlencode( $num ), $c[1] ) : '',
+		'in_person' => false,
 	);
 }
 
@@ -154,7 +169,7 @@ function oneam_tracking_box( $post_or_order ) {
 			<?php endforeach; ?>
 		</select>
 	</p>
-	<p><label for="oneam_tracking"><strong>Tracking number</strong></label>
+	<p class="oneam-track-num"><label for="oneam_tracking"><strong>Tracking number</strong></label>
 		<input type="text" name="oneam_tracking" id="oneam_tracking" value="<?php echo esc_attr( $order->get_meta( '_oneam_tracking' ) ); ?>" style="width:100%" placeholder="e.g. 329012345678">
 	</p>
 	<?php if ( $t && $t['url'] ) : ?>
@@ -162,15 +177,24 @@ function oneam_tracking_box( $post_or_order ) {
 	<?php endif; ?>
 	<?php if ( $order->has_status( array( 'shipped', 'completed' ) ) && $shipped ) : ?>
 		<p class="description">Shipped on <?php echo esc_html( $shipped ); ?>.<?php echo $order->has_status( 'shipped' ) && $days ? ' Completes automatically ' . (int) $days . ' days after shipping.' : ''; ?></p>
-		<p><button type="submit" class="button" name="oneam_tracking_resend" value="1" style="width:100%">Save &amp; email tracking again</button></p>
+		<p><button type="submit" class="button" name="oneam_tracking_resend" value="1" style="width:100%">Save &amp; email <?php echo oneam_is_in_person( $order ) ? 'delivery notice' : 'tracking'; ?> again</button></p>
+		<?php if ( oneam_is_in_person( $order ) && $order->has_status( 'shipped' ) ) : ?>
+			<p><button type="submit" class="button button-primary" name="oneam_mark_delivered" value="1" style="width:100%">Delivered — mark as completed</button></p>
+		<?php endif; ?>
 	<?php else : ?>
-		<p><button type="submit" class="button button-primary" name="oneam_mark_shipped" value="1" style="width:100%">Mark as shipped &amp; email customer</button></p>
-		<p class="description">Changes the status to <strong>Shipped</strong> and emails the customer the tracking number and link.<?php echo $days ? ' The order completes automatically ' . (int) $days . ' days later (completed email + invoice).' : ''; ?></p>
+		<p><button type="submit" class="button button-primary" name="oneam_mark_shipped" value="1" style="width:100%"><span class="oneam-lbl-ship">Mark as shipped &amp; email customer</span><span class="oneam-lbl-person">Mark as out for delivery &amp; email customer</span></button></p>
+		<p class="oneam-track-person"><button type="submit" class="button" name="oneam_mark_delivered" value="1" style="width:100%">Delivered — mark as completed</button></p>
+		<p class="description oneam-lbl-ship">Changes the status to <strong>Shipped</strong> and emails the customer the tracking number and link.<?php echo $days ? ' The order completes automatically ' . (int) $days . ' days later (completed email + invoice).' : ''; ?></p>
+		<p class="description oneam-lbl-person">No tracking number needed. <strong>Out for delivery</strong> = status Shipped, the customer gets an email that you will deliver in person<?php echo $days ? ' (completes automatically ' . (int) $days . ' days later)' : ''; ?>. <strong>Delivered</strong> = status Completed right away (completed email + invoice).</p>
 	<?php endif; ?>
+	<style>#oneam-tracking .oneam-lbl-person,#oneam-tracking .oneam-track-person{display:none}#oneam-tracking.is-person .oneam-lbl-ship,#oneam-tracking.is-person .oneam-track-num{display:none}#oneam-tracking.is-person .oneam-lbl-person{display:inline}#oneam-tracking.is-person p.oneam-lbl-person,#oneam-tracking.is-person .oneam-track-person{display:block}</style>
 	</div>
 	<script>
 	document.addEventListener('DOMContentLoaded', function () {
 		// 상태를 "Payment confirmed" 나 "Shipped" 로 고르면 바로 보이게 (상태 칸은 이 칸보다 나중에 그려지므로 페이지가 다 뜬 뒤)
+		var car = document.getElementById('oneam_carrier'), wrap = document.getElementById('oneam-tracking');
+		function person() { if (car && wrap) wrap.classList.toggle('is-person', car.value === 'in-person'); }
+		if (car) { car.addEventListener('change', person); person(); }
 		var sel = document.getElementById('order_status');
 		var box = document.querySelector('#oneam-tracking .oneam-track-form'), wait = document.querySelector('#oneam-tracking .oneam-track-wait');
 		if (!sel || !box || !wait) return;
@@ -200,14 +224,19 @@ add_action(
 		$order->update_meta_data( '_oneam_carrier', array_key_exists( $carrier, oneam_carriers() ) ? $carrier : 'other' );
 		$order->update_meta_data( '_oneam_tracking', $num );
 		$order->save_meta_data();
-		// 상태 목록에서 "Shipped" 를 골랐는데 운송장 번호가 없으면 상태는 그대로
-		if ( isset( $_POST['order_status'] ) && 'wc-shipped' === $_POST['order_status'] && '' === $num && ! $order->has_status( 'shipped' ) ) {
+		$person = 'in-person' === $carrier;
+		// 상태 목록에서 "Shipped" 를 골랐는데 운송장 번호가 없으면 상태는 그대로 (직접 배달은 번호 없이 가능)
+		if ( isset( $_POST['order_status'] ) && 'wc-shipped' === $_POST['order_status'] && '' === $num && ! $person && ! $order->has_status( 'shipped' ) ) {
 			$_POST['order_status'] = 'wc-' . $order->get_status();
-			WC_Admin_Meta_Boxes::add_error( 'Enter the tracking number before marking the order as shipped.' );
+			WC_Admin_Meta_Boxes::add_error( 'Enter the tracking number before marking the order as shipped (or choose In-person delivery).' );
 		}
 		// [Mark as shipped] 버튼: WooCommerce 가 상태를 저장할 때 Shipped 로 (같은 저장에서 한 번만 메일)
-		if ( ! empty( $_POST['oneam_mark_shipped'] ) && '' !== $num ) {
+		if ( ! empty( $_POST['oneam_mark_shipped'] ) && ( '' !== $num || $person ) ) {
 			$_POST['order_status'] = 'wc-shipped';
+		}
+		// [Delivered] 버튼 (직접 배달): 바로 Completed
+		if ( ! empty( $_POST['oneam_mark_delivered'] ) && $person ) {
+			$_POST['order_status'] = 'wc-completed';
 		}
 	},
 	5
@@ -227,18 +256,24 @@ add_action(
 		$order->update_meta_data( '_oneam_carrier', array_key_exists( $carrier, oneam_carriers() ) ? $carrier : 'other' );
 		$order->update_meta_data( '_oneam_tracking', $num );
 		$order->save();
-		if ( ! empty( $_POST['oneam_mark_shipped'] ) ) {
-			if ( '' === $num ) {
-				WC_Admin_Meta_Boxes::add_error( 'Enter the tracking number before marking the order as shipped.' );
+		$person = 'in-person' === $carrier;
+		if ( ! empty( $_POST['oneam_mark_delivered'] ) && $person ) {
+			if ( ! $order->has_status( 'completed' ) ) {
+				$order->update_status( 'completed' );
+			}
+			$order->add_order_note( 'Delivered in person.' );
+		} elseif ( ! empty( $_POST['oneam_mark_shipped'] ) ) {
+			if ( '' === $num && ! $person ) {
+				WC_Admin_Meta_Boxes::add_error( 'Enter the tracking number before marking the order as shipped (or choose In-person delivery).' );
 				return;
 			}
 			if ( ! $order->has_status( 'shipped' ) ) {
 				$order->update_status( 'shipped' );
 			}
-			$order->add_order_note( 'Shipped with ' . ( oneam_carriers()[ $carrier ][0] ?? 'carrier' ) . ' ' . $num . '.' );
-		} elseif ( ! empty( $_POST['oneam_tracking_resend'] ) && '' !== $num ) {
+			$order->add_order_note( $person ? 'Out for in-person delivery.' : 'Shipped with ' . ( oneam_carriers()[ $carrier ][0] ?? 'carrier' ) . ' ' . $num . '.' );
+		} elseif ( ! empty( $_POST['oneam_tracking_resend'] ) && ( '' !== $num || $person ) ) {
 			do_action( 'oneam_send_shipped_email', $order_id, $order );
-			$order->add_order_note( 'Tracking email sent again: ' . $num );
+			$order->add_order_note( $person ? 'Delivery email sent again (in person).' : 'Tracking email sent again: ' . $num );
 		}
 	},
 	70
@@ -373,6 +408,15 @@ add_action(
 		if ( ! $t || ! $order->has_status( array( 'shipped', 'completed' ) ) ) {
 			return;
 		}
+		if ( $t['in_person'] ) {
+			$msg = $order->has_status( 'completed' ) ? 'Delivered in person by the 1AM team.' : 'Our team will deliver this order to your store in person. No tracking number is needed.';
+			if ( $plain ) {
+				echo "\nDELIVERY\n" . $msg . "\n\n"; // phpcs:ignore
+				return;
+			}
+			echo '<div style="margin:0 0 24px;padding:16px 18px;border:1px solid #e5e5e5;border-radius:10px"><p style="margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#666">Delivery</p><p style="margin:0;font-size:16px"><strong>In-person delivery</strong> · ' . esc_html( $msg ) . '</p></div>';
+			return;
+		}
 		if ( $plain ) {
 			echo "\nTRACKING\n{$t['carrier']}: {$t['number']}\n" . ( $t['url'] ? $t['url'] . "\n" : '' ) . "\n"; // phpcs:ignore
 			return;
@@ -397,6 +441,10 @@ add_action(
 	function ( $order ) {
 		$t = oneam_order_tracking( $order );
 		if ( ! $t || ! $order->has_status( array( 'shipped', 'completed' ) ) ) {
+			return;
+		}
+		if ( $t['in_person'] ) {
+			echo '<div class="order-track"><span class="order-track__label">Delivery</span><strong>' . ( $order->has_status( 'completed' ) ? 'Delivered in person' : 'In-person delivery by our team' ) . '</strong></div>';
 			return;
 		}
 		echo '<div class="order-track"><span class="order-track__label">Shipped with ' . esc_html( $t['carrier'] ) . '</span><strong>' . esc_html( $t['number'] ) . '</strong>';
