@@ -104,12 +104,13 @@ function oneam_product_tier_prices( $product ) {
 }
 
 /** 지금 손님 등급의 가격 (등급이 없거나 승인 전이면 null). $prov 를 주면 그 주의 가격 */
-function oneam_tier_price( $product, $base, $prov = null ) {
+function oneam_tier_price( $product, $base, $prov = null, $user_id = 0 ) {
 	if ( '' === $base || null === $base || ! is_numeric( $base ) ) {
 		return null;
 	}
-	$tier = oneam_user_tier();
-	if ( '' === $tier || 'approved' !== oneam_member_state() ) {
+	$tier = oneam_user_tier( $user_id );
+	$ok   = $user_id ? 'approved' === get_user_meta( $user_id, 'oneam_wholesale_status', true ) : 'approved' === oneam_member_state();
+	if ( '' === $tier || ! $ok ) {
 		return null;
 	}
 	$prov  = null === $prov ? ( function_exists( 'oneam_customer_province' ) ? oneam_customer_province() : '' ) : $prov;
@@ -444,4 +445,46 @@ add_filter(
 	},
 	10,
 	3
+);
+
+/**
+ * 관리자가 주문을 직접 만들 때 (Orders → Add order → Add product):
+ * 그 주문 고객의 주 가격 · 등급 가격으로 넣기 (관리자 본인 기준 가격이 들어가지 않게).
+ * 고객을 먼저 고르고 [Create] 로 저장한 다음 상품을 추가해야 적용됩니다.
+ */
+add_filter(
+	'woocommerce_ajax_order_item',
+	function ( $item, $item_id, $order, $product ) {
+		if ( ! $item instanceof WC_Order_Item_Product || ! $order || ! $product ) {
+			return $item;
+		}
+		$uid  = (int) $order->get_customer_id();
+		$prov = strtoupper( (string) ( $order->get_shipping_state() ?: $order->get_billing_state() ) );
+		if ( ! $prov && $uid ) {
+			$prov = strtoupper( (string) get_user_meta( $uid, 'oneam_province', true ) );
+		}
+		$pp   = function_exists( 'oneam_province_prices' ) ? oneam_province_prices( $product ) : array();
+		$base = $pp ? ( $pp[ $prov ] ?? null ) : $product->get_regular_price( 'edit' );
+		if ( null === $base || '' === $base ) {
+			return $item; // 이 주에서 파는 가격이 없음 → 그대로 (관리자가 직접 수정)
+		}
+		$unit = $uid ? oneam_tier_price( $product, $base, $prov, $uid ) : null;
+		$unit = null === $unit ? (float) $base : (float) $unit;
+		$qty  = max( 1, (float) $item->get_quantity() );
+		$item->set_subtotal( wc_format_decimal( $unit * $qty ) );
+		$item->set_total( wc_format_decimal( $unit * $qty ) );
+		if ( $pp && $prov ) {
+			$item->update_meta_data( 'Province / excise stamp', $prov );
+			if ( function_exists( 'oneam_stamp_label' ) ) {
+				$item->update_meta_data( 'Excise stamp', oneam_stamp_label( $prov ) );
+			}
+		}
+		if ( function_exists( 'oneam_pack_count' ) && oneam_pack_count( $product ) ) {
+			$item->update_meta_data( 'Pieces per carton', oneam_pack_count( $product ) );
+		}
+		$item->save();
+		return $item;
+	},
+	10,
+	4
 );

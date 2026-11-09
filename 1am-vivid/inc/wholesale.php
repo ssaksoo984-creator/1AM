@@ -74,6 +74,32 @@ function oneam_mail( $to, $subject, $body ) {
 	return wp_mail( $to, $subject, $body . $sign, $head );
 }
 
+/**
+ * 가입 관련 고객 메일 (1AM Settings → Account emails 에서 수정): [제목, 본문]
+ * {name} {business} {provinces} {login_url} {signup_url} {terms_url} {message}
+ */
+function oneam_account_mail( $key, $vars ) {
+	$d    = oneam_defaults();
+	$subj = trim( (string) oneam_opt( 'oneam_mail_' . $key . '_subject' ) ) ?: $d[ 'oneam_mail_' . $key . '_subject' ];
+	$body = trim( (string) oneam_opt( 'oneam_mail_' . $key . '_body' ) ) ?: $d[ 'oneam_mail_' . $key . '_body' ];
+	$vars += array(
+		'name'       => '',
+		'business'   => '',
+		'message'    => '',
+		'provinces'  => oneam_regions_phrase(),
+		'login_url'  => oneam_login_url(),
+		'signup_url' => oneam_signup_url(),
+		'terms_url'  => home_url( '/terms/#vape-compliance' ),
+	);
+	$map = array();
+	foreach ( $vars as $k => $v ) {
+		$map[ '{' . $k . '}' ] = (string) $v;
+	}
+	$body = strtr( str_replace( "\r\n", "\n", $body ), $map );
+	$body = trim( preg_replace( "/\n[ \t]*\n(?:[ \t]*\n)+/", "\n\n", $body ) ); // {message} 가 비면 빈 줄 정리
+	return array( strtr( $subj, $map ), $body );
+}
+
 /** 새 신청 알림 받을 주소: 영업 메일 + 사이트 관리자 메일 */
 function oneam_staff_emails() {
 	return array_values( array_unique( array_filter( array( oneam_opt( 'oneam_email' ), get_option( 'admin_email' ) ), 'is_email' ) ) );
@@ -244,11 +270,8 @@ add_action(
 			'[1AM] New retailer application: ' . $data['oneam_business_name'],
 			"A new retail account application is waiting for verification.\n\nBusiness: {$data['oneam_business_name']}\nBusiness number: " . ( $data['oneam_business_number'] ?: '— (not provided yet; required at first checkout)' ) . "\nStore: {$data['oneam_store_address']}, {$data['oneam_city']}, {$data['oneam_province']} {$data['oneam_postcode']}\nPST number: " . ( $data['oneam_pst_number'] ?: '—' ) . "\nContact: {$data['oneam_contact_name']}\nEmail: {$email}\nPhone: {$data['oneam_phone']}\n\nReview the store and approve or reject here:\n{$admin_url}"
 		);
-		oneam_mail(
-			$email,
-			'We received your 1AM retail account application',
-			"Hi {$data['oneam_contact_name']},\n\nThank you for applying for a 1AM retail account. 1AM products are sold exclusively to verified and approved vape retailers in " . oneam_regions_phrase() . ".\n\nOur team will review your business information, usually within 1–2 business days. We may contact you if additional documentation is needed. You will receive an email as soon as your account is approved.\n\nQuestions? Just reply to this email."
-		);
+		$m = oneam_account_mail( 'received', array( 'name' => $data['oneam_contact_name'], 'business' => $data['oneam_business_name'] ) );
+		oneam_mail( $email, $m[0], $m[1] );
 
 		// 바로 로그인 → 승인 대기 안내
 		wp_set_current_user( $user_id );
@@ -778,25 +801,10 @@ function oneam_set_wholesale_status( $user_id, $status, $message = '', $send = t
 		return;
 	}
 	$name = get_user_meta( $user_id, 'oneam_contact_name', true ) ?: $user->display_name;
-	$note = '' !== $message ? "\n\n" . $message : '';
-	if ( 'approved' === $status ) {
-		oneam_mail(
-			$user->user_email,
-			'Your 1AM retail account is approved',
-			"Hi {$name},\n\nGood news — your business has been verified and your 1AM retail account is approved. Log in to view wholesale pricing and place your first order:\n" . oneam_login_url() . $note . "\n\nAll products carry the correct excise stamp for their intended province of sale: choose the province where the products will be sold on the product page or at checkout. Your Business Number (BN) is required at checkout.\n\nOrders are subject to our Terms & Conditions, including Vaping Product Compliance:\n" . home_url( '/terms/#vape-compliance' ) . "\n\nWelcome aboard."
-		);
-	} elseif ( 'rejected' === $status ) {
-		oneam_mail(
-			$user->user_email,
-			'Your 1AM retail account application',
-			"Hi {$name},\n\nThank you for your interest in 1AM. Unfortunately we are unable to approve your retail account at this time." . ( '' !== $message ? "\n\nReason: " . $message : '' ) . "\n\n1AM products are sold only to verified, authorized vape retailers. If you believe this is a mistake or can provide more information, please reply to this email."
-		);
-	} elseif ( 'info' === $status ) {
-		oneam_mail(
-			$user->user_email,
-			'We need a little more information for your 1AM application',
-			"Hi {$name},\n\nThanks for applying for a 1AM retail account. To finish reviewing your application, we need the following:" . $note . "\n\nYou can reply to this email, or log in and answer here:\n" . oneam_signup_url() . "\n\nThank you."
-		);
+	if ( in_array( $status, array( 'approved', 'rejected', 'info' ), true ) ) {
+		$msg = 'rejected' === $status && '' !== $message ? 'Reason: ' . $message : $message;
+		$m   = oneam_account_mail( $status, array( 'name' => $name, 'business' => get_user_meta( $user_id, 'oneam_business_name', true ), 'message' => $msg ) );
+		oneam_mail( $user->user_email, $m[0], $m[1] );
 	}
 }
 

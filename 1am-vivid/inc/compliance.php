@@ -476,11 +476,11 @@ add_filter(
 	}
 );
 
-// 인보이스 상품 줄: 상품명 · 수량 · 가격만 (맛 · 주 · 소비세 스탬프 · 박스당 개수 · SKU · 무게 줄은 빼서 짧게)
+// 인보이스 · 패킹 슬립 상품 줄: 상품명 · 수량 · 가격만 (맛 · 주 · 소비세 스탬프 · 박스당 개수 · SKU · 무게 줄은 빼서 짧게)
 add_filter(
 	'wpo_wcpdf_order_items_data',
 	function ( $items, $order, $type ) {
-		if ( 'invoice' !== $type || ! is_array( $items ) ) {
+		if ( ! in_array( $type, array( 'invoice', 'packing-slip' ), true ) || ! is_array( $items ) ) {
 			return $items;
 		}
 		foreach ( $items as $k => $item ) {
@@ -538,7 +538,7 @@ function oneam_setup_invoices() {
 	$inv                                                   = (array) get_option( 'wpo_wcpdf_documents_settings_invoice', array() );
 	$inv['enabled']                                        = 1;
 	$inv['my_account_buttons']                             = 'custom';
-	$inv['my_account_restrict']                            = array( 'shipped' => 1, 'completed' => 1 );
+	$inv['my_account_restrict']                            = array( 'processing' => 1, 'shipped' => 1, 'completed' => 1 );
 	$inv['attach_to_email_ids']                            = (array) ( $inv['attach_to_email_ids'] ?? array() );
 	$inv['attach_to_email_ids']['customer_completed_order'] = 1;
 	$inv['display_number']                                 = $inv['display_number'] ?? 'invoice_number';
@@ -549,16 +549,33 @@ function oneam_setup_invoices() {
 		$gen['shop_name'] = array( 'default' => oneam_opt( 'oneam_company' ) );
 		update_option( 'wpo_wcpdf_settings_general', $gen );
 	}
-	update_option( 'oneam_invoice_setup', 2 ); // 2 = 발송(Shipped) 주문도 인보이스 다운로드
+	update_option( 'oneam_invoice_setup', 3 ); // 3 = 결제 확인(Processing) 후부터 인보이스 다운로드
 	return true;
 }
 add_action(
 	'admin_init',
 	function () {
-		if ( (int) get_option( 'oneam_invoice_setup' ) < 2 && current_user_can( 'manage_options' ) ) {
+		if ( (int) get_option( 'oneam_invoice_setup' ) < 3 && current_user_can( 'manage_options' ) ) {
 			oneam_setup_invoices();
 		}
 	}
+);
+
+// 고객 주문 보기 화면: 결제 확인 후 "Download invoice (PDF)" 버튼 (주문 목록의 Invoice 버튼과 같은 파일)
+add_action(
+	'woocommerce_order_details_before_order_table',
+	function ( $order ) {
+		if ( ! $order || ! function_exists( 'WPO_WCPDF' ) || ! function_exists( 'wcpdf_get_document' ) || ! $order->has_status( array( 'processing', 'shipped', 'completed' ) ) ) {
+			return;
+		}
+		$doc = wcpdf_get_document( 'invoice', $order );
+		if ( ! $doc || ! $doc->is_enabled() || ! is_callable( array( WPO_WCPDF()->endpoint, 'get_document_link' ) ) ) {
+			return;
+		}
+		$url = WPO_WCPDF()->endpoint->get_document_link( $order, 'invoice', array( 'my-account' => 'true' ) );
+		echo '<p class="order-invoice"><a class="btn btn--ghost btn--sm" href="' . esc_url( $url ) . '" target="_blank" rel="noopener"><span>Download invoice (PDF)</span></a> <small>Open or save the PDF, then print it.</small></p>';
+	},
+	5
 );
 
 /**

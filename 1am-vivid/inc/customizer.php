@@ -63,6 +63,14 @@ function oneam_defaults() {
 		'oneam_shipping_rates'  => 'Free ground shipping on orders of $1,000 CAD or more before tax.',
 		'oneam_pay_due_days'    => '2',
 		'oneam_payment_terms'   => 'Full payment is required before orders are processed or shipped.',
+		'oneam_mail_received_subject' => 'We received your 1AM retail account application',
+		'oneam_mail_received_body'    => "Hi {name},\n\nThank you for applying for a 1AM retail account. 1AM products are sold exclusively to verified and approved vape retailers in {provinces}.\n\nOur team will review your business information, usually within 1–2 business days. We may contact you if additional documentation is needed. You will receive an email as soon as your account is approved.\n\nQuestions? Just reply to this email.",
+		'oneam_mail_approved_subject' => 'Your 1AM retail account is approved',
+		'oneam_mail_approved_body'    => "Hi {name},\n\nGood news — your business has been verified and your 1AM retail account is approved. Log in to view wholesale pricing and place your first order:\n{login_url}\n\n{message}\n\nAll products carry the correct excise stamp for their intended province of sale: choose the province where the products will be sold on the product page or at checkout. Your Business Number (BN) is required at checkout.\n\nOrders are subject to our Terms & Conditions, including Vaping Product Compliance:\n{terms_url}\n\nWelcome aboard.",
+		'oneam_mail_info_subject'     => 'We need a little more information for your 1AM application',
+		'oneam_mail_info_body'        => "Hi {name},\n\nThanks for applying for a 1AM retail account. To finish reviewing your application, we need the following:\n\n{message}\n\nYou can reply to this email, or log in and answer here:\n{signup_url}\n\nThank you.",
+		'oneam_mail_rejected_subject' => 'Your 1AM retail account application',
+		'oneam_mail_rejected_body'    => "Hi {name},\n\nThank you for your interest in 1AM. Unfortunately we are unable to approve your retail account at this time.\n\n{message}\n\n1AM products are sold only to verified, authorized vape retailers. If you believe this is a mistake or can provide more information, please reply to this email.",
 		'oneam_claim_days'      => '3',
 		'oneam_defect_days'     => '30',
 		'oneam_risk_transfer'   => 'Risk of loss passes to you when the order is delivered to your store.',
@@ -141,6 +149,16 @@ add_action(
 				'oneam_autocomplete_days' => array( 'Complete shipped orders automatically after (days; 0 = never)', 'text' ),
 				'oneam_private_emails'  => array( 'Internal emails — never shown on the site; replaced with the contact email (one per line)', 'textarea' ),
 			) ),
+			'oneam_account_mails' => array( 'Account emails (retailer applications)', array(
+				'oneam_mail_received_subject' => array( '① Application received — subject', 'text' ),
+				'oneam_mail_received_body'    => array( '① Application received — text', 'textarea' ),
+				'oneam_mail_approved_subject' => array( '② Account approved — subject', 'text' ),
+				'oneam_mail_approved_body'    => array( '② Account approved — text', 'textarea' ),
+				'oneam_mail_info_subject'     => array( '③ More information needed — subject', 'text' ),
+				'oneam_mail_info_body'        => array( '③ More information needed — text', 'textarea' ),
+				'oneam_mail_rejected_subject' => array( '④ Not approved — subject', 'text' ),
+				'oneam_mail_rejected_body'    => array( '④ Not approved — text', 'textarea' ),
+			), 'Emails sent to retailers about their account. Words in {braces} are filled in automatically: {name} contact name · {business} business name · {provinces} sales provinces · {login_url} login link · {signup_url} application status page · {terms_url} Terms link · {message} the note you write on the user card when you change the status (left out if empty). The company signature is added below automatically.' ),
 			'oneam_checkout' => array( 'Checkout confirmation', array(
 				'oneam_etransfer'     => array( 'Interac e-Transfer email (customers send payment here)', 'text' ),
 				'oneam_confirm_title' => array( 'Required confirmation — title', 'text' ),
@@ -200,7 +218,7 @@ add_action(
 		$d = oneam_defaults();
 		$p = 10;
 		foreach ( $sections as $sid => $sec ) {
-			$wp_customize->add_section( $sid, array( 'title' => $sec[0], 'panel' => 'oneam', 'priority' => $p++ ) );
+			$wp_customize->add_section( $sid, array( 'title' => $sec[0], 'panel' => 'oneam', 'priority' => $p++, 'description' => $sec[2] ?? '' ) );
 			foreach ( $sec[1] as $key => $ctl ) {
 				$sanitize = in_array( $ctl[1], array( 'upload', 'url' ), true ) ? 'esc_url_raw' : ( 'color' === $ctl[1] ? 'sanitize_hex_color' : 'sanitize_textarea_field' );
 				$wp_customize->add_setting( $key, array( 'default' => $d[ $key ], 'sanitize_callback' => $sanitize ) );
