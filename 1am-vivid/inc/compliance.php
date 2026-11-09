@@ -476,16 +476,39 @@ add_filter(
 	}
 );
 
-// 인보이스 · 패킹 슬립 상품 줄: 상품명 · 수량 · 가격만 (맛 · 주 · 소비세 스탬프 · 박스당 개수 · SKU · 무게 줄은 빼서 짧게)
+/**
+ * 인보이스 · 패킹 슬립 상품 아래 줄 — 1AM Settings → Invoice & packing slip 에서 체크한 줄만 보임 (기본: 모두 숨김)
+ * 줄 종류: flavour(맛 · 옵션) · province(주) · stamp(소비세 스탬프) · pack(박스당 개수) · sku
+ */
+function oneam_doc_line_kind( $key ) {
+	$map = array(
+		'Province / excise stamp' => 'province',
+		'Excise stamp'            => 'stamp',
+		'Pieces per carton'       => 'pack',
+	);
+	return $map[ $key ] ?? 'flavour';
+}
+function oneam_doc_show( $type, $kind ) {
+	return (bool) oneam_opt( 'oneam_doc_' . ( 'invoice' === $type ? 'inv' : 'ps' ) . '_' . $kind );
+}
 add_filter(
 	'wpo_wcpdf_order_items_data',
 	function ( $items, $order, $type ) {
 		if ( ! in_array( $type, array( 'invoice', 'packing-slip' ), true ) || ! is_array( $items ) ) {
 			return $items;
 		}
-		foreach ( $items as $k => $item ) {
-			$items[ $k ]['meta']   = '';
-			$items[ $k ]['sku']    = '';
+		foreach ( $items as $k => $data ) {
+			$lis  = '';
+			$item = $data['item'] ?? null;
+			if ( $item instanceof WC_Order_Item_Product ) {
+				foreach ( $item->get_formatted_meta_data( '_', true ) as $m ) {
+					if ( oneam_doc_show( $type, oneam_doc_line_kind( $m->key ) ) ) {
+						$lis .= '<li><strong class="wc-item-meta-label">' . esc_html( wp_strip_all_tags( $m->display_key ) ) . ':</strong> ' . esc_html( wp_strip_all_tags( $m->display_value ) ) . '</li>';
+					}
+				}
+			}
+			$items[ $k ]['meta']   = $lis ? '<ul class="wc-item-meta">' . $lis . '</ul>' : '';
+			$items[ $k ]['sku']    = oneam_doc_show( $type, 'sku' ) ? ( $data['sku'] ?? '' ) : '';
 			$items[ $k ]['weight'] = '';
 		}
 		return $items;
