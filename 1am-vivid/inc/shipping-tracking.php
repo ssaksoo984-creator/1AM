@@ -141,7 +141,7 @@ add_action(
 	'add_meta_boxes',
 	function () {
 		$screen = function_exists( 'wc_get_page_screen_id' ) ? wc_get_page_screen_id( 'shop-order' ) : 'shop_order';
-		add_meta_box( 'oneam-tracking', 'Shipping & tracking', 'oneam_tracking_box', $screen, 'side', 'high' );
+		add_meta_box( 'oneam-tracking', 'Tracking number (after payment)', 'oneam_tracking_box', $screen, 'side', 'high' );
 	},
 	5
 );
@@ -153,7 +153,7 @@ function oneam_tracking_box( $post_or_order ) {
 	}
 	$ready = $order->has_status( array( 'processing', 'shipped', 'completed' ) );
 	?>
-	<p class="oneam-track-wait"<?php echo $ready ? ' hidden' : ''; ?>>Available after payment is confirmed: change the status to <strong>Payment confirmed · Preparing shipment</strong> and click Update.</p>
+	<p class="oneam-track-wait"<?php echo $ready ? ' hidden' : ''; ?>>The tracking number is entered after payment is confirmed: change the status to <strong>Payment confirmed · Preparing shipment</strong> and click Update.<br><br><em>To charge a shipping fee</em>, use <strong>Add item(s) → Add shipping</strong> in the Items box (under the order details) — that works before payment.</p>
 	<div class="oneam-track-form"<?php echo $ready ? '' : ' hidden'; ?>>
 	<?php
 	$t       = oneam_order_tracking( $order );
