@@ -63,6 +63,7 @@ function oneam_defaults() {
 		'oneam_shipping_rates'  => 'Free ground shipping on orders of $1,000 CAD or more before tax.',
 		'oneam_pay_due_days'    => '2',
 		'oneam_payment_terms'   => 'Full payment is required before orders are processed or shipped.',
+		'oneam_card_surcharge'  => '2.4',
 		'oneam_doc_inv_flavour' => '',
 		'oneam_doc_inv_province' => '',
 		'oneam_doc_inv_stamp' => '',
@@ -170,6 +171,7 @@ add_action(
 				'oneam_doc_ps_pack' => array( 'Packing slip — show “Pieces per carton” under each product', 'checkbox' ),
 				'oneam_doc_ps_sku' => array( 'Packing slip — show “SKU” under each product', 'checkbox' ),
 				'oneam_payment_terms' => array( 'Payment terms — shown on invoices and order emails', 'textarea' ),
+				'oneam_card_surcharge' => array( 'Card surcharge % for credit card payments (e.g. 2.4 · 0 = no surcharge). Added to the order total, invoice and receipt. Turn OFF the surcharge in your Moneris Checkout profile so it is not charged twice.', 'text' ),
 			), 'Choose which extra lines appear under each product on the PDF invoice and packing slip. Unticked = hidden (shorter documents). The product name already includes the flavour.' ),
 			'oneam_account_mails' => array( 'Account emails (retailer applications)', array(
 				'oneam_mail_received_subject' => array( '① Application received — subject', 'text' ),

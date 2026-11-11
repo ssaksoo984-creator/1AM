@@ -1,0 +1,199 @@
+<?php
+/**
+ * 카드 결제 수수료 (Card surcharge)
+ *
+ * Moneris 결제창(Moneris Checkout)에서 붙는 수수료는 사이트 주문에 기록되지 않고,
+ * 플러그인이 주문 금액만 승인(capture)해서 실제로는 걷히지 않음.
+ * → 수수료를 WooCommerce 주문에 "Card surcharge (2.4%)" 줄로 직접 넣어서
+ *   결제 금액 · 인보이스 · 영수증 · 메일이 모두 같은 금액이 되게 함.
+ *
+ * 설정: 1AM Settings → Business & legal → Card surcharge (%) — 0 이면 끔
+ * 대상: 결제 수단 ID 에 "moneris" 가 들어간 카드 결제 (필터 oneam_is_card_method)
+ *
+ * @package 1am-vivid
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+/** 수수료율 (%) */
+function oneam_surcharge_pct() {
+	$v = (float) preg_replace( '/[^\d.]/', '', (string) oneam_opt( 'oneam_card_surcharge' ) );
+	return max( 0, min( 10, $v ) );
+}
+
+/** 이 결제 수단이 수수료 대상(카드)인지 */
+function oneam_is_card_method( $id ) {
+	$id = (string) $id;
+	return (bool) apply_filters( 'oneam_is_card_method', '' !== $id && false !== stripos( $id, 'moneris' ), $id );
+}
+
+/** 주문서 · 인보이스에 보이는 줄 이름: "Card surcharge (2.4%)" */
+function oneam_surcharge_label() {
+	return 'Card surcharge (' . rtrim( rtrim( number_format( oneam_surcharge_pct(), 2, '.', '' ), '0' ), '.' ) . '%)';
+}
+
+function oneam_is_surcharge_name( $name ) {
+	return 0 === strpos( (string) $name, 'Card surcharge' );
+}
+
+/* ---------------------------------------------------------------------------
+ * 장바구니 · 결제 화면: 카드를 고르면 합계에 수수료 줄
+ * ------------------------------------------------------------------------- */
+add_action(
+	'woocommerce_cart_calculate_fees',
+	function ( $cart ) {
+		$pct = oneam_surcharge_pct();
+		if ( ! $pct || ! WC()->session || ! oneam_is_card_method( WC()->session->get( 'chosen_payment_method' ) ) ) {
+			return;
+		}
+		// 상품 + 상품 세금 + 배송비 + 배송 세금 (= 수수료 전 합계)
+		$base = (float) $cart->get_cart_contents_total() + (float) $cart->get_cart_contents_tax() + (float) $cart->get_shipping_total() + (float) $cart->get_shipping_tax();
+		if ( $base > 0 ) {
+			$cart->add_fee( oneam_surcharge_label(), round( $base * $pct / 100, 2 ), false );
+		}
+	}
+);
+
+// 블록 결제 화면: 결제 수단을 바꾸면 합계 다시 계산 (수수료 줄이 바로 보이게)
+add_action(
+	'woocommerce_blocks_loaded',
+	function () {
+		if ( ! function_exists( 'woocommerce_store_api_register_update_callback' ) ) {
+			return;
+		}
+		woocommerce_store_api_register_update_callback(
+			array(
+				'namespace' => 'oneam-surcharge',
+				'callback'  => function ( $data ) {
+					if ( WC()->session ) {
+						WC()->session->set( 'chosen_payment_method', sanitize_text_field( (string) ( $data['method'] ?? '' ) ) );
+					}
+				},
+			)
+		);
+	}
+);
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		if ( ! oneam_surcharge_pct() || ! function_exists( 'is_checkout' ) || ! is_checkout() || is_wc_endpoint_url( 'order-received' ) ) {
+			return;
+		}
+		wp_register_script( 'oneam-surcharge', '', array( 'wp-data' ), ONEAM_VERSION, true );
+		wp_enqueue_script( 'oneam-surcharge' );
+		wp_add_inline_script(
+			'oneam-surcharge',
+			"(function(){if(!window.wp||!wp.data)return;var last=null,busy=false;
+wp.data.subscribe(function(){var s=wp.data.select('wc/store/payment');if(!s||!s.getActivePaymentMethod)return;var m=s.getActivePaymentMethod();
+if(!m||m===last||busy||!window.wc||!wc.blocksCheckout||!wc.blocksCheckout.extensionCartUpdate)return;last=m;busy=true;
+Promise.resolve(wc.blocksCheckout.extensionCartUpdate({namespace:'oneam-surcharge',data:{method:m}})).catch(function(){}).then(function(){busy=false;});});})();"
+		);
+	}
+);
+// 클래식 결제 화면: 결제 수단을 바꾸면 다시 계산
+add_action(
+	'woocommerce_review_order_before_payment',
+	function () {
+		if ( oneam_surcharge_pct() ) {
+			echo "<script>jQuery(function($){ $('form.checkout').on('change','input[name=\"payment_method\"]',function(){ $(document.body).trigger('update_checkout'); }); });</script>";
+		}
+	}
+);
+
+/* ---------------------------------------------------------------------------
+ * 주문에 수수료 확정 (화면 계산과 상관없이 서버에서 한 번 더 맞춤)
+ * ------------------------------------------------------------------------- */
+function oneam_apply_order_surcharge( $order, $method ) {
+	if ( ! $order instanceof WC_Order ) {
+		return;
+	}
+	$changed = false;
+	foreach ( $order->get_fees() as $id => $fee ) {
+		if ( oneam_is_surcharge_name( $fee->get_name() ) ) {
+			$order->remove_item( $id );
+			$changed = true;
+		}
+	}
+	$pct = oneam_surcharge_pct();
+	if ( $changed ) {
+		$order->calculate_totals( false );
+	}
+	if ( $pct && oneam_is_card_method( $method ) ) {
+		$base = (float) $order->get_total();
+		if ( $base > 0 ) {
+			$fee = new WC_Order_Item_Fee();
+			$fee->set_name( oneam_surcharge_label() );
+			$fee->set_amount( round( $base * $pct / 100, 2 ) );
+			$fee->set_total( round( $base * $pct / 100, 2 ) );
+			$fee->set_tax_status( 'none' );
+			$order->add_item( $fee );
+			$order->calculate_totals( false );
+			$changed = true;
+		}
+	}
+	if ( $changed ) {
+		$order->save();
+	}
+}
+
+// 블록 결제: 주문이 만들어질 때 (결제 처리 바로 전)
+add_action(
+	'woocommerce_store_api_checkout_update_order_from_request',
+	function ( $order, $request ) {
+		oneam_apply_order_surcharge( $order, (string) $request['payment_method'] );
+	},
+	99,
+	2
+);
+// 클래식 결제
+add_action(
+	'woocommerce_checkout_create_order',
+	function ( $order, $data ) {
+		oneam_apply_order_surcharge( $order, (string) ( $data['payment_method'] ?? '' ) );
+	},
+	99,
+	2
+);
+// 관리자가 만든 주문의 결제 페이지 (Customer payment page)
+add_action(
+	'woocommerce_before_pay_action',
+	function ( $order ) {
+		// phpcs:ignore WordPress.Security.NonceVerification -- WooCommerce 가 이 직전에 nonce 확인
+		$method = isset( $_POST['payment_method'] ) ? sanitize_text_field( wp_unslash( $_POST['payment_method'] ) ) : '';
+		oneam_apply_order_surcharge( $order, $method );
+	}
+);
+
+/* ---------------------------------------------------------------------------
+ * 결제 화면 안내: "카드는 2.4% 수수료, e-Transfer 는 없음"
+ * ------------------------------------------------------------------------- */
+function oneam_surcharge_note() {
+	return oneam_surcharge_pct() ? 'Credit card payments include a ' . rtrim( rtrim( number_format( oneam_surcharge_pct(), 2, '.', '' ), '0' ), '.' ) . '% card surcharge, shown in your order total and on your invoice. Interac e-Transfer has no surcharge.' : '';
+}
+add_filter(
+	'woocommerce_gateway_description',
+	function ( $desc, $id ) {
+		return oneam_surcharge_pct() && oneam_is_card_method( $id ) ? trim( $desc . ' ' . oneam_surcharge_note() ) : $desc;
+	},
+	10,
+	2
+);
+add_filter(
+	'render_block',
+	function ( $html, $block ) {
+		if ( 'woocommerce/checkout-payment-block' !== ( $block['blockName'] ?? '' ) || ! oneam_surcharge_note() ) {
+			return $html;
+		}
+		return $html . '<p class="oneam-surcharge-note">' . esc_html( oneam_surcharge_note() ) . '</p>';
+	},
+	10,
+	2
+);
+add_action(
+	'wp_head',
+	function () {
+		if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+			echo '<style>.oneam-surcharge-note{margin:12px 0 0;padding:10px 14px;border-radius:10px;background:rgba(138,63,252,.08);font-size:14px;line-height:1.5}</style>';
+		}
+	}
+);
