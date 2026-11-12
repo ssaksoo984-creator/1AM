@@ -36,6 +36,22 @@ function oneam_is_surcharge_name( $name ) {
 	return 0 === strpos( (string) $name, 'Card surcharge' );
 }
 
+/**
+ * 결제 화면에서만 수수료 줄을 보여줌 (장바구니 · 미니 카트에는 안 보이게).
+ * 결제 화면 안에서 오는 요청(Store API · 클래식 결제 ajax)은 주소가 /checkout 인 페이지에서 옴.
+ */
+function oneam_surcharge_on_checkout() {
+	if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+		return true;
+	}
+	if ( defined( 'WOOCOMMERCE_CHECKOUT' ) && WOOCOMMERCE_CHECKOUT ) {
+		return true;
+	}
+	$ref = isset( $_SERVER['HTTP_REFERER'] ) ? (string) wp_unslash( $_SERVER['HTTP_REFERER'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+	$co  = function_exists( 'wc_get_checkout_url' ) ? (string) wp_parse_url( wc_get_checkout_url(), PHP_URL_PATH ) : '/checkout/';
+	return '' !== $ref && '' !== $co && false !== strpos( (string) wp_parse_url( $ref, PHP_URL_PATH ), untrailingslashit( $co ) );
+}
+
 /* ---------------------------------------------------------------------------
  * 장바구니 · 결제 화면: 카드를 고르면 합계에 수수료 줄
  * ------------------------------------------------------------------------- */
@@ -43,7 +59,7 @@ add_action(
 	'woocommerce_cart_calculate_fees',
 	function ( $cart ) {
 		$pct = oneam_surcharge_pct();
-		if ( ! $pct || ! WC()->session || ! oneam_is_card_method( WC()->session->get( 'chosen_payment_method' ) ) ) {
+		if ( ! $pct || ! WC()->session || ! oneam_is_card_method( WC()->session->get( 'chosen_payment_method' ) ) || ! oneam_surcharge_on_checkout() ) {
 			return;
 		}
 		// 상품 + 상품 세금 + 배송비 + 배송 세금 (= 수수료 전 합계)
@@ -55,24 +71,29 @@ add_action(
 );
 
 // 블록 결제 화면: 결제 수단을 바꾸면 합계 다시 계산 (수수료 줄이 바로 보이게)
-add_action(
-	'woocommerce_blocks_loaded',
-	function () {
-		if ( ! function_exists( 'woocommerce_store_api_register_update_callback' ) ) {
-			return;
-		}
-		woocommerce_store_api_register_update_callback(
-			array(
-				'namespace' => 'oneam-surcharge',
-				'callback'  => function ( $data ) {
-					if ( WC()->session ) {
-						WC()->session->set( 'chosen_payment_method', sanitize_text_field( (string) ( $data['method'] ?? '' ) ) );
-					}
-				},
-			)
-		);
+// 테마는 WooCommerce 다음에 불러와져서 woocommerce_blocks_loaded 가 이미 지나갔을 수 있음 → 바로 등록
+function oneam_register_surcharge_callback() {
+	static $done = false;
+	if ( $done || ! function_exists( 'woocommerce_store_api_register_update_callback' ) ) {
+		return;
 	}
-);
+	$done = true;
+	woocommerce_store_api_register_update_callback(
+		array(
+			'namespace' => 'oneam-surcharge',
+			'callback'  => function ( $data ) {
+				if ( WC()->session ) {
+					WC()->session->set( 'chosen_payment_method', sanitize_text_field( (string) ( $data['method'] ?? '' ) ) );
+				}
+			},
+		)
+	);
+}
+if ( did_action( 'woocommerce_blocks_loaded' ) ) {
+	oneam_register_surcharge_callback();
+} else {
+	add_action( 'woocommerce_blocks_loaded', 'oneam_register_surcharge_callback' );
+}
 add_action(
 	'wp_enqueue_scripts',
 	function () {
