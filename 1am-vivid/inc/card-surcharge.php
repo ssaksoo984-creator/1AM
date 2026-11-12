@@ -17,14 +17,19 @@ defined( 'ABSPATH' ) || exit;
 
 /** 수수료율 (%) */
 function oneam_surcharge_pct() {
-	$v = (float) preg_replace( '/[^\d.]/', '', (string) oneam_opt( 'oneam_card_surcharge' ) );
-	return max( 0, min( 10, $v ) );
+	$raw = str_replace( ',', '.', trim( (string) oneam_opt( 'oneam_card_surcharge' ) ) ); // "2,4" → 2.4
+	if ( '' === $raw || false !== strpos( $raw, '-' ) || ! preg_match( '/\d+(?:\.\d+)?/', $raw, $m ) ) {
+		return 0; // 비었거나 · 마이너스 · 숫자가 아니면 끔
+	}
+	return max( 0, min( 10, (float) $m[0] ) );
 }
 
 /** 이 결제 수단이 수수료 대상(카드)인지 */
 function oneam_is_card_method( $id ) {
 	$id = (string) $id;
-	return (bool) apply_filters( 'oneam_is_card_method', '' !== $id && false !== stripos( $id, 'moneris' ), $id );
+	// 신용카드만 (Interac · 데빗 결제에는 수수료 금지)
+	$card = '' !== $id && false !== stripos( $id, 'moneris' ) && false === stripos( $id, 'interac' ) && false === stripos( $id, 'debit' );
+	return (bool) apply_filters( 'oneam_is_card_method', $card, $id );
 }
 
 /** 주문서 · 인보이스에 보이는 줄 이름: "Card surcharge (2.4%)" */
