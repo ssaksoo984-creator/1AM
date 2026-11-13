@@ -207,6 +207,15 @@ function oneam_pe_box( $post ) {
 						<label class="pe-check"><input type="radio" name="oneam_pe_gst" value="no" <?php checked( ! oneam_prices_incl_gst() ); ?>> Before GST <small>(shows "$80.00 + GST", GST added at checkout)</small></label>
 						<label class="pe-check"><input type="radio" name="oneam_pe_gst" value="yes" <?php checked( oneam_prices_incl_gst() ); ?>> Including GST <small>(shows "$80.00 incl. GST", customer pays this price)</small></label>
 						<small class="pe-gst__note">Applies to every product and province price in the store.</small>
+						<details class="pe-tax">
+							<summary>Tax rate by province (%)</summary>
+							<div class="pe-tax__grid">
+								<?php foreach ( oneam_tax_rates() as $tc => $tr ) : ?>
+									<label><span><?php echo esc_html( $tc ); ?> <em><?php echo esc_html( oneam_tax_name( $tc ) ); ?></em></span><input type="number" step="0.001" min="0" max="30" name="oneam_pe_tax[<?php echo esc_attr( $tc ); ?>]" value="<?php echo esc_attr( rtrim( rtrim( number_format( (float) $tr, 3, '.', '' ), '0' ), '.' ) ); ?>"></label>
+								<?php endforeach; ?>
+							</div>
+							<small>Filled in with the current GST/HST rates. Change a number if a rate changes; 0 = no tax for that province. PST is not added (resale purchases).</small>
+						</details>
 					</div>
 				<?php endif; ?>
 			</div>
@@ -360,6 +369,11 @@ function oneam_pe_box( $post ) {
 		.pe-gst { grid-column: span 2; gap: 8px !important; padding: 12px 14px; border-radius: 10px; background: #f6f7f7; }
 		.pe-gst small { color: #646970; font-weight: 400; }
 		.pe-gst__note { display: block; }
+		.pe-tax summary { cursor: pointer; font-weight: 600; margin-top: 4px; }
+		.pe-tax__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px 10px; margin: 10px 0 8px; }
+		.pe-tax__grid label { display: grid; gap: 2px; font-weight: 600; }
+		.pe-tax__grid em { font-style: normal; font-weight: 400; color: #646970; font-size: 11px; }
+		.pe-tax__grid input { width: 100%; }
 		.pe-soonlook { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; margin-top: 14px; padding: 14px 16px; border-radius: 8px; background: #f6f7f7; }
 		.pe-soonlook[hidden] { display: none; }
 		.pe-soonlook__title { margin: 0 0 4px; font-weight: 600; }
@@ -575,6 +589,18 @@ add_action(
 			$gst = 'yes' === sanitize_key( wp_unslash( $_POST['oneam_pe_gst'] ) ) ? 'yes' : 'no';
 			if ( get_option( 'woocommerce_prices_include_tax' ) !== $gst ) {
 				update_option( 'woocommerce_prices_include_tax', $gst );
+			}
+		}
+		// 주별 세율
+		if ( isset( $_POST['oneam_pe_tax'] ) && is_array( $_POST['oneam_pe_tax'] ) && current_user_can( 'manage_woocommerce' ) ) {
+			$new = array();
+			foreach ( oneam_tax_defaults() as $tc => $def ) {
+				$v          = isset( $_POST['oneam_pe_tax'][ $tc ] ) ? str_replace( ',', '.', sanitize_text_field( wp_unslash( $_POST['oneam_pe_tax'][ $tc ] ) ) ) : '';
+				$new[ $tc ] = is_numeric( $v ) ? max( 0, min( 30, (float) $v ) ) : $def;
+			}
+			if ( $new !== oneam_tax_rates() || ! get_option( 'oneam_tax_rate_ids' ) ) {
+				update_option( 'oneam_tax_rates', $new, false );
+				oneam_sync_tax_rates();
 			}
 		}
 		$price = isset( $_POST['oneam_pe_price'] ) && '' !== $_POST['oneam_pe_price'] ? wc_format_decimal( wp_unslash( $_POST['oneam_pe_price'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput

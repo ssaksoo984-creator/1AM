@@ -346,8 +346,80 @@ add_action(
 			wp_die( 'Not allowed.' );
 		}
 		oneam_setup_gst_rates();
+		oneam_sync_tax_rates();
 		wp_safe_redirect( admin_url( 'admin.php?page=wc-settings&tab=tax&section=standard' ) );
 		exit;
+	}
+);
+
+/* ---------------------------------------------------------------------------
+ * 주별 세율 (GST / HST) — 기본값이 들어 있고 관리자가 상품 편집 화면에서 직접 고칠 수 있음
+ * 저장하면 WooCommerce 세율 표(Tax → Standard rates)에 주별 줄로 들어감
+ * ------------------------------------------------------------------------- */
+function oneam_hst_provinces() {
+	return array( 'ON', 'NB', 'NS', 'NL', 'PE' );
+}
+/** 기본 세율 (%) — GST 5%, HST 주는 HST */
+function oneam_tax_defaults() {
+	return array(
+		'AB' => 5, 'BC' => 5, 'MB' => 5, 'SK' => 5, 'QC' => 5, 'YT' => 5, 'NT' => 5, 'NU' => 5,
+		'ON' => 13, 'NB' => 15, 'NS' => 14, 'NL' => 15, 'PE' => 15,
+	);
+}
+/** 지금 쓰는 주별 세율 (%) */
+function oneam_tax_rates() {
+	$saved = get_option( 'oneam_tax_rates' );
+	$rates = array_map( 'floatval', oneam_tax_defaults() );
+	if ( is_array( $saved ) ) {
+		foreach ( $saved as $c => $r ) {
+			if ( isset( $rates[ $c ] ) ) {
+				$rates[ $c ] = (float) $r;
+			}
+		}
+	}
+	return $rates;
+}
+function oneam_tax_name( $code ) {
+	return in_array( $code, oneam_hst_provinces(), true ) ? 'HST' : 'GST';
+}
+/** WooCommerce 세율 표에 주별 줄 넣기 (이 테마가 넣은 줄만 바꿈) */
+function oneam_sync_tax_rates() {
+	if ( ! class_exists( 'WC_Tax' ) ) {
+		return;
+	}
+	foreach ( (array) get_option( 'oneam_tax_rate_ids', array() ) as $id ) {
+		WC_Tax::_delete_tax_rate( (int) $id );
+	}
+	$ids = array();
+	$i   = 0;
+	foreach ( oneam_tax_rates() as $code => $rate ) {
+		if ( $rate <= 0 ) {
+			continue;
+		}
+		$ids[] = WC_Tax::_insert_tax_rate(
+			array(
+				'tax_rate_country'  => 'CA',
+				'tax_rate_state'    => $code,
+				'tax_rate'          => number_format( (float) $rate, 4, '.', '' ),
+				'tax_rate_name'     => oneam_tax_name( $code ),
+				'tax_rate_priority' => 1,
+				'tax_rate_compound' => 0,
+				'tax_rate_shipping' => 1,
+				'tax_rate_order'    => $i++,
+				'tax_rate_class'    => '',
+			)
+		);
+	}
+	update_option( 'oneam_tax_rate_ids', $ids, false );
+}
+// 처음 한 번: 세금이 켜져 있으면 기본 주별 세율을 넣어 둠 (BC · AB · SK · MB 는 지금과 같은 5%)
+add_action(
+	'admin_init',
+	function () {
+		if ( get_option( 'oneam_tax_rate_ids' ) || 'yes' !== get_option( 'woocommerce_calc_taxes' ) || ! current_user_can( 'manage_woocommerce' ) ) {
+			return;
+		}
+		oneam_sync_tax_rates();
 	}
 );
 
