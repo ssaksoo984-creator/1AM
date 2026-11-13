@@ -69,8 +69,9 @@ add_action(
 		}
 		// 상품 + 상품 세금 + 배송비 + 배송 세금 (= 수수료 전 합계)
 		$base = (float) $cart->get_cart_contents_total() + (float) $cart->get_cart_contents_tax() + (float) $cart->get_shipping_total() + (float) $cart->get_shipping_tax();
-		if ( $base > 0 ) {
-			$cart->add_fee( oneam_surcharge_label(), round( $base * $pct / 100, 2 ), false );
+		$fee = round( $base * $pct / 100, 2 );
+		if ( $fee > 0 ) { // 아주 작은 금액(예: $0.05)은 수수료가 $0.00 이라 줄을 안 넣음
+			$cart->add_fee( oneam_surcharge_label(), $fee, false );
 		}
 	}
 );
@@ -145,12 +146,12 @@ function oneam_apply_order_surcharge( $order, $method ) {
 		$order->calculate_totals( false );
 	}
 	if ( $pct && oneam_is_card_method( $method ) ) {
-		$base = (float) $order->get_total();
-		if ( $base > 0 ) {
+		$amount = round( (float) $order->get_total() * $pct / 100, 2 );
+		if ( $amount > 0 ) {
 			$fee = new WC_Order_Item_Fee();
 			$fee->set_name( oneam_surcharge_label() );
-			$fee->set_amount( round( $base * $pct / 100, 2 ) );
-			$fee->set_total( round( $base * $pct / 100, 2 ) );
+			$fee->set_amount( $amount );
+			$fee->set_total( $amount );
 			$fee->set_tax_status( 'none' );
 			$order->add_item( $fee );
 			$order->calculate_totals( false );

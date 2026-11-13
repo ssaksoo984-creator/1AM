@@ -1203,6 +1203,8 @@ add_action(
 				'attributes'        => array(
 					'autocomplete' => 'off',
 					'title'        => '9-digit Business Number, e.g. 123456789',
+					// 결제 버튼 누르기 전에(카드 결제 전에) 화면에서 바로 형식 확인 → 카드 승인 후 서버 오류로 다시 결제하는 일 방지
+					'pattern'      => '\\s*\\d{3}[\\s\\-]?\\d{3}[\\s\\-]?\\d{3}([\\s\\-]?[A-Za-z]{2}[\\s\\-]?\\d{4})?\\s*',
 				),
 				'sanitize_callback' => function ( $v ) {
 					return strtoupper( preg_replace( '/[\s-]/', '', (string) $v ) );
@@ -1292,3 +1294,48 @@ add_action(
 		}
 	}
 );
+
+/* ---------------------------------------------------------------------------
+ * 비밀번호 찾기: 이메일로 요청하면 "그 이메일을 쓰는 계정"으로 보냄
+ * WooCommerce 는 아이디를 먼저 찾아서, 예전 이메일이 아이디로 남은 다른 계정이 있으면
+ * 그 계정(다른 이메일)으로 메일이 가버림 → 이메일이 일치하는 계정을 먼저 고름
+ * ------------------------------------------------------------------------- */
+add_action(
+	'wp_loaded',
+	function () {
+		// phpcs:disable WordPress.Security.NonceVerification -- WooCommerce 가 바로 뒤에서 nonce 확인
+		if ( empty( $_POST['wc_reset_password'] ) || empty( $_POST['user_login'] ) ) {
+			return;
+		}
+		$login = sanitize_user( wp_unslash( $_POST['user_login'] ) );
+		if ( ! is_email( $login ) ) {
+			return;
+		}
+		$user = get_user_by( 'email', $login );
+		if ( $user && $user->user_login !== $login ) {
+			$_POST['user_login'] = $user->user_login;
+		}
+		// phpcs:enable
+	},
+	5
+);
+
+/* 관리자가 보낸 비밀번호 재설정 링크(wp-login.php)도 사이트 디자인의 재설정 화면으로 */
+function oneam_wc_reset_redirect() {
+	// phpcs:disable WordPress.Security.NonceVerification
+	if ( ! function_exists( 'wc_get_page_permalink' ) || empty( $_GET['key'] ) || empty( $_GET['login'] ) || ! is_string( $_GET['key'] ) || ! is_string( $_GET['login'] ) ) {
+		return;
+	}
+	$url = add_query_arg(
+		array(
+			'key'   => rawurlencode( wp_unslash( $_GET['key'] ) ),
+			'login' => rawurlencode( wp_unslash( $_GET['login'] ) ),
+		),
+		wc_get_endpoint_url( 'lost-password', '', wc_get_page_permalink( 'myaccount' ) )
+	);
+	// phpcs:enable
+	wp_safe_redirect( $url );
+	exit;
+}
+add_action( 'login_form_rp', 'oneam_wc_reset_redirect' );
+add_action( 'login_form_resetpass', 'oneam_wc_reset_redirect' );
