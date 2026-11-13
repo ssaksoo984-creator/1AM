@@ -200,7 +200,15 @@ function oneam_pe_box( $post ) {
 		<section class="pe-sec">
 			<h3><span>2</span> Price</h3>
 			<div class="pe-grid">
-				<label>Price per unit (CAD, <?php echo esc_html( oneam_gst_phrase() ); ?>)<input type="number" step="0.01" min="0" name="oneam_pe_price" value="<?php echo esc_attr( $d['price'] ); ?>" placeholder="e.g. 80"></label>
+				<label>Price per unit (CAD)<input type="number" step="0.01" min="0" name="oneam_pe_price" value="<?php echo esc_attr( $d['price'] ); ?>" placeholder="e.g. 80"></label>
+				<?php if ( current_user_can( 'manage_woocommerce' ) ) : ?>
+					<div class="pe-block pe-gst">
+						<span>Prices you enter are</span>
+						<label class="pe-check"><input type="radio" name="oneam_pe_gst" value="no" <?php checked( ! oneam_prices_incl_gst() ); ?>> Before GST <small>(shows "$80.00 + GST", GST added at checkout)</small></label>
+						<label class="pe-check"><input type="radio" name="oneam_pe_gst" value="yes" <?php checked( oneam_prices_incl_gst() ); ?>> Including GST <small>(shows "$80.00 incl. GST", customer pays this price)</small></label>
+						<small class="pe-gst__note">Applies to every product and province price in the store.</small>
+					</div>
+				<?php endif; ?>
 			</div>
 			<p class="pe-help">Different price in some provinces? Add them below. Only provinces listed here can order this product. Leave the list empty to sell everywhere at the price above.</p>
 			<table class="pe-table pe-pp">
@@ -349,6 +357,9 @@ function oneam_pe_box( $post ) {
 		.pe-colorlbl span { display: flex; align-items: center; gap: 6px; font-weight: 400; }
 		.pe-check { display: flex !important; align-items: center; gap: 8px; font-weight: 400 !important; }
 		.pe-checks { display: grid; gap: 6px; grid-column: 1 / -1; }
+		.pe-gst { grid-column: span 2; gap: 8px !important; padding: 12px 14px; border-radius: 10px; background: #f6f7f7; }
+		.pe-gst small { color: #646970; font-weight: 400; }
+		.pe-gst__note { display: block; }
 		.pe-soonlook { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; margin-top: 14px; padding: 14px 16px; border-radius: 8px; background: #f6f7f7; }
 		.pe-soonlook[hidden] { display: none; }
 		.pe-soonlook__title { margin: 0 0 4px; font-weight: 600; }
@@ -557,6 +568,13 @@ add_action(
 			$v = isset( $vals[ $i ] ) ? trim( sanitize_text_field( $vals[ $i ] ) ) : '';
 			if ( '' !== $k && '' !== $v && 'flavour' !== sanitize_title( $k ) ) {
 				$specs[ $k ] = $v;
+			}
+		}
+		// GST 포함 / 별도 (가게 전체 설정)
+		if ( isset( $_POST['oneam_pe_gst'] ) && current_user_can( 'manage_woocommerce' ) ) {
+			$gst = 'yes' === sanitize_key( wp_unslash( $_POST['oneam_pe_gst'] ) ) ? 'yes' : 'no';
+			if ( get_option( 'woocommerce_prices_include_tax' ) !== $gst ) {
+				update_option( 'woocommerce_prices_include_tax', $gst );
 			}
 		}
 		$price = isset( $_POST['oneam_pe_price'] ) && '' !== $_POST['oneam_pe_price'] ? wc_format_decimal( wp_unslash( $_POST['oneam_pe_price'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
