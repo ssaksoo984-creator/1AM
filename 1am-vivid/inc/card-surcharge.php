@@ -224,3 +224,24 @@ add_action(
 		}
 	}
 );
+
+/* ---------------------------------------------------------------------------
+ * Moneris 결제창(전체 화면)이 사이트 위쪽 경고줄 · 메뉴에 가려지지 않게
+ * 결제창이 열리면 맨 위로 올리고, 그동안 메뉴는 결제창 뒤로 보냄
+ * ------------------------------------------------------------------------- */
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		if ( ! function_exists( 'is_checkout' ) || ! ( is_checkout() || is_wc_endpoint_url( 'order-pay' ) ) ) {
+			return;
+		}
+		wp_register_script( 'oneam-mco-front', '', array(), ONEAM_VERSION, true );
+		wp_enqueue_script( 'oneam-mco-front' );
+		wp_add_inline_script(
+			'oneam-mco-front',
+			"(function(){var t;function fix(){var on=false;document.querySelectorAll('[id*=\"moneris\" i],[class*=\"moneris\" i],iframe[src*=\"moneris\" i]').forEach(function(el){var s=getComputedStyle(el);if((s.position==='fixed'||s.position==='absolute')&&el.offsetWidth>window.innerWidth*0.5&&el.offsetHeight>window.innerHeight*0.5){if(el.style.getPropertyValue('z-index')!=='2147483000')el.style.setProperty('z-index','2147483000','important');on=true;}});document.documentElement.classList.toggle('oneam-mco-open',on);}
+new MutationObserver(function(){clearTimeout(t);t=setTimeout(fix,60);}).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class']});})();"
+		);
+		wp_add_inline_style( 'oneam-main', '.oneam-mco-open .site-header,.oneam-mco-open .topbar{z-index:1!important}' );
+	}
+);

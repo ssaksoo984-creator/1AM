@@ -2087,3 +2087,31 @@ body.oneam-policy .builder-content .elementor-widget-text-editor em { font-famil
 .tier-price-note { display: inline-flex; align-items: center; gap: 6px; margin-left: 6px; font-size: 13px; font-weight: 600; color: #555; vertical-align: middle; }
 .price del, .price del .amount { opacity: .55; font-weight: 500; }
 .price ins { text-decoration: none; }
+
+/* ===========================================================================
+ * 여백 정리 (v1.33) — 줄 간격 · 콘텐츠 사이 · 버튼 앞뒤 · 푸터 앞 여백을 넉넉하게
+ * ========================================================================= */
+body { line-height: 1.6; }
+/* 푸터 바로 앞 마지막 콘텐츠: 넉넉한 아래 여백 */
+.page-body, .page-index, .shop-wrap { padding-bottom: clamp(140px, 13vw, 200px); }
+/* 콘텐츠와 콘텐츠 사이 */
+.page-body > * + * { margin-top: 1.7em; }
+.page-body p, .page-index p { line-height: 1.7; }
+.page-body li, .page-index li { line-height: 1.7; margin-bottom: .45em; }
+/* 콘텐츠 다음 버튼 (약 2.5배) · 버튼 다음 콘텐츠 */
+.page-body > * + .btn,
+.page-body > * + p:has(> .btn),
+.page-body > * + .wp-block-buttons,
+.page-index > * + p:has(> .btn),
+.page-index > * + .wp-block-buttons,
+.entry__content * + .wp-block-buttons { margin-top: 2.8em; }
+.page-body > .btn + *,
+.page-body > p:has(> .btn) + *,
+.page-body > .wp-block-buttons + * { margin-top: 2.8em; }
+/* 박스(카드 · 접는 질문 · 배경 있는 블록) 위아래 2배 */
+.page-body > .wp-block-group.has-background,
+.page-body > .wp-block-table { margin-top: 2em; margin-bottom: 2em; }
+.page-body > :not(.wp-block-details) + .wp-block-details { margin-top: 2em; }
+.page-body > .wp-block-details + .wp-block-details { margin-top: 1.1em; }
+.page-body > .wp-block-details + :not(.wp-block-details) { margin-top: 2.6em; }
+.page-body .wp-block-details p { line-height: 1.7; }

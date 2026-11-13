@@ -632,3 +632,47 @@
 .order-track strong { font-size: 16px; }
 .order-track .btn { margin-left: auto; }
 .woocommerce-account .order-track a.btn { color: #fff !important; }
+
+/* ===========================================================================
+ * 여백 정리 (v1.33) — 주문 · 계정 · 장바구니 화면
+ * ========================================================================= */
+/* 표: 줄과 줄 사이(위아래)를 넉넉하게 */
+.woocommerce table.shop_table th,
+.woocommerce table.shop_table td,
+.woocommerce-account table.shop_table th,
+.woocommerce-account table.shop_table td { padding: 20px 22px; line-height: 1.55; vertical-align: middle; }
+.woocommerce table.shop_table .wc-item-meta { margin-top: 12px; line-height: 1.6; }
+.woocommerce table.shop_table .wc-item-meta li { margin: 0 0 6px; }
+.woocommerce table.shop_table .wc-item-meta li:last-child { margin-bottom: 0; }
+/* 섹션과 섹션 사이 */
+.woocommerce-order > * + *,
+.woocommerce-MyAccount-content > * + * { margin-top: 44px; }
+.woocommerce-order-details, .woocommerce-customer-details, .woocommerce-order section { margin-bottom: 56px; }
+.woocommerce-order h2, .woocommerce-MyAccount-content h2 { margin-bottom: 24px; }
+.woocommerce-customer-details address { padding: 22px 26px; line-height: 1.75; }
+.woocommerce-customer-details address p { margin: 12px 0 0; }
+.woocommerce-MyAccount-content { padding-bottom: 72px; }
+.woocommerce-MyAccount-content p { line-height: 1.7; }
+/* 콘텐츠 다음 버튼 · 버튼 다음 콘텐츠 */
+.order-invoice { margin: 32px 0 48px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
+.order-invoice small { opacity: .7; }
+.thanks-next { margin: 40px 0 72px; padding: 30px 32px; }
+.thanks-next__text { gap: 8px; }
+.order-reply { margin-top: 64px; padding-top: 40px; }
+.woocommerce-account .woocommerce-MyAccount-content h2.order-reply__title { margin: 0 0 22px; }
+.order-reply__form { gap: 14px; }
+.order-reply__form .btn { margin-top: 18px; }
+.woocommerce form .form-row { margin-bottom: 22px; }
+.woocommerce form .form-row + p > .button, .woocommerce form p:has(> button[type=submit]) { margin-top: 32px; }
+.woocommerce .woocommerce-customer-details address, .woocommerce-page .woocommerce-customer-details address { padding: 22px 26px !important; line-height: 1.75; border-radius: 14px; }
+.woocommerce .woocommerce-customer-details .woocommerce-columns { gap: 28px; }
+.woocommerce table.woocommerce-table--custom-fields th, .woocommerce table.woocommerce-table--custom-fields td, .wc-block-order-confirmation-additional-fields-wrapper td, .wc-block-order-confirmation-additional-fields-wrapper th { padding: 18px 22px; line-height: 1.6; }
+/* 장바구니 · 결제 화면(블록) */
+.wc-block-cart-items .wc-block-cart-items__row > td { padding-top: 28px !important; padding-bottom: 28px !important; }
+.wc-block-components-product-metadata, .wc-block-components-product-details li { line-height: 1.6; }
+.wc-block-components-product-details li { margin-bottom: 4px; }
+.wc-block-components-totals-wrapper { padding-top: 18px !important; padding-bottom: 18px !important; }
+.wc-block-cart__submit-container { margin-top: 32px; }
+.wc-block-cart .oneam-minorder, .wp-block-woocommerce-cart .oneam-minorder { margin-bottom: 40px; }
+.wc-block-checkout__actions { margin-top: 36px; }
+.wc-block-components-checkout-step { margin-bottom: 40px !important; }
