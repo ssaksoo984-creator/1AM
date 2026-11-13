@@ -671,7 +671,8 @@
 .wc-block-cart-items .wc-block-cart-items__row > td { padding-top: 28px !important; padding-bottom: 28px !important; }
 .wc-block-components-product-metadata, .wc-block-components-product-details li { line-height: 1.6; }
 .wc-block-components-product-details li { margin-bottom: 4px; }
-.wc-block-components-totals-wrapper { padding-top: 18px !important; padding-bottom: 18px !important; }
+.wc-block-components-totals-wrapper:has(.wc-block-components-totals-item, .wc-block-components-panel) { padding-top: 14px !important; padding-bottom: 14px !important; }
+.wc-block-components-totals-wrapper:not(:has(.wc-block-components-totals-item, .wc-block-components-panel)) { padding: 0 !important; border-top: 0 !important; }
 .wc-block-cart__submit-container { margin-top: 32px; }
 .wc-block-cart .oneam-minorder, .wp-block-woocommerce-cart .oneam-minorder { margin-bottom: 40px; }
 .wc-block-checkout__actions { margin-top: 36px; }

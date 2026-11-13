@@ -154,6 +154,17 @@ function oneam_sync_tax_display() {
 	}
 }
 add_action( 'update_option_woocommerce_prices_include_tax', 'oneam_sync_tax_display' );
+// 화면 표시는 항상 입력한 방식 그대로 (WooCommerce 세금 설정에서 표시 방식을 따로 바꿔도
+// "GST 별도 = $70 + GST" · "GST 포함 = $70 incl. GST" 로 숫자와 표기가 어긋나지 않게)
+foreach ( array( 'woocommerce_tax_display_shop', 'woocommerce_tax_display_cart' ) as $oneam_opt_key ) {
+	add_filter(
+		'pre_option_' . $oneam_opt_key,
+		function () {
+			return oneam_prices_incl_gst() ? 'incl' : 'excl';
+		}
+	);
+}
+unset( $oneam_opt_key );
 add_action( 'add_option_woocommerce_prices_include_tax', 'oneam_sync_tax_display' );
 add_action( 'customize_save_after', 'oneam_sync_tax_display' );
 
