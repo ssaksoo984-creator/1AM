@@ -200,7 +200,7 @@ function oneam_pe_box( $post ) {
 		<section class="pe-sec">
 			<h3><span>2</span> Price</h3>
 			<div class="pe-grid">
-				<label>Price per unit (CAD, before GST)<input type="number" step="0.01" min="0" name="oneam_pe_price" value="<?php echo esc_attr( $d['price'] ); ?>" placeholder="e.g. 80"></label>
+				<label>Price per unit (CAD, <?php echo esc_html( oneam_gst_phrase() ); ?>)<input type="number" step="0.01" min="0" name="oneam_pe_price" value="<?php echo esc_attr( $d['price'] ); ?>" placeholder="e.g. 80"></label>
 			</div>
 			<p class="pe-help">Different price in some provinces? Add them below. Only provinces listed here can order this product. Leave the list empty to sell everywhere at the price above.</p>
 			<table class="pe-table pe-pp">

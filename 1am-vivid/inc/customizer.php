@@ -256,6 +256,32 @@ add_action(
 			}
 		}
 
+		// 가격 입력 방식: GST 별도 / GST 포함 (WooCommerce 세금 설정과 같은 값을 바로 바꿈)
+		$wp_customize->add_setting(
+			'woocommerce_prices_include_tax',
+			array(
+				'type'              => 'option',
+				'default'           => 'no',
+				'sanitize_callback' => function ( $v ) {
+					return 'yes' === $v ? 'yes' : 'no';
+				},
+			)
+		);
+		$wp_customize->add_control(
+			'woocommerce_prices_include_tax',
+			array(
+				'label'       => 'Prices you enter (product & province prices)',
+				'description' => 'Before GST: the site shows "$70.00 + GST" and adds 5% GST at checkout. Including GST: the site shows "$70.00 incl. GST" and the GST inside the price is shown separately at checkout.',
+				'section'     => 'oneam_business',
+				'type'        => 'radio',
+				'choices'     => array(
+					'no'  => 'Before GST (GST added at checkout)',
+					'yes' => 'Including GST',
+				),
+				'priority'    => 1,
+			)
+		);
+
 		$wp_customize->add_setting( 'oneam_verify_email', array( 'default' => false, 'sanitize_callback' => 'wp_validate_boolean' ) );
 		$wp_customize->add_control( 'oneam_verify_email', array( 'label' => 'Require email confirmation for new retailer applications (turn on only after the store email is connected)', 'section' => 'oneam_business', 'type' => 'checkbox' ) );
 		$wp_customize->add_setting( 'oneam_restrict_provinces', array( 'default' => false, 'sanitize_callback' => 'wp_validate_boolean' ) );

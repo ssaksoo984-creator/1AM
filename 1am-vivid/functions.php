@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_VERSION', '1.33.1' );
+define( 'ONEAM_VERSION', '1.34.0' );
 
 function oneam_asset( $path ) {
 	return get_template_directory_uri() . '/assets/' . ltrim( $path, '/' );
@@ -86,6 +86,7 @@ add_action(
 				'addUrl'    => home_url( '/' ),
 				'ajax'      => admin_url( 'admin-ajax.php' ),
 				'fragments' => class_exists( 'WC_AJAX' ) ? WC_AJAX::get_endpoint( 'get_refreshed_fragments' ) : '',
+				'gst'       => function_exists( 'oneam_gst_label' ) ? oneam_gst_label() : '+ GST',
 			)
 		);
 		wp_localize_script(

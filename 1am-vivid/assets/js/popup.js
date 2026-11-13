@@ -37,7 +37,7 @@
 			form.dataset.pid = d.pid || '';
 			form.dataset.vid = d.vid || '';
 			form.dataset.attr = JSON.stringify(d.attr || {});
-			$('.fpop__price').innerHTML = d.price ? '<strong>' + d.price + '</strong> <small>/ ' + (d.unit || 'unit') + ' + GST' + (d.prov ? ' · ' + d.prov + ' price' : '') + '</small>' : '';
+			$('.fpop__price').innerHTML = d.price ? '<strong>' + d.price + '</strong> <small>/ ' + (d.unit || 'unit') + ' ' + ((window.ONEAM_POP && ONEAM_POP.gst) || '+ GST') + (d.prov ? ' · ' + d.prov + ' price' : '') + '</small>' : '';
 			var btn = $('.fpop__add');
 			var can = !!(d.pid && d.vid && d.ok);
 			btn.disabled = !can;

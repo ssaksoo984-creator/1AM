@@ -162,7 +162,7 @@ if ( $oneam_soon ) {
 			<ul class="spdp__facts">
 				<li><?php echo oneam_icon( 'truck' ); // phpcs:ignore ?> Ships within <?php echo esc_html( oneam_opt( 'oneam_dispatch_time' ) ); ?> of payment · delivery <?php echo esc_html( oneam_opt( 'oneam_transit_time' ) ); ?> after shipping</li>
 				<li><?php echo oneam_icon( 'check' ); // phpcs:ignore ?> All products carry the correct excise stamp for their intended province of sale</li>
-				<li><?php echo oneam_icon( 'card' ); // phpcs:ignore ?> <?php echo esc_html( oneam_opt( 'oneam_payments' ) ); ?> · Prices in CAD before GST</li>
+				<li><?php echo oneam_icon( 'card' ); // phpcs:ignore ?> <?php echo esc_html( oneam_opt( 'oneam_payments' ) ); ?> · Prices in CAD <?php echo esc_html( oneam_gst_phrase() ); ?></li>
 				<li><?php echo oneam_icon( 'check' ); // phpcs:ignore ?> <?php echo oneam_opt( 'oneam_processor' ) ? 'Secure payment by ' . esc_html( oneam_opt( 'oneam_processor' ) ) . ' · ' : ''; ?>All sales final</li>
 			</ul>
 
@@ -208,7 +208,7 @@ if ( $oneam_soon ) {
 									<td><?php echo esc_html( oneam_provinces()[ $code ] ?? $code ); ?></td>
 									<td><?php echo esc_html( oneam_stamp_label( $code ) ); ?></td>
 									<?php if ( 'approved' === $oneam_state ) : ?>
-										<td><?php echo wp_kses_post( wc_price( $price ) ); ?> + GST</td>
+										<td><?php echo wp_kses_post( wc_price( $price ) ); ?> <?php echo esc_html( oneam_gst_label() ); ?></td>
 									<?php endif; ?>
 								</tr>
 							<?php endforeach; ?>

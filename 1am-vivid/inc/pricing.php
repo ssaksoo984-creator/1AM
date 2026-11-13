@@ -128,6 +128,35 @@ add_filter(
 	2
 );
 
+/* ---------------------------------------------------------------------------
+ * 입력한 가격이 GST 포함인지 · 별도인지 (관리자: 1AM Settings → Business & legal)
+ * WooCommerce 설정(Prices entered with tax)과 같은 값 — 표시도 입력한 방식 그대로
+ * ------------------------------------------------------------------------- */
+function oneam_prices_incl_gst() {
+	return 'yes' === get_option( 'woocommerce_prices_include_tax' );
+}
+/** 가격 옆 표시: "+ GST" 또는 "incl. GST" */
+function oneam_gst_label() {
+	return oneam_prices_incl_gst() ? 'incl. GST' : '+ GST';
+}
+/** 문장 속 표시: "before GST" 또는 "including GST" */
+function oneam_gst_phrase() {
+	return oneam_prices_incl_gst() ? 'including GST' : 'before GST';
+}
+/** 가격 입력 방식이 바뀌면 상점 · 장바구니 표시도 같은 방식으로 */
+function oneam_sync_tax_display() {
+	$mode = oneam_prices_incl_gst() ? 'incl' : 'excl';
+	if ( get_option( 'woocommerce_tax_display_shop' ) !== $mode ) {
+		update_option( 'woocommerce_tax_display_shop', $mode );
+	}
+	if ( get_option( 'woocommerce_tax_display_cart' ) !== $mode ) {
+		update_option( 'woocommerce_tax_display_cart', $mode );
+	}
+}
+add_action( 'update_option_woocommerce_prices_include_tax', 'oneam_sync_tax_display' );
+add_action( 'add_option_woocommerce_prices_include_tax', 'oneam_sync_tax_display' );
+add_action( 'customize_save_after', 'oneam_sync_tax_display' );
+
 /** 가격 옆에 "/ carton + GST" */
 add_filter(
 	'woocommerce_get_price_html',
@@ -135,7 +164,7 @@ add_filter(
 		if ( ! oneam_province_prices( $product ) || '' === $html ) {
 			return $html;
 		}
-		return $html . ' <small class="oneam-unit">/ ' . esc_html( oneam_unit_label( $product ) ) . ' + GST</small>';
+		return $html . ' <small class="oneam-unit">/ ' . esc_html( oneam_unit_label( $product ) ) . ' ' . esc_html( oneam_gst_label() ) . '</small>';
 	},
 	20,
 	2
@@ -194,7 +223,7 @@ add_action(
 				'id'          => '_oneam_prices',
 				'label'       => '1AM province prices',
 				'placeholder' => "BC: 80\nSK: 80\nAB: 90",
-				'description' => 'One province per line (code: price before GST). Only these provinces can order, at these prices — this overrides the regular price. Leave empty to use the regular price everywhere.',
+				'description' => 'One province per line (code: price ' . oneam_gst_phrase() . '). Only these provinces can order, at these prices — this overrides the regular price. Leave empty to use the regular price everywhere.',
 				'desc_tip'    => false,
 				'rows'        => 4,
 			)
@@ -204,7 +233,7 @@ add_action(
 				'id'          => '_oneam_unit',
 				'label'       => 'Unit',
 				'placeholder' => 'carton',
-				'description' => 'Shown after the price, e.g. "$80.00 / carton + GST".',
+				'description' => 'Shown after the price, e.g. "$80.00 / carton ' . oneam_gst_label() . '".',
 			)
 		);
 		woocommerce_wp_text_input(
@@ -213,7 +242,7 @@ add_action(
 				'label'       => 'Pieces per carton',
 				'type'        => 'number',
 				'placeholder' => 'e.g. 10',
-				'description' => 'Shown with the price, on the product page and in the cart, e.g. "$80.00 / carton (10 pcs) + GST".',
+				'description' => 'Shown with the price, on the product page and in the cart, e.g. "$80.00 / carton (10 pcs) ' . oneam_gst_label() . '".',
 			)
 		);
 		woocommerce_wp_text_input(
@@ -328,9 +357,10 @@ function oneam_setup_gst_rates() {
 		return false;
 	}
 	update_option( 'woocommerce_calc_taxes', 'yes' );
-	update_option( 'woocommerce_prices_include_tax', 'no' );
-	update_option( 'woocommerce_tax_display_shop', 'excl' );
-	update_option( 'woocommerce_tax_display_cart', 'excl' );
+	if ( false === get_option( 'woocommerce_prices_include_tax', false ) ) {
+		update_option( 'woocommerce_prices_include_tax', 'no' );
+	}
+	oneam_sync_tax_display();
 	update_option( 'woocommerce_tax_based_on', 'shipping' );
 	if ( ! oneam_has_gst() ) {
 		WC_Tax::_insert_tax_rate(
@@ -363,7 +393,7 @@ add_action(
 			return;
 		}
 		printf(
-			'<div class="notice notice-info"><p><strong>1AM:</strong> Prices are before GST. Turn on taxes and add 5%% GST for Canada (prices entered without tax, tax based on the shipping address). <a class="button button-primary" href="%s">Set up 5%% GST</a></p></div>',
+			'<div class="notice notice-info"><p><strong>1AM:</strong> Turn on taxes and add 5%% GST for Canada (tax based on the shipping address). <a class="button button-primary" href="%s">Set up 5%% GST</a></p></div>',
 			esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=oneam_setup_gst' ), 'oneam_setup_gst' ) )
 		);
 	}
@@ -389,7 +419,7 @@ function oneam_regions_html( $regions, $product = null ) {
 	foreach ( $regions as $code ) {
 		$label = $code;
 		if ( $show && isset( $pp[ $code ] ) ) {
-			$label .= ' ' . wp_strip_all_tags( wc_price( $pp[ $code ] ) ) . ' / ' . oneam_unit_label( $product ) . ' + GST';
+			$label .= ' ' . wp_strip_all_tags( wc_price( $pp[ $code ] ) ) . ' / ' . oneam_unit_label( $product ) . ' ' . oneam_gst_label();
 		}
 		if ( $pick && isset( $pp[ $code ] ) && ! oneam_account_can_ship_to( $code ) ) {
 			$out .= '<li class="is-off" title="' . esc_attr( 'Your account is not registered for a store in ' . ( oneam_provinces()[ $code ] ?? $code ) . '. Contact us to add one.' ) . '">' . esc_html( $label ) . '</li>';

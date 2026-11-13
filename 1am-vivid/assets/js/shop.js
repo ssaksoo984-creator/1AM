@@ -116,7 +116,7 @@
 				var subtotal = mini.querySelector('.woocommerce-mini-cart__total .amount');
 				var items = mini.querySelectorAll('.woocommerce-mini-cart-item').length;
 				box.querySelector('.spdp__added-msg').textContent = '✓ Added ' + qty + ' × ' + (chosen || document.querySelector('.spdp__name').textContent.trim()) + ' to your cart';
-				box.querySelector('.spdp__added-cart').textContent = subtotal ? 'Cart: ' + items + ' line' + (items === 1 ? '' : 's') + ' · Subtotal ' + subtotal.textContent + ' + GST' : '';
+				box.querySelector('.spdp__added-cart').textContent = subtotal ? 'Cart: ' + items + ' line' + (items === 1 ? '' : 's') + ' · Subtotal ' + subtotal.textContent + ' ' + ((window.ONEAM_POP && ONEAM_POP.gst) || '+ GST') : '';
 				box.hidden = false;
 				box.classList.remove('is-error');
 				box.classList.remove('is-pop'); void box.offsetWidth; box.classList.add('is-pop');
