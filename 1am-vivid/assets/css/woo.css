@@ -677,3 +677,9 @@
 .wc-block-cart .oneam-minorder, .wp-block-woocommerce-cart .oneam-minorder { margin-bottom: 40px; }
 .wc-block-checkout__actions { margin-top: 36px; }
 .wc-block-components-checkout-step { margin-bottom: 40px !important; }
+
+/* 로그인: Remember me 를 왼쪽 정렬, 버튼은 그 아래 */
+.woocommerce-form-login .form-row:has(.woocommerce-form-login__rememberme){display:flex;flex-direction:column;align-items:flex-start;gap:18px}
+.woocommerce-form-login .woocommerce-form-login__rememberme{display:inline-flex!important;align-items:center;gap:10px;margin:0!important;float:none!important;width:auto!important;text-align:left}
+.woocommerce-form-login .woocommerce-form-login__rememberme input{margin:0!important}
+.woocommerce-form-login .woocommerce-form-login__submit{margin:0!important;float:none!important}

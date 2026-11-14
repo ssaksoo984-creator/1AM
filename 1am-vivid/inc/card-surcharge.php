@@ -202,7 +202,7 @@ add_action(
 function oneam_surcharge_note() {
 	$note = 'Credit cards only. Debit cards (including Debit Visa and Debit Mastercard) and prepaid cards are not accepted.';
 	if ( oneam_surcharge_pct() ) {
-		$note .= ' Credit card payments include a ' . rtrim( rtrim( number_format( oneam_surcharge_pct(), 2, '.', '' ), '0' ), '.' ) . '% card surcharge, shown in your order total and on your invoice. No surcharge for Quebec billing addresses. Interac e-Transfer has no surcharge.';
+		$note .= ' Credit card payments include a ' . rtrim( rtrim( number_format( oneam_surcharge_pct(), 2, '.', '' ), '0' ), '.' ) . '% card surcharge, shown in your order total and on your invoice. Interac e-Transfer has no surcharge.';
 	}
 	return $note;
 }
@@ -229,7 +229,7 @@ add_action(
 	'wp_head',
 	function () {
 		if ( function_exists( 'is_checkout' ) && is_checkout() ) {
-			echo '<style>.oneam-surcharge-note{margin:12px 0 0;padding:10px 14px;border-radius:10px;background:rgba(138,63,252,.08);font-size:14px;line-height:1.5}</style>';
+			echo '<style>.oneam-surcharge-note{margin:12px 0 36px;padding:10px 14px;border-radius:10px;background:rgba(138,63,252,.08);font-size:14px;line-height:1.5}</style>';
 		}
 	}
 );
