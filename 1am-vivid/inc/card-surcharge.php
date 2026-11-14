@@ -32,6 +32,11 @@ function oneam_is_card_method( $id ) {
 	return (bool) apply_filters( 'oneam_is_card_method', $card, $id );
 }
 
+/** 퀘벡 청구 주소는 카드 수수료 금지 (카드사 규정) */
+function oneam_surcharge_blocked_state( $state ) {
+	return 'QC' === strtoupper( trim( (string) $state ) );
+}
+
 /** 주문서 · 인보이스에 보이는 줄 이름: "Card surcharge (2.4%)" */
 function oneam_surcharge_label() {
 	return 'Card surcharge (' . rtrim( rtrim( number_format( oneam_surcharge_pct(), 2, '.', '' ), '0' ), '.' ) . '%)';
@@ -64,7 +69,7 @@ add_action(
 	'woocommerce_cart_calculate_fees',
 	function ( $cart ) {
 		$pct = oneam_surcharge_pct();
-		if ( ! $pct || ! WC()->session || ! oneam_is_card_method( WC()->session->get( 'chosen_payment_method' ) ) || ! oneam_surcharge_on_checkout() ) {
+		if ( ! $pct || ! WC()->session || ! oneam_is_card_method( WC()->session->get( 'chosen_payment_method' ) ) || ! oneam_surcharge_on_checkout() || ( WC()->customer && oneam_surcharge_blocked_state( WC()->customer->get_billing_state() ) ) ) {
 			return;
 		}
 		// 상품 + 상품 세금 + 배송비 + 배송 세금 (= 수수료 전 합계)
@@ -145,7 +150,7 @@ function oneam_apply_order_surcharge( $order, $method ) {
 	if ( $changed ) {
 		$order->calculate_totals( false );
 	}
-	if ( $pct && oneam_is_card_method( $method ) ) {
+	if ( $pct && oneam_is_card_method( $method ) && ! oneam_surcharge_blocked_state( $order->get_billing_state() ) ) {
 		$amount = round( (float) $order->get_total() * $pct / 100, 2 );
 		if ( $amount > 0 ) {
 			$fee = new WC_Order_Item_Fee();
@@ -195,12 +200,16 @@ add_action(
  * 결제 화면 안내: "카드는 2.4% 수수료, e-Transfer 는 없음"
  * ------------------------------------------------------------------------- */
 function oneam_surcharge_note() {
-	return oneam_surcharge_pct() ? 'Credit card payments include a ' . rtrim( rtrim( number_format( oneam_surcharge_pct(), 2, '.', '' ), '0' ), '.' ) . '% card surcharge, shown in your order total and on your invoice. Interac e-Transfer has no surcharge.' : '';
+	$note = 'Credit cards only. Debit cards (including Debit Visa and Debit Mastercard) and prepaid cards are not accepted.';
+	if ( oneam_surcharge_pct() ) {
+		$note .= ' Credit card payments include a ' . rtrim( rtrim( number_format( oneam_surcharge_pct(), 2, '.', '' ), '0' ), '.' ) . '% card surcharge, shown in your order total and on your invoice. No surcharge for Quebec billing addresses. Interac e-Transfer has no surcharge.';
+	}
+	return $note;
 }
 add_filter(
 	'woocommerce_gateway_description',
 	function ( $desc, $id ) {
-		return oneam_surcharge_pct() && oneam_is_card_method( $id ) ? trim( $desc . ' ' . oneam_surcharge_note() ) : $desc;
+		return oneam_is_card_method( $id ) ? trim( $desc . ' ' . oneam_surcharge_note() ) : $desc;
 	},
 	10,
 	2
@@ -208,7 +217,7 @@ add_filter(
 add_filter(
 	'render_block',
 	function ( $html, $block ) {
-		if ( 'woocommerce/checkout-payment-block' !== ( $block['blockName'] ?? '' ) || ! oneam_surcharge_note() ) {
+		if ( 'woocommerce/checkout-payment-block' !== ( $block['blockName'] ?? '' ) ) {
 			return $html;
 		}
 		return $html . '<p class="oneam-surcharge-note">' . esc_html( oneam_surcharge_note() ) . '</p>';
