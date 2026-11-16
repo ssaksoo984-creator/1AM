@@ -196,6 +196,59 @@ add_action(
 	}
 );
 
+/*
+ * 관리자가 만든 주문의 결제 페이지: Moneris 결제창은 "Pay for order" 를 누르기 전에
+ * 그 순간의 주문 금액으로 열림 → 위 훅(결제 버튼 뒤)만으로는 수수료가 결제창 금액에 안 들어감.
+ * → 결제 페이지를 열 때 · 손님이 결제 수단을 바꿀 때 바로 주문에 수수료를 넣거나 뺌.
+ *   (주문을 만들 때는 안 붙음. 손님이 카드를 고를 때만 붙고, e-Transfer 를 고르면 빠짐)
+ */
+add_action(
+	'template_redirect',
+	function () {
+		if ( ! function_exists( 'is_wc_endpoint_url' ) || ! is_wc_endpoint_url( 'order-pay' ) || ! WC()->payment_gateways() ) {
+			return;
+		}
+		$order = wc_get_order( absint( get_query_var( 'order-pay' ) ) );
+		$key   = isset( $_GET['key'] ) ? sanitize_text_field( wp_unslash( $_GET['key'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
+		if ( ! $order || ! hash_equals( $order->get_order_key(), $key ) || ! $order->needs_payment() ) {
+			return;
+		}
+		$gateways = WC()->payment_gateways()->get_available_payment_gateways();
+		if ( ! $gateways ) {
+			return;
+		}
+		$want   = isset( $_GET['oneam_pm'] ) ? sanitize_text_field( wp_unslash( $_GET['oneam_pm'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
+		$chosen = WC()->session ? (string) WC()->session->get( 'chosen_payment_method' ) : '';
+		if ( isset( $gateways[ $want ] ) ) {
+			$method = $want;
+		} elseif ( isset( $gateways[ $chosen ] ) ) {
+			$method = $chosen;
+		} else {
+			$method = (string) key( $gateways ); // 처음 선택되어 보이는 결제 수단
+		}
+		if ( WC()->session ) {
+			WC()->session->set( 'chosen_payment_method', $method ); // 화면에서도 이 수단이 선택된 채로 열림
+		}
+		oneam_apply_order_surcharge( $order, $method );
+	},
+	5
+);
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		if ( ! oneam_surcharge_pct() || ! function_exists( 'is_wc_endpoint_url' ) || ! is_wc_endpoint_url( 'order-pay' ) ) {
+			return;
+		}
+		wp_register_script( 'oneam-surcharge-pay', '', array( 'jquery' ), ONEAM_VERSION, true );
+		wp_enqueue_script( 'oneam-surcharge-pay' );
+		// 결제 수단을 바꾸면 그 수단으로 금액을 다시 계산해서 페이지를 새로 엶
+		wp_add_inline_script(
+			'oneam-surcharge-pay',
+			"jQuery(function($){ $(document.body).on('change','#order_review input[name=\"payment_method\"]',function(){ var u=new URL(window.location.href); u.searchParams.set('oneam_pm',this.value); $('#order_review').css('opacity',.5); window.location.replace(u.toString()); }); });"
+		);
+	}
+);
+
 /* ---------------------------------------------------------------------------
  * 결제 화면 안내: "카드는 2.4% 수수료, e-Transfer 는 없음"
  * ------------------------------------------------------------------------- */
