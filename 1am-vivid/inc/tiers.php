@@ -460,6 +460,15 @@ add_filter(
 		}
 		$uid  = (int) $order->get_customer_id();
 		$prov = strtoupper( (string) ( $order->get_shipping_state() ?: $order->get_billing_state() ) );
+		// 아직 저장(Create) 전인 주문: 화면에서 고른 고객 · 주 (inc/admin-orders.php 가 같이 보냄)
+		// phpcs:disable WordPress.Security.NonceVerification -- WooCommerce 가 order-item nonce 를 이미 확인
+		if ( ! $uid && ! empty( $_POST['oneam_customer'] ) && current_user_can( 'edit_shop_orders' ) ) {
+			$uid = absint( $_POST['oneam_customer'] );
+		}
+		if ( ! $prov && ! empty( $_POST['oneam_state'] ) ) {
+			$prov = strtoupper( sanitize_text_field( wp_unslash( $_POST['oneam_state'] ) ) );
+		}
+		// phpcs:enable
 		if ( ! $prov && $uid ) {
 			$prov = strtoupper( (string) get_user_meta( $uid, 'oneam_province', true ) );
 		}

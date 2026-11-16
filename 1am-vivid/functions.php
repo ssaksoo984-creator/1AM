@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ONEAM_VERSION', '1.35.4' );
+define( 'ONEAM_VERSION', '1.36.0' );
 
 function oneam_asset( $path ) {
 	return get_template_directory_uri() . '/assets/' . ltrim( $path, '/' );
@@ -33,6 +33,8 @@ require get_template_directory() . '/inc/admin-tidy.php';
 require get_template_directory() . '/inc/shipping-tracking.php';
 require get_template_directory() . '/inc/card-surcharge.php';
 require get_template_directory() . '/inc/site-icons.php';
+require get_template_directory() . '/inc/order-pay-ui.php';
+require get_template_directory() . '/inc/admin-orders.php';
 require get_template_directory() . '/inc/admin-dashboard.php';
 require get_template_directory() . '/inc/migrate.php';
 

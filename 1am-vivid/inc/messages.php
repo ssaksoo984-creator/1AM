@@ -204,6 +204,52 @@ function oneam_order_reasons() {
 	);
 }
 
+/**
+ * "Message to customer" 칸에서 같이 보낼 수 있는 주문 메일
+ * (PDF 플러그인의 "Send order email" 칸은 숨기고 여기로 합침)
+ */
+function oneam_order_send_email_choices( $order ) {
+	$out = array( '' => 'Message only' );
+	if ( ! function_exists( 'WC' ) || ! WC()->mailer() ) {
+		return $out;
+	}
+	$labels = array(
+		'customer_invoice'          => $order && $order->needs_payment() ? 'Order details + “Pay for this order” link' : 'Order details',
+		'customer_processing_order' => 'Order confirmation (payment received)',
+		'customer_completed_order'  => 'Order completed / shipped',
+		'customer_on_hold_order'    => 'Order on hold (waiting for payment)',
+	);
+	$mails = WC()->mailer()->get_emails();
+	foreach ( $mails as $mail ) {
+		if ( isset( $labels[ $mail->id ] ) && ( 'customer_invoice' === $mail->id || $mail->is_enabled() ) ) {
+			$out[ $mail->id ] = $labels[ $mail->id ];
+		}
+	}
+	return $out;
+}
+
+/** 주문 메일 보내기 (+ 관리자 메시지를 메일 맨 위에) */
+function oneam_send_order_email( $order, $id, $message = '' ) {
+	$mails = WC()->mailer()->get_emails();
+	foreach ( $mails as $mail ) {
+		if ( $mail->id !== $id ) {
+			continue;
+		}
+		WC()->payment_gateways();
+		WC()->shipping();
+		$show = function ( $o, $sent_to_admin ) use ( $order, $message ) {
+			if ( ! $sent_to_admin && '' !== $message && $o && $o->get_id() === $order->get_id() ) {
+				echo '<div style="margin:0 0 24px;padding:16px 18px;border-radius:8px;background:#f4f1fb;border-left:4px solid #8A3FFC">' . wp_kses_post( wpautop( esc_html( $message ) ) ) . '</div>';
+			}
+		};
+		add_action( 'woocommerce_email_before_order_table', $show, 1, 2 );
+		$mail->trigger( $order->get_id(), $order );
+		remove_action( 'woocommerce_email_before_order_table', $show, 1 );
+		return true;
+	}
+	return false;
+}
+
 /** 관리자 주문 화면에 칸 추가 (HPOS · 예전 방식 모두) */
 add_action(
 	'add_meta_boxes',
@@ -251,8 +297,17 @@ function oneam_order_message_box( $post_or_order ) {
 	<p><label for="oneam_msg_text"><strong>Message</strong></label>
 		<textarea name="oneam_msg_text" id="oneam_msg_text" rows="5" style="width:100%" placeholder="Emailed to the customer and shown in My account → Orders."></textarea>
 	</p>
-	<p><button type="submit" class="button button-primary" name="save" value="Update" style="width:100%">Save &amp; send to customer</button></p>
-	<p class="description">The customer gets the message by email, sees it in My account → Orders, and can reply there. Replies appear in Order notes below.</p>
+	<?php $emails = oneam_order_send_email_choices( $order ); ?>
+	<p><label for="oneam_msg_email"><strong>Email to send</strong></label>
+		<select name="oneam_msg_email" id="oneam_msg_email" style="width:100%">
+			<?php foreach ( $emails as $k => $l ) : ?>
+				<option value="<?php echo esc_attr( $k ); ?>"<?php selected( $k, $order->needs_payment() && isset( $emails['customer_invoice'] ) ? 'customer_invoice' : '' ); ?>><?php echo esc_html( $l ); ?></option>
+			<?php endforeach; ?>
+		</select>
+	</p>
+	<input type="hidden" name="oneam_msg_go" id="oneam_msg_go" value="">
+	<p><button type="submit" class="button button-primary" name="save" value="Update" style="width:100%" onclick="document.getElementById('oneam_msg_go').value='1'">Save &amp; send to customer</button></p>
+	<p class="description">One email goes to the customer: the email you pick above, with your message at the top (or only the message if you pick “Message only”). They also see the message in My account → Orders and can reply there. Replies appear in Order notes below.</p>
 	<?php wp_nonce_field( 'oneam_order_msg', 'oneam_order_msg_nonce' ); ?>
 	<script>
 	(function () {
@@ -283,11 +338,26 @@ add_action(
 		}
 		$to   = isset( $_POST['oneam_msg_status'] ) ? sanitize_key( wp_unslash( $_POST['oneam_msg_status'] ) ) : '';
 		$text = isset( $_POST['oneam_msg_text'] ) ? trim( sanitize_textarea_field( wp_unslash( $_POST['oneam_msg_text'] ) ) ) : '';
-		if ( '' !== $text ) {
-			$order->add_order_note( $text, 1, true ); // 고객 메모 → WooCommerce 가 고객에게 메일
+		$send = isset( $_POST['oneam_msg_email'] ) ? sanitize_key( wp_unslash( $_POST['oneam_msg_email'] ) ) : '';
+		$send = isset( oneam_order_send_email_choices( $order )[ $send ] ) ? $send : '';
+		if ( empty( $_POST['oneam_msg_go'] ) ) {
+			$send = ''; // 다른 저장 버튼(Update 등)으로 저장할 때는 메일을 보내지 않음
 		}
 		if ( $to && in_array( 'wc-' . $to, array_keys( wc_get_order_statuses() ), true ) && ! $order->has_status( $to ) ) {
 			$order->update_status( $to, '' !== $text ? 'Status changed with a message to the customer.' : '' );
+		}
+		if ( '' !== $text ) {
+			if ( $send ) {
+				// 메시지는 고른 메일 맨 위에 넣어서 한 통으로 → 메모 메일은 따로 안 보냄
+				add_filter( 'woocommerce_email_enabled_customer_note', '__return_false', 99 );
+				$order->add_order_note( $text, 1, true );
+				remove_filter( 'woocommerce_email_enabled_customer_note', '__return_false', 99 );
+			} else {
+				$order->add_order_note( $text, 1, true ); // 고객 메모 → WooCommerce 가 고객에게 메일
+			}
+		}
+		if ( $send ) {
+			oneam_send_order_email( $order, $send, $text );
 		}
 	},
 	60

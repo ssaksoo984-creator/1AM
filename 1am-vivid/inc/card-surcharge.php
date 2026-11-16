@@ -304,6 +304,8 @@ add_action(
 			"(function(){var t;function fix(){var on=false;document.querySelectorAll('[id*=\"moneris\" i],[class*=\"moneris\" i],iframe[src*=\"moneris\" i]').forEach(function(el){var s=getComputedStyle(el);if((s.position==='fixed'||s.position==='absolute')&&el.offsetWidth>window.innerWidth*0.5&&el.offsetHeight>window.innerHeight*0.5){if(el.style.getPropertyValue('z-index')!=='2147483000')el.style.setProperty('z-index','2147483000','important');on=true;}});document.documentElement.classList.toggle('oneam-mco-open',on);}
 new MutationObserver(function(){clearTimeout(t);t=setTimeout(fix,60);}).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class']});})();"
 		);
-		wp_add_inline_style( 'oneam-main', '.oneam-mco-open .site-header,.oneam-mco-open .topbar{z-index:1!important}' );
+		wp_register_style( 'oneam-mco-front', false, array(), ONEAM_VERSION );
+		wp_enqueue_style( 'oneam-mco-front' );
+		wp_add_inline_style( 'oneam-mco-front', '.oneam-mco-open .site-header,.oneam-mco-open .topbar{z-index:1!important}' );
 	}
 );
