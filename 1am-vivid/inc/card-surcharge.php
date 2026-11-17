@@ -233,6 +233,38 @@ add_action(
 	},
 	5
 );
+/*
+ * 내 계정 (주문 목록 · 주문 보기): 결제 전 주문은 카드 수수료를 뺀 금액으로 보여 줌.
+ * 결제 링크 화면을 열면 카드가 먼저 선택되어 수수료가 붙는데, 손님이 결제하지 않고 나가면
+ * 내 계정에 수수료 포함 금액이 그대로 남음 → 내 계정을 열 때 다시 뺌 (결제 화면에서 카드를 고르면 다시 붙음).
+ */
+add_action(
+	'template_redirect',
+	function () {
+		if ( ! is_user_logged_in() || ! function_exists( 'is_account_page' ) || ! is_account_page() || is_wc_endpoint_url( 'order-pay' ) ) {
+			return;
+		}
+		$orders = wc_get_orders(
+			array(
+				'customer_id' => get_current_user_id(),
+				'status'      => array( 'pending', 'failed' ),
+				'limit'       => 30,
+			)
+		);
+		foreach ( $orders as $order ) {
+			if ( ! $order->needs_payment() ) {
+				continue;
+			}
+			foreach ( $order->get_fees() as $fee ) {
+				if ( oneam_is_surcharge_name( $fee->get_name() ) ) {
+					oneam_apply_order_surcharge( $order, '' );
+					break;
+				}
+			}
+		}
+	},
+	5
+);
 add_action(
 	'wp_enqueue_scripts',
 	function () {
